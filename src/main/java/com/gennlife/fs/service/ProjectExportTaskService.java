@@ -316,7 +316,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                 " WHERE " + Q(USER_ID) + " = ? AND " +
                 Q(STATE) + " = ?",
             Long.class, params.userId, QUEUING.value());
-        if (queuingTaskSize > cfg.projectExportTaskUserQueueSizeLimit) {
+        if (cfg.projectExportTaskUserQueueSizeLimit > 0 && queuingTaskSize > cfg.projectExportTaskUserQueueSizeLimit) {
             throw new RestrictedException("排队任务数较多，请完成后再导出");
         }
         val task = new ProjectExportTask(
