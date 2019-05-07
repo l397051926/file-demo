@@ -1,0 +1,28 @@
+### Maven ###
+dependency-reduced-pom.xml
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+### Office ###
+*.tmp
+~$*.doc*
+~$*.xls*
+*.xlk7
+~$*.ppt*
+*.~vsd*
+
+### Others ###
+/target
+/logs

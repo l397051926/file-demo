@@ -1,0 +1,559 @@
+{
+  "data": [
+    {
+      "disabled": true,
+      "curPatientValue": "",
+      "dataKey": "EVENT_TYPE_1",
+      "isSearch": false,
+      "advSrchData": {
+        "UIFieldName": "是否已转移",
+        "dataType": "string",
+        "dataMap": [
+          "否",
+          "淋巴",
+          "结直肠",
+          "膀胱",
+          "骨",
+          "乳腺",
+          "中枢神经系统",
+          "宫颈",
+          "皮肤",
+          "食道",
+          "胃",
+          "头颈",
+          "肝",
+          "肾",
+          "神经内分泌系统",
+          "肺",
+          "卵巢",
+          "胰腺",
+          "前列腺",
+          "睾丸",
+          "甲状腺",
+          "子宫",
+          "其他"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "curPatientValue": "",
+      "dataKey": "EVENT_TYPE_12",
+      "isSearch": false,
+      "advSrchData": {
+        "UIFieldName": "是否已用生物治疗",
+        "dataType": "string",
+        "dataMap": [
+          "是",
+          "否"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "curPatientValue": "",
+      "dataKey": "SYSTEMICTHERAPY",
+      "isSearch": false,
+      "advSrchData": {
+        "UIFieldName": "是否适合系统治疗",
+        "dataType": "string",
+        "dataMap": [
+          "是",
+          "否"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "curPatientValue": "",
+      "dataKey": "EVENT_TYPE_2",
+      "isSearch": false,
+      "advSrchData": {
+        "UIFieldName": "是否已放疗",
+        "dataType": "string",
+        "dataMap": [
+          "是",
+          "否"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "curPatientValue": "",
+      "isSearch": false,
+      "dataKey": "EVENT_TYPE_3",
+      "advSrchData": {
+        "UIFieldName": "是否已消融术",
+        "dataType": "string",
+        "dataMap": [
+          "是",
+          "否"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": false,
+      "curPatientValue": "",
+      "dataKey": "EVENT_TYPE_4",
+      "advSrchData": {
+        "UIFieldName": "是否已用靶向药",
+        "dataType": "string",
+        "dataMap": [
+          "是",
+          "否"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": false,
+      "curPatientValue": "",
+      "dataKey": "EVENT_TYPE_5",
+      "advSrchData": {
+        "UIFieldName": "是否已用化疗",
+        "dataType": "string",
+        "dataMap": [
+          "是",
+          "否"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": false,
+      "curPatientValue": "",
+      "dataKey": "EVENT_TYPE_6",
+      "advSrchData": {
+        "UIFieldName": "是否已用免疫治疗",
+        "dataType": "string",
+        "dataMap": [
+          "是",
+          "否"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": false,
+      "curPatientValue": "",
+      "dataKey": "EVENT_TYPE_7",
+      "advSrchData": {
+        "UIFieldName": "是否已用药物联合治疗",
+        "dataType": "string",
+        "dataMap": [
+          "是",
+          "否"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": false,
+      "curPatientValue": "",
+      "dataKey": "EVENT_TYPE_8",
+      "advSrchData": {
+        "UIFieldName": "是否已用临床试验药物治疗",
+        "dataType": "string",
+        "dataMap": [
+          "是",
+          "否"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": false,
+      "curPatientValue": "",
+      "dataKey": "EVENT_TYPE_10",
+      "advSrchData": {
+        "UIFieldName": "原发复发或转移",
+        "dataType": "string",
+        "dataMap": [
+          "原发",
+          "复发",
+          "转移"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "EVENT_TYPE_11",
+      "advSrchData": {
+        "UIFieldName": "对本疗程治疗的响应",
+        "dataType": "string",
+        "dataMap": [
+          "CR",
+          "PR",
+          "SD",
+          "PD"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": false,
+      "curPatientValue": "",
+      "dataKey": "EVENT_TYPE_9",
+      "advSrchData": {
+        "UIFieldName": "是否已经手术切除",
+        "dataType": "string",
+        "dataMap": [
+          "是",
+          "否"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "GENDER",
+      "advSrchData": {
+        "UIFieldName": "性别",
+        "dataType": "string",
+        "dataMap": [
+          "男",
+          "女"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "G_HBP_YES_NO",
+      "advSrchData": {
+        "UIFieldName": "有无高血压史",
+        "dataType": "string",
+        "dataMap": [
+          "有",
+          "无"
+        ],
+        "relatedItems": []
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "SMOKE_HISTORY_YES_NO",
+      "advSrchData": {
+        "UIFieldName": "有无吸烟史",
+        "dataType": "string",
+        "dataMap": [
+          "有",
+          "无"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "G_HAS_FAMILY_CA_HISTORY",
+      "advSrchData": {
+        "UIFieldName": "有无家族肿瘤史",
+        "dataType": "string",
+        "dataMap": [
+          "有",
+          "无"
+        ],
+        "relatedItems": []
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "G_DIABETE_YES_NO",
+      "advSrchData": {
+        "UIFieldName": "有无糖尿病史",
+        "dataType": "string",
+        "dataMap": [
+          "有",
+          "无"
+        ],
+        "relatedItems": []
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "HOS_PATHOLOGICAL_STAGE",
+      "advSrchData": {
+        "UIFieldName": "病理总体分期",
+        "dataType": "string",
+        "dataMap": [
+          "Ⅰ期",
+          "Ⅱ期",
+          "Ⅲ期",
+          "Ⅳ期"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "HOS_T_STAGE_P",
+      "advSrchData": {
+        "UIFieldName": "病理T分期",
+        "dataType": "string",
+        "dataMap": [
+          "T0",
+          "T1",
+          "T1a",
+          "T1b",
+          "T2",
+          "T2a",
+          "T2b",
+          "T3",
+          "T3a",
+          "T3b",
+          "T3c",
+          "T4",
+          "T4a",
+          "T4b",
+          "Tx"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "HOS_M_STAGE_P",
+      "advSrchData": {
+        "UIFieldName": "病理M分期",
+        "dataType": "string",
+        "dataMap": [
+          "Mx",
+          "M0",
+          "M1"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "HOS_N_STAGE_P",
+      "advSrchData": {
+        "UIFieldName": "病理N分期",
+        "dataType": "string",
+        "dataMap": [
+          "Nx",
+          "N0",
+          "N1",
+          "N2"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "P_TUMOR_LOCATION",
+      "advSrchData": {
+        "UIFieldName": "肿瘤位置(病理)",
+        "dataType": "string",
+        "dataMap": [
+          "上极",
+          "中上极",
+          "中部",
+          "中下极",
+          "下极",
+          "肾盂",
+          "肾窦",
+          "右肾",
+          "右肾上极",
+          "右肾中上极",
+          "右肾中部",
+          "右肾中下极",
+          "右肾下极",
+          "右肾盂内",
+          "右肾肾窦",
+          "左肾",
+          "左肾上极",
+          "左肾中上极",
+          "左肾中部",
+          "左肾中下极",
+          "左肾下极",
+          "左肾盂内",
+          "左肾肾窦"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "MSKCC",
+      "advSrchData": {
+        "UIFieldName": "MSKCC风险因子",
+        "dataType": "string",
+        "dataMap": [
+          "高",
+          "中",
+          "低"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "IMDC",
+      "advSrchData": {
+        "UIFieldName": "IMDC评分",
+        "dataType": "string",
+        "dataMap": [
+          "高",
+          "中",
+          "低"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "HOS_FURHRMAN_LEVEL",
+      "advSrchData": {
+        "UIFieldName": "Fuhrman分级",
+        "dataType": "string",
+        "dataMap": [
+          "Ⅰ级",
+          "Ⅱ级",
+          "Ⅲ级",
+          "IV级",
+          "Ⅰ-Ⅱ级",
+          "Ⅱ-Ⅲ级",
+          "Ⅲ-IV级"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": false,
+      "curPatientValue": "",
+      "dataKey": "AGE",
+      "advSrchData": {
+        "UIFieldName": "年龄",
+        "dataType": "number",
+        "dataInterval": [
+          "",
+          ""
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": false,
+      "curPatientValue": "",
+      "dataKey": "I_TUMOR_SIZE",
+      "advSrchData": {
+        "UIFieldName": "肿瘤最长径总和(影像)",
+        "dataType": "number",
+        "dataInterval": [
+          "",
+          ""
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "I_TUMOR_POSITION",
+      "advSrchData": {
+        "UIFieldName": "肿瘤位置(影像)",
+        "dataType": "string",
+        "dataMap": [
+          "上极",
+          "中上极",
+          "中部",
+          "中下极",
+          "下极",
+          "肾盂",
+          "肾窦",
+          "右肾",
+          "右肾上极",
+          "右肾中上极",
+          "右肾中部",
+          "右肾中下极",
+          "右肾下极",
+          "右肾盂内",
+          "右肾肾窦",
+          "左肾",
+          "左肾上极",
+          "左肾中上极",
+          "左肾中部",
+          "左肾中下极",
+          "左肾下极",
+          "左肾盂内",
+          "左肾肾窦"
+        ]
+      }
+    },
+    {
+      "disabled": true,
+      "isSearch": true,
+      "curPatientValue": "",
+      "dataKey": "HOS_PATHOLOGY_TYPE",
+      "advSrchData": {
+        "UIFieldName": "肿瘤病理分型",
+        "dataType": "string",
+        "dataMap": [
+          "透明细胞癌",
+          "非透明细胞癌",
+          "乳头状细胞癌",
+          "嫌色细胞癌",
+          "集合管癌",
+          "梭形细胞癌",
+          "混合型",
+          "其他"
+        ]
+      }
+    },
+    {
+      "fixed": true,
+      "disabled": false,
+      "isSearch": false,
+      "curPatientValue": "",
+      "dataKey": "PRIMARY_TUMOR_POSITION",
+      "advSrchData": {
+        "UIFieldName": "原发病灶位置",
+        "dataType": "string",
+        "dataMap": [
+          "淋巴",
+          "结直肠",
+          "膀胱",
+          "骨",
+          "乳腺",
+          "中枢神经系统",
+          "宫颈",
+          "皮肤",
+          "食道",
+          "胃",
+          "头颈",
+          "肝",
+          "肾",
+          "神经内分泌系统",
+          "肺",
+          "卵巢",
+          "胰腺",
+          "前列腺",
+          "睾丸",
+          "甲状腺",
+          "子宫",
+          "其他"
+        ]
+      }
+    }
+  ]
+}

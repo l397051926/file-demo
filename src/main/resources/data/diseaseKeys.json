@@ -1,0 +1,15 @@
+{
+  "keys": [
+    {
+      "EN": "liver",
+      "CN": "肝癌",
+      "section": "LIVER_CANCER"
+    },
+    {
+      "EN": "lung",
+      "CN": "肺癌",
+      "section": "LUNG_CANCER"
+    }
+  ],
+  "note": "所有病种"
+}
