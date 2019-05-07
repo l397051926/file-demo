@@ -50,8 +50,8 @@ import static java.util.Comparator.comparingInt;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 import static org.apache.commons.io.FileUtils.deleteDirectory;
-import static org.apache.poi.ss.usermodel.CellStyle.VERTICAL_BOTTOM;
-import static org.apache.poi.ss.usermodel.CellStyle.VERTICAL_TOP;
+import static org.apache.poi.ss.usermodel.VerticalAlignment.BOTTOM;
+import static org.apache.poi.ss.usermodel.VerticalAlignment.TOP;
 
 public class ProjectExportTask implements Runnable {
 
@@ -182,16 +182,16 @@ public class ProjectExportTask implements Runnable {
                             }
                             defaultCellStyle = workbook.createCellStyle();
                             {
-                                defaultCellStyle.setVerticalAlignment(VERTICAL_TOP);
+                                defaultCellStyle.setVerticalAlignment(TOP);
                             }
                             titleCellStyle = workbook.createCellStyle();
                             {
-                                titleCellStyle.setVerticalAlignment(VERTICAL_BOTTOM);
+                                titleCellStyle.setVerticalAlignment(BOTTOM);
                                 titleCellStyle.setFont(boldFont);
                             }
                             errorCellStyle = workbook.createCellStyle();
                             {
-                                errorCellStyle.setVerticalAlignment(VERTICAL_TOP);
+                                errorCellStyle.setVerticalAlignment(TOP);
                                 errorCellStyle.setFont(errorFont);
                             }
                             switch (headerType) {

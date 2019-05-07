@@ -10,15 +10,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import sun.misc.BASE64Decoder;
 
-import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -93,20 +92,15 @@ public class EMPIServiceImpl implements EMPIService {
         JsonObject param = new JsonObject();
         param.addProperty("UserId","fs");
         JsonObject query = new JsonObject();
-        BASE64Decoder decoder = new BASE64Decoder();
-        try {
-            if(StringUtils.isNotEmpty(inpatient_sn)){
-                byte[] bytes = decoder.decodeBuffer(inpatient_sn);
-                inpatient_sn = new String(bytes);
-                query.addProperty("InPatientSn",inpatient_sn);
-            }
-            if(StringUtils.isNotEmpty(patient_id)){
-                byte[] bytes = decoder.decodeBuffer(patient_id);
-                patient_id = new String(bytes);
-                query.addProperty("IDCard",patient_id);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(StringUtils.isNotEmpty(inpatient_sn)){
+            byte[] bytes = Base64.decodeBase64(inpatient_sn);
+            inpatient_sn = new String(bytes);
+            query.addProperty("InPatientSn",inpatient_sn);
+        }
+        if(StringUtils.isNotEmpty(patient_id)){
+            byte[] bytes = Base64.decodeBase64(patient_id);
+            patient_id = new String(bytes);
+            query.addProperty("IDCard",patient_id);
         }
         param.add("Query",query);
         String params = param.getAsJsonObject().toString();
