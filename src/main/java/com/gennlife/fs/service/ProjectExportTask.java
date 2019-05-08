@@ -240,13 +240,17 @@ public class ProjectExportTask implements Runnable {
                                             } else {
                                                 while (!stack.isEmpty() && !stack.peek().hasNext()) {
                                                     if (stack.size() > 1) {
-                                                        // merge upper layer
-                                                        sheet.addMergedRegion(
-                                                            new CellRangeAddress(
-                                                                stack.size() - 2,
-                                                                tree.isLeaf() ? layers - 1 : stack.size() - 2,
-                                                                cols.peek(),
-                                                                col));
+                                                        try {
+                                                            // merge upper layer
+                                                            sheet.addMergedRegion(
+                                                                new CellRangeAddress(
+                                                                    stack.size() - 2,
+                                                                    tree.isLeaf() ? layers - 1 : stack.size() - 2,
+                                                                    cols.peek(),
+                                                                    col));
+                                                        } catch (IllegalArgumentException ignored) {
+                                                            // Merged region D4 must contain 2 or more cells
+                                                        }
                                                     }
                                                     stack.pop();
                                                     cols.pop();
