@@ -76,7 +76,6 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     public JSONObject create(CreateParameters params) throws ResponseException {
         val info = projectService.info(
             ProjectService.BasicInfoParameters.builder()
-                .userId(params.userId)
                 .projectId(params.projectId)
                 .build());
         val groupedPatients =
@@ -109,7 +108,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                     "INSERT INTO " + Q(cfg.projectExportTaskDatabaseTable) + " "
                         + QP(USER_ID, PROJECT_ID, PROJECT_NAME, EXECUTOR, FILE_NAME, PATIENTS, PATIENT_COUNT, VISIT_TYPES, MODELS, SELECTED_FIELDS, CUSTOM_VARS)
                         + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    params.userId,
+                    info.creatorId,
                     info.id,
                     info.name,
                     cfg.localEndpoint.toString(),

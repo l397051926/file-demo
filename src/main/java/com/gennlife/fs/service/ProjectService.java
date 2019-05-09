@@ -29,7 +29,6 @@ public class ProjectService {
 
     @Builder
     public static class BasicInfoParameters {
-        String userId;
         String projectId;
     }
 
@@ -87,7 +86,6 @@ public class ProjectService {
                 cfg.rwsServerEndpoint,
                 cfg.rwsServerProjectBasicInfoApi,
                 new JSONObject()
-                    .fluentPut("userId", params.userId)
                     .fluentPut("projectId", new JSONArray()
                         .fluentAdd(params.projectId))))
             .orElse(null);
