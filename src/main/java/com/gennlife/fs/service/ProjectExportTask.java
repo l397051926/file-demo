@@ -61,7 +61,6 @@ public class ProjectExportTask implements Runnable {
 
     @Builder
     public static class ProjectExportTaskParameters {
-        String userId;
         Long taskId;
     }
 
@@ -72,6 +71,7 @@ public class ProjectExportTask implements Runnable {
     @Override
     public void run() {
         Path directoryPath = null;
+        String userId = null;
         String projectName = null;
         String projectId = null;
         try {
@@ -83,11 +83,12 @@ public class ProjectExportTask implements Runnable {
                     Q(LAST_MODIFY_TIME) + " = now() " +
                     "WHERE " + Q(TASK_ID) + " = ?",
                 RUNNING.value(), 0, params.taskId);
-            directoryPath = def.dir(params.userId, params.taskId);
             val o = db.queryForMap(
-                "SELECT " + P(FILE_NAME, HEADER_TYPE, PROJECT_ID, PROJECT_NAME, FILE_NAME, MODELS, SELECTED_FIELDS, CUSTOM_VARS, PATIENTS, PATIENT_COUNT) +
+                "SELECT " + P(USER_ID, FILE_NAME, HEADER_TYPE, PROJECT_ID, PROJECT_NAME, FILE_NAME, MODELS, SELECTED_FIELDS, CUSTOM_VARS, PATIENTS, PATIENT_COUNT) +
                     " FROM " + Q(cfg.projectExportTaskDatabaseTable) + " WHERE " + Q(TASK_ID) + " = ?",
                 params.taskId);
+            userId = S(o.get(USER_ID));
+            directoryPath = def.dir(userId, params.taskId);
             val headerType = HeaderType.withValue(I(o.get(HEADER_TYPE)));
             projectName = S(o.get(PROJECT_NAME));
             projectId = S(o.get(PROJECT_ID));
@@ -290,7 +291,7 @@ public class ProjectExportTask implements Runnable {
                             val sub = model.isCustom() ?
                                 projectService.computeCustomVariablesValue(
                                     ProjectService.ComputeCustomVariablesValueParameters.builder()
-                                        .userId(params.userId)
+                                        .userId(userId)
                                         .taskId(params.taskId)
                                         .crfId(crfId)
                                         .projectId(projectId)
@@ -455,7 +456,7 @@ public class ProjectExportTask implements Runnable {
                     "WHERE " + Q(TASK_ID) + " = ?",
                 1, FINISHED.value(), Files.size(filePath), params.taskId);
             def.sendMessage("2201", new JSONObject()
-                .fluentPut("user_id", params.userId)
+                .fluentPut("user_id", userId)
                 .fluentPut("task_id", params.taskId)
                 .fluentPut("project_id", projectId)
                 .fluentPut("msg", projectName + "项目的导出到本地任务已完成"));
@@ -476,7 +477,7 @@ public class ProjectExportTask implements Runnable {
                     deleteDirectory(directoryPath.toFile());
                 }
                 def.sendMessage("2202", new JSONObject()
-                    .fluentPut("user_id", params.userId)
+                    .fluentPut("user_id", userId)
                     .fluentPut("task_id", params.taskId)
                     .fluentPut("project_id", projectId)
                     .fluentPut("msg", orDefault(projectName, "未知") + "项目的导出到本地任务失败"));

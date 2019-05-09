@@ -56,6 +56,7 @@ import static java.lang.Runtime.getRuntime;
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.*;
@@ -74,14 +75,19 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     }
 
     public JSONObject create(CreateParameters params) throws ResponseException {
+        requireNonNull(params.userId, "缺少参数：userId");
+        requireNonNull(params.projectId, "缺少参数：projectId");
         val info = projectService.info(
             ProjectService.BasicInfoParameters.builder()
                 .projectId(params.projectId)
                 .build());
+        if (!info.creatorId.equals(params.userId)) {
+            throw new RestrictedException("用户 " + params.userId + " 无权创建该项目的导出任务");
+        }
         val groupedPatients =
             projectService.patients(
                 ProjectService.PatientsParameters.builder()
-                    .userId(params.userId)
+                    .userId(info.creatorId)
                     .projectId(params.projectId)
                     .build());
         val patientCount = groupedPatients
@@ -156,6 +162,8 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     }
 
     public JSONObject info(InfoParameters params) throws ResponseException {
+        requireNonNull(params.userId, "缺少参数：userId");
+        requireNonNull(params.taskId, "缺少参数：taskId");
         val o = db.queryForMap("SELECT " + P(
             CREATE_TIME, FINISH_TIME, DOWNLOADED, FILE_NAME, FILE_SIZE, HEADER_TYPE,
             LAST_MODIFY_TIME, MODELS, PATIENT_COUNT, PROGRESS, PROJECT_ID, PROJECT_NAME,
@@ -215,6 +223,8 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     }
 
     public JSONObject saveInfo(SaveInfoParameters params) throws ResponseException {
+        requireNonNull(params.userId, "缺少参数：userId");
+        requireNonNull(params.taskId, "缺少参数：taskId");
         val updates = new JSONObject();
         if (params.fileName != null) {
             updates.put(FILE_NAME, params.fileName);
@@ -297,9 +307,8 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     }
 
     public JSONObject start(StartParameters params) throws ResponseException {
-        if (params.taskId == null) {
-            throw new UnexpectedException("缺少参数：taskId");
-        }
+        requireNonNull(params.userId, "缺少参数：userId");
+        requireNonNull(params.taskId, "缺少参数：taskId");
         val userId = db.queryForObject(
             "SELECT " + Q(USER_ID) + " FROM " + Q(cfg.projectExportTaskDatabaseTable) +
                 " WHERE " + Q(TASK_ID) + " = ?",
@@ -322,7 +331,6 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
         }
         val task = new ProjectExportTask(
             ProjectExportTask.ProjectExportTaskParameters.builder()
-                .userId(params.userId)
                 .taskId(params.taskId)
                 .build());
         TASKS.put(params.taskId, task);
@@ -345,6 +353,8 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     }
 
     public JSONObject cancel(CancelParameters params) throws ResponseException {
+        requireNonNull(params.userId, "缺少参数：userId");
+        requireNonNull(params.taskId, "缺少参数：taskId");
         val task = TASKS.remove(params.taskId);
         if (task == null) {
             throw new IncorrentStateException("任务未在执行");
@@ -370,6 +380,8 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     }
 
     public JSONObject cancelByProjectId(CancelByProjectIdParameters params) throws ResponseException {
+        requireNonNull(params.userId, "缺少参数：userId");
+        requireNonNull(params.projectId, "缺少参数：projectId");
         val os = db.queryForList(
             "SELECT " + P(TASK_ID, USER_ID, EXECUTOR) +
                 " FROM " + Q(cfg.projectExportTaskDatabaseTable) +
@@ -403,6 +415,8 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     }
 
     public JSONObject retry(RetryParameters params) throws ResponseException {
+        requireNonNull(params.userId, "缺少参数：userId");
+        requireNonNull(params.taskId, "缺少参数：taskId");
         start(StartParameters.builder()
             .userId(params.userId)
             .taskId(params.taskId)
@@ -418,6 +432,8 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     }
 
     public JSONObject delete(DeleteParameters params) throws ResponseException {
+        requireNonNull(params.userId, "缺少参数：userId");
+        requireNonNull(params.taskId, "缺少参数：taskId");
         if (TASKS.containsKey(params.taskId)) {
             throw new IncorrentStateException("Export has not been finished yet.");
         }
@@ -441,6 +457,8 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     }
 
     public void download(DownloadParameters params) throws ResponseException {
+        requireNonNull(params.userId, "缺少参数：userId");
+        requireNonNull(params.taskId, "缺少参数：taskId");
         if (TASKS.containsKey(params.taskId)) {
             throw new IncorrentStateException("Export has not been finished yet.");
         }
