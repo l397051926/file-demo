@@ -356,11 +356,10 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
         requireNonNull(params.userId, "缺少参数：userId");
         requireNonNull(params.taskId, "缺少参数：taskId");
         val task = TASKS.remove(params.taskId);
-        if (task == null) {
-            throw new IncorrentStateException("任务未在执行");
+        if (task != null) {
+            task.shouldStop.set(true);
+            taskExecutor.remove(task);
         }
-        task.shouldStop.set(true);
-        taskExecutor.remove(task);
         db.update(
             "UPDATE " + Q(cfg.projectExportTaskDatabaseTable) + " SET " +
                 Q(PROGRESS) + " = ?, " +
