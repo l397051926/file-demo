@@ -460,7 +460,7 @@ public class ProjectExportTask implements Runnable {
                 .fluentPut("task_id", params.taskId)
                 .fluentPut("project_id", projectId)
                 .fluentPut("msg", projectName + "项目的导出到本地任务已完成"));
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOGGER.error("Task " + params.taskId + " failed.", e);
             try {
                 db.update(
@@ -481,7 +481,7 @@ public class ProjectExportTask implements Runnable {
                     .fluentPut("task_id", params.taskId)
                     .fluentPut("project_id", projectId)
                     .fluentPut("msg", orDefault(projectName, "未知") + "项目的导出到本地任务失败"));
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
                 // TODO: Add implementation.
                 LOGGER.error(e.getLocalizedMessage(), e);
             }
