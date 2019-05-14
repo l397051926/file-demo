@@ -476,6 +476,13 @@ public class ProjectExportTask implements Runnable {
         } catch (Throwable e) {
             LOGGER.error("Task " + params.taskId + " failed.", e);
             try {
+                if (directoryPath != null) {
+                    deleteDirectory(directoryPath.toFile());
+                }
+            } catch (Throwable ignored) {
+                LOGGER.error(e.getLocalizedMessage(), e);
+            }
+            try {
                 db.update(
                     "UPDATE " + Q(cfg.projectExportTaskDatabaseTable) + " SET " +
                         Q(PROGRESS) + " = ?, " +
@@ -486,18 +493,14 @@ public class ProjectExportTask implements Runnable {
                         Q(ESTIMATED_FINISH_TIME) + " = NULL " +
                         "WHERE " + Q(TASK_ID) + " = ?",
                     null, FAILED.value(), params.taskId);
-                if (directoryPath != null) {
-                    deleteDirectory(directoryPath.toFile());
-                }
-                def.sendMessage("2202", new JSONObject()
-                    .fluentPut("user_id", userId)
-                    .fluentPut("task_id", params.taskId)
-                    .fluentPut("project_id", projectId)
-                    .fluentPut("msg", orDefault(projectName, "未知") + "项目的导出到本地任务失败"));
             } catch (Throwable ignored) {
-                // TODO: Add implementation.
                 LOGGER.error(e.getLocalizedMessage(), e);
             }
+            def.sendMessage("2202", new JSONObject()
+                .fluentPut("user_id", userId)
+                .fluentPut("task_id", params.taskId)
+                .fluentPut("project_id", projectId)
+                .fluentPut("msg", orDefault(projectName, "未知") + "项目的导出到本地任务失败"));
         } finally {
             TASKS.remove(params.taskId);
         }
