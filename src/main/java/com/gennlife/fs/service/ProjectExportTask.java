@@ -12,16 +12,17 @@ import com.gennlife.fs.common.utils.TypeUtil;
 import lombok.Builder;
 import lombok.val;
 import lombok.var;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -32,6 +33,7 @@ import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.gennlife.darren.controlflow.exception.Suppress.suppress;
 import static com.gennlife.darren.controlflow.exception.Try.try_;
 import static com.gennlife.darren.controlflow.for_.ForeachJSON.foreachValue;
 import static com.gennlife.fs.common.configurations.Model.CUSTOM_MODEL_NAME;
@@ -149,14 +151,14 @@ public class ProjectExportTask implements Runnable {
             val patientCount = L(o.get(PATIENT_COUNT));
             createDirectories(directoryPath);
             val filePath = directoryPath.resolve(cfg.projectExportStorageFileName + ".zip");
+            SXSSFWorkbook workbook = null;
             try (val out = new FileOutputStream(filePath.toFile())) {
                 val zip = new ZipOutputStream(out);
                 int line = 0;
                 int count = 0;
                 int volume = 1;
                 int volumeSize = 0;
-                Workbook workbook = null;
-                Sheet sheet = null;
+                SXSSFSheet sheet = null;
                 Font boldFont = null;
                 Font errorFont = null;
                 CellStyle defaultCellStyle = null;
@@ -170,8 +172,9 @@ public class ProjectExportTask implements Runnable {
                         }
                         sleep(0);  // break if interrupted
                         if (workbook == null) {
+                            zip.putNextEntry(new ZipEntry(fileBaseName + " (" + volume + ").xlsx"));
                             line = HeaderType.FLAT.equals(headerType) ? 1 : layers;
-                            workbook = new XSSFWorkbook();
+                            workbook = new SXSSFWorkbook(-1);
                             sheet = workbook.createSheet("患者集");
                             boldFont = workbook.createFont();
                             {
@@ -415,11 +418,14 @@ public class ProjectExportTask implements Runnable {
                                 }
                             }
                         }
+                        sheet.flushRows();
                         val dataSize = new AtomicLong(0);
                         foreachValue(data, v -> dataSize.addAndGet(S(v).getBytes().length));
                         volumeSize += dataSize.get();
                         if (cfg.projectExportStorageVolumeSizeThreshold > 0 && volumeSize >= cfg.projectExportStorageVolumeSizeThreshold) {
-                            writeZipExcelEntry(zip, fileBaseName + " (" + volume + ").xlsx", workbook);
+                            workbook.write(zip);
+                            zip.closeEntry();
+                            workbook.dispose();
                             workbook = null;
                             volumeSize = 0;
                             ++volume;
@@ -438,9 +444,16 @@ public class ProjectExportTask implements Runnable {
                     }
                 }
                 if (workbook != null && volumeSize > 0) {
-                    writeZipExcelEntry(zip, fileBaseName + " (" + volume + ").xlsx", workbook);
+                    workbook.write(zip);
+                    zip.closeEntry();
+                    workbook.dispose();
                 }
                 zip.finish();
+            } catch (Throwable e) {
+                if (workbook != null) {
+                    suppress(workbook::dispose);
+                }
+                throw e;
             }
             LOGGER.info("Task " + params.taskId + " finished.");
             db.update(
@@ -488,16 +501,6 @@ public class ProjectExportTask implements Runnable {
         } finally {
             TASKS.remove(params.taskId);
         }
-    }
-
-    private static void writeZipExcelEntry(ZipOutputStream zip, String fileName, Workbook workbook) throws IOException {
-        zip.putNextEntry(new ZipEntry(fileName));
-        {
-            val buf = new ByteArrayOutputStream();
-            workbook.write(buf);
-            buf.writeTo(zip);
-        }
-        zip.closeEntry();
     }
 
     private ProjectExportTaskParameters params;
