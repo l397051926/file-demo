@@ -8,11 +8,12 @@ import com.gennlife.darren.collection.keypath.KeyPathSet;
 import com.gennlife.fs.common.configurations.GeneralConfiguration;
 import com.gennlife.fs.common.configurations.Model;
 import com.gennlife.fs.common.exception.FormatCorruptedException;
-import com.gennlife.fs.common.exception.NotFoundException;
 import com.gennlife.fs.common.exception.TransferFailedException;
 import com.gennlife.fs.common.utils.KeyPathUtil;
 import lombok.Builder;
 import lombok.val;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,8 @@ import static java.util.stream.Collectors.toCollection;
 
 @Service
 public class SearchService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectExportTask.class);
 
     @Builder
     public static class FetchPatientDataParameters {
@@ -59,7 +62,8 @@ public class SearchService {
         try {
             return PATIENT_DATA_PATH.resolveAsJSONObject(x);
         } catch (Exception e) {
-            throw new NotFoundException("Patient " + params.patientSn + " may not exist. Response: " + response + ", request: " + body.toJSONString());
+            LOGGER.warn("Patient " + params.patientSn + " may not exist. Response: " + response + ", request: " + body.toJSONString());
+            return new JSONObject();
         }
     }
 
