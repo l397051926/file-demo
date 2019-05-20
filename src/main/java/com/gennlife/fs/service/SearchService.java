@@ -41,6 +41,10 @@ public class SearchService {
             .map(KeyPath::keyPathByRemovingLast)
             .collect(toCollection(KeyPathSet::new));
         groups.removeAllDescendantsThatHasAncestor();
+        groups.add(params.model.patientSnField());
+        if (groups.contains(params.model.partitionGroup(), true)) {
+            groups.add(params.model.partitionGroup().keyPathByAppending(params.model.partitionField()));
+        }
         val body = new JSONObject()
             .fluentPut("indexName", params.model.indexName())
             .fluentPut("query", "[" + toPathString(params.model.fieldInfo(params.model.patientSnField()).displayPath) + "] 包含 " + params.patientSn)
