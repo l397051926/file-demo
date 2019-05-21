@@ -314,9 +314,10 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
         requireNonNull(params.userId, "缺少参数：userId");
         requireNonNull(params.taskId, "缺少参数：taskId");
         val o = db.queryForMap(
-            "SELECT " + P(USER_ID, PATIENT_COUNT) + " FROM " + Q(cfg.projectExportTaskDatabaseTable) +
+            "SELECT " + P(USER_ID, PATIENT_COUNT) +
+                " FROM " + Q(cfg.projectExportTaskDatabaseTable) +
                 " WHERE " + Q(TASK_ID) + " = ?",
-            String.class, params.taskId);
+            params.taskId);
         val userId = S(o.get(USER_ID));
         if (!Objects.equals(userId, params.userId)) {
             throw new RestrictedException("用户 " + params.userId + " 无权操作此任务");
