@@ -420,7 +420,12 @@ public class ProjectExportTask implements Runnable {
                         }
                         sheet.flushRows();
                         val dataSize = new AtomicLong(0);
-                        foreachValue(data, v -> dataSize.addAndGet(S(v).getBytes().length));
+                        foreachValue(data, v -> {
+                            val s = S(v);
+                            if (s != null) {
+                                dataSize.addAndGet(s.getBytes().length);
+                            }
+                        });
                         volumeSize += dataSize.get();
                         if (cfg.projectExportStorageVolumeSizeThreshold > 0 && volumeSize >= cfg.projectExportStorageVolumeSizeThreshold) {
                             workbook.write(zip);
