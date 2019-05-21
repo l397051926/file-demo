@@ -750,8 +750,9 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                             barrels.add(makePair(barrel._1() + totalPatientCount, estimatedFinishTime));
                             db.update("UPDATE " + Q(cfg.projectExportTaskDatabaseTable) +
                                 " SET " + Q(ESTIMATED_FINISH_TIME) + " = ? " +
-                                " WHERE " + Q(TASK_ID) + " = ?",
-                                estimatedFinishTime, taskId);
+                                " WHERE " + Q(TASK_ID) + " = ? " +
+                                " AND " + Q(STATE) + " = ?",  // prevent concurrent problems
+                                estimatedFinishTime, taskId, QUEUING.value());
                         });
                     }
                 } catch (Throwable e) {
