@@ -9,7 +9,6 @@ import com.gennlife.fs.common.configurations.GeneralConfiguration;
 import com.gennlife.fs.common.configurations.HeaderType;
 import com.gennlife.fs.common.configurations.Model;
 import com.gennlife.fs.common.utils.TypeUtil;
-import lombok.Builder;
 import lombok.val;
 import lombok.var;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -45,6 +44,7 @@ import static com.gennlife.fs.common.utils.DBUtils.Q;
 import static com.gennlife.fs.common.utils.KeyPathUtil.toPathString;
 import static com.gennlife.fs.common.utils.TypeUtil.*;
 import static com.gennlife.fs.service.ProjectExportTaskDefinitions.*;
+import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.sleep;
 import static java.nio.file.Files.createDirectories;
 import static java.util.Comparator.comparing;
@@ -61,13 +61,13 @@ public class ProjectExportTask implements Runnable {
 
     public AtomicBoolean shouldStop = new AtomicBoolean(false);
 
-    @Builder
-    public static class ProjectExportTaskParameters {
-        Long taskId;
-    }
+    public final long taskId;
+    public final AtomicLong localStartTime = new AtomicLong(0);
+    public final AtomicLong totalPatientCount = new AtomicLong(0);
+    public final AtomicLong exportedPatientCount = new AtomicLong(0);
 
-    ProjectExportTask(ProjectExportTaskParameters params) {
-        this.params = params;
+    ProjectExportTask(long taskId) {
+        this.taskId = taskId;
     }
 
     @Override
@@ -84,16 +84,18 @@ public class ProjectExportTask implements Runnable {
                     Q(START_TIME) + " = now(), " +
                     Q(LAST_MODIFY_TIME) + " = now() " +
                     "WHERE " + Q(TASK_ID) + " = ?",
-                RUNNING.value(), 0, params.taskId);
+                RUNNING.value(), 0, taskId);
             val o = db.queryForMap(
-                "SELECT " + P(USER_ID, FILE_NAME, HEADER_TYPE, PROJECT_ID, PROJECT_NAME, FILE_NAME, MODELS, SELECTED_FIELDS, CUSTOM_VARS, PATIENTS, PATIENT_COUNT) +
+                "SELECT " + P(
+                    USER_ID, FILE_NAME, HEADER_TYPE, PROJECT_ID, PROJECT_NAME, FILE_NAME,
+                    MODELS, SELECTED_FIELDS, CUSTOM_VARS, PATIENTS) +
                     " FROM " + Q(cfg.projectExportTaskDatabaseTable) + " WHERE " + Q(TASK_ID) + " = ?",
-                params.taskId);
+                taskId);
             userId = S(o.get(USER_ID));
-            directoryPath = def.dir(userId, params.taskId);
-            val headerType = HeaderType.withValue(I(o.get(HEADER_TYPE)));
+            directoryPath = def.dir(userId, taskId);
             projectName = S(o.get(PROJECT_NAME));
             projectId = S(o.get(PROJECT_ID));
+            val headerType = HeaderType.withValue(I(o.get(HEADER_TYPE)));
             val fileBaseName = S(o.get(FILE_NAME));
             val unorderedPaths = JSON.parseArray(S(o.get(SELECTED_FIELDS)))
                 .stream()
@@ -148,14 +150,12 @@ public class ProjectExportTask implements Runnable {
                         .stream()
                         .map(String.class::cast)
                         .collect(toList())));
-            val patientCount = L(o.get(PATIENT_COUNT));
             createDirectories(directoryPath);
             val filePath = directoryPath.resolve(cfg.projectExportStorageFileName + ".zip");
             SXSSFWorkbook workbook = null;
             try (val out = new FileOutputStream(filePath.toFile())) {
                 val zip = new ZipOutputStream(out);
                 int line = 0;
-                int count = 0;
                 int volume = 1;
                 int volumeSize = 0;
                 SXSSFSheet sheet = null;
@@ -164,6 +164,7 @@ public class ProjectExportTask implements Runnable {
                 CellStyle defaultCellStyle = null;
                 CellStyle titleCellStyle = null;
                 CellStyle errorCellStyle = null;
+                localStartTime.set(currentTimeMillis());
                 for (val group : groupedPatients.keySet()) {
                     val patients = groupedPatients.get(group);
                     for (val patient : patients) {
@@ -295,7 +296,7 @@ public class ProjectExportTask implements Runnable {
                                 projectService.computeCustomVariablesValue(
                                     ProjectService.ComputeCustomVariablesValueParameters.builder()
                                         .userId(userId)
-                                        .taskId(params.taskId)
+                                        .taskId(taskId)
                                         .crfId(crfId)
                                         .projectId(projectId)
                                         .patientSn(patient)
@@ -436,13 +437,13 @@ public class ProjectExportTask implements Runnable {
                             ++volume;
                         }
                         try {
-                            val progress = (float)(++count) / (float)patientCount;
+                            val progress = (float)exportedPatientCount.incrementAndGet() / (float)totalPatientCount.get();
                             db.update(
                                 "UPDATE " + Q(cfg.projectExportTaskDatabaseTable) + " SET " +
                                     Q(PROGRESS) + " = ?, " +
                                     Q(ESTIMATED_FINISH_TIME) + " = from_unixtime(ceil((unix_timestamp() - unix_timestamp(" + Q(START_TIME) + ")) / ?) + unix_timestamp(" + Q(START_TIME) + ")) " +
                                     "WHERE " + Q(TASK_ID) + " = ?",
-                                progress, progress, params.taskId);
+                                progress, progress, taskId);
                         } catch (Exception e) {
                             LOGGER.error(e.getLocalizedMessage(), e);
                         }
@@ -460,7 +461,7 @@ public class ProjectExportTask implements Runnable {
                 }
                 throw e;
             }
-            LOGGER.info("Task " + params.taskId + " finished.");
+            LOGGER.info("Task " + taskId + " finished.");
             db.update(
                 "UPDATE " + Q(cfg.projectExportTaskDatabaseTable) + " SET " +
                     Q(PROGRESS) + " = ?, " +
@@ -472,14 +473,14 @@ public class ProjectExportTask implements Runnable {
                     Q(ESTIMATED_FINISH_TIME) + " = NULL, " +
                     Q(LAST_MODIFY_TIME) + " = now() " +
                     "WHERE " + Q(TASK_ID) + " = ?",
-                1, FINISHED.value(), Files.size(filePath), params.taskId);
+                1, FINISHED.value(), Files.size(filePath), taskId);
             def.sendMessage("2201", new JSONObject()
                 .fluentPut("user_id", userId)
-                .fluentPut("task_id", params.taskId)
+                .fluentPut("task_id", taskId)
                 .fluentPut("project_id", projectId)
                 .fluentPut("msg", projectName + "项目的导出到本地任务已完成"));
         } catch (Throwable e) {
-            LOGGER.error("Task " + params.taskId + " failed.", e);
+            LOGGER.error("Task " + taskId + " failed.", e);
             try {
                 if (directoryPath != null) {
                     deleteDirectory(directoryPath.toFile());
@@ -497,21 +498,17 @@ public class ProjectExportTask implements Runnable {
                         Q(LAST_MODIFY_TIME) + " = now(), " +
                         Q(ESTIMATED_FINISH_TIME) + " = NULL " +
                         "WHERE " + Q(TASK_ID) + " = ?",
-                    null, FAILED.value(), params.taskId);
+                    null, FAILED.value(), taskId);
             } catch (Throwable ignored) {
                 LOGGER.error(e.getLocalizedMessage(), e);
             }
             def.sendMessage("2202", new JSONObject()
                 .fluentPut("user_id", userId)
-                .fluentPut("task_id", params.taskId)
+                .fluentPut("task_id", taskId)
                 .fluentPut("project_id", projectId)
                 .fluentPut("msg", orDefault(projectName, "未知") + "项目的导出到本地任务失败"));
-        } finally {
-            TASKS.remove(params.taskId);
         }
     }
-
-    private ProjectExportTaskParameters params;
 
     private final GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
     private final ProjectExportTaskDefinitions def = getBean(ProjectExportTaskDefinitions.class);

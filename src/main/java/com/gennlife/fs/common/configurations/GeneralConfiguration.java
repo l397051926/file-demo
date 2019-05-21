@@ -69,6 +69,8 @@ public class GeneralConfiguration implements InitializingBean {
     public long projectExportTaskExpirationPollingInterval = 60000L;  // in milliseconds
     @Value("${gennlife.fs.project-export.task.expiration-warning-lead-time}")
     public long projectExportTaskExpirationWarningLeadTime = 0L;  // in milliseconds, no warning if <= 0
+    @Value("${gennlife.fs.project-export.task.queuing-tasks-time-estimating-interval}")
+    public long projectExportTaskQueuingTasksTimeEstimatingInterval = 0L;  // in milliseconds, does not estimate if <= 0
     @Value("${gennlife.fs.project-export.task.patient-count-limit}")
     public long projectExportTaskPatientCountLimit = 0L;  // unlimited if <= 0
     @Value("${gennlife.fs.project-export.task.concurrent-task-size-limit}")

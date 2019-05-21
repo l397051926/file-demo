@@ -16,9 +16,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static com.gennlife.darren.controlflow.exception.Try.try_;
 import static com.gennlife.fs.common.utils.TypeUtil.S;
@@ -34,7 +35,9 @@ public class ProjectExportTaskDefinitions implements InitializingBean {
 
     MQProducer mq;
 
-    static final ConcurrentMap<Long, ProjectExportTask> TASKS = new ConcurrentHashMap<>();
+    static final Object TASKS_MUTEX = new Object();
+    static final Map<Long, ProjectExportTask> QUEUING_TASKS = new LinkedHashMap<>();  // ordered
+    static final Map<Long, ProjectExportTask> RUNNING_TASKS = new ConcurrentHashMap<>();
 
     static final String TASK_ID = "TASK_ID";
     static final String USER_ID = "USER_ID";

@@ -3,6 +3,7 @@ package com.gennlife.fs.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.gennlife.darren.collection.Pair;
 import com.gennlife.darren.collection.keypath.KeyPath;
 import com.gennlife.darren.collection.keypath.KeyPathSet;
 import com.gennlife.darren.collection.string.Escape;
@@ -15,6 +16,7 @@ import com.gennlife.fs.common.exception.*;
 import com.gennlife.fs.common.utils.DBUtils;
 import com.gennlife.fs.common.utils.KeyPathUtil;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.TreeMultiset;
 import lombok.Builder;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
@@ -37,11 +39,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.sql.Statement;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.gennlife.darren.collection.Pair.makePair;
 import static com.gennlife.darren.controlflow.for_.Foreach.foreach;
 import static com.gennlife.darren.util.Constants.INT_TRUE_VALUE;
 import static com.gennlife.fs.common.configurations.Model.*;
@@ -54,8 +56,10 @@ import static com.gennlife.fs.controller.ProjectExportTaskController.PROJECT_EXP
 import static com.gennlife.fs.service.ProjectExportTaskDefinitions.*;
 import static java.lang.Runtime.getRuntime;
 import static java.lang.String.join;
+import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -309,15 +313,18 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     public JSONObject start(StartParameters params) throws ResponseException {
         requireNonNull(params.userId, "缺少参数：userId");
         requireNonNull(params.taskId, "缺少参数：taskId");
-        val userId = db.queryForObject(
-            "SELECT " + Q(USER_ID) + " FROM " + Q(cfg.projectExportTaskDatabaseTable) +
+        val o = db.queryForMap(
+            "SELECT " + P(USER_ID, PATIENT_COUNT) + " FROM " + Q(cfg.projectExportTaskDatabaseTable) +
                 " WHERE " + Q(TASK_ID) + " = ?",
             String.class, params.taskId);
+        val userId = S(o.get(USER_ID));
         if (!Objects.equals(userId, params.userId)) {
             throw new RestrictedException("用户 " + params.userId + " 无权操作此任务");
         }
-        if (TASKS.containsKey(params.taskId)) {
-            throw new IncorrentStateException("任务已经开始执行");
+        synchronized (TASKS_MUTEX) {
+            if (QUEUING_TASKS.containsKey(params.taskId) || RUNNING_TASKS.containsKey(params.taskId)) {
+                throw new IncorrentStateException("任务已经开始执行");
+            }
         }
         val queuingTaskSize = db.queryForObject(
             "SELECT COUNT(1) FROM " + Q(cfg.projectExportTaskDatabaseTable) +
@@ -329,11 +336,11 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                 throw new RestrictedException("排队任务数较多，请完成后再导出");
             }
         }
-        val task = new ProjectExportTask(
-            ProjectExportTask.ProjectExportTaskParameters.builder()
-                .taskId(params.taskId)
-                .build());
-        TASKS.put(params.taskId, task);
+        val task = new ProjectExportTask(params.taskId);
+        task.totalPatientCount.set(L(o.get(PATIENT_COUNT)));
+        synchronized (TASKS_MUTEX) {
+            QUEUING_TASKS.put(params.taskId, task);
+        }
         db.update(
             "UPDATE " + Q(cfg.projectExportTaskDatabaseTable) + " SET " +
                 Q(EXECUTOR) + " = ?, " +
@@ -355,10 +362,12 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     public JSONObject cancel(CancelParameters params) throws ResponseException {
         requireNonNull(params.userId, "缺少参数：userId");
         requireNonNull(params.taskId, "缺少参数：taskId");
-        val task = TASKS.remove(params.taskId);
-        if (task != null) {
-            task.shouldStop.set(true);
-            taskExecutor.remove(task);
+        synchronized (TASKS_MUTEX) {
+            val task = QUEUING_TASKS.getOrDefault(params.taskId, RUNNING_TASKS.get(params.taskId));
+            if (task != null) {
+                task.shouldStop.set(true);
+                taskExecutor.remove(task);
+            }
         }
         db.update(
             "UPDATE " + Q(cfg.projectExportTaskDatabaseTable) + " SET " +
@@ -433,8 +442,10 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     public JSONObject delete(DeleteParameters params) throws ResponseException {
         requireNonNull(params.userId, "缺少参数：userId");
         requireNonNull(params.taskId, "缺少参数：taskId");
-        if (TASKS.containsKey(params.taskId)) {
-            throw new IncorrentStateException("Export has not been finished yet.");
+        synchronized (TASKS_MUTEX) {
+            if (QUEUING_TASKS.containsKey(params.taskId) || RUNNING_TASKS.containsKey(params.taskId)) {
+                throw new IncorrentStateException("Export has not been finished yet.");
+            }
         }
         val directoryPath = def.dir(params.userId, params.taskId);
         try {
@@ -458,8 +469,10 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     public void download(DownloadParameters params) throws ResponseException {
         requireNonNull(params.userId, "缺少参数：userId");
         requireNonNull(params.taskId, "缺少参数：taskId");
-        if (TASKS.containsKey(params.taskId)) {
-            throw new IncorrentStateException("Export has not been finished yet.");
+        synchronized (TASKS_MUTEX) {
+            if (QUEUING_TASKS.containsKey(params.taskId) || RUNNING_TASKS.containsKey(params.taskId)) {
+                throw new IncorrentStateException("Export has not been finished yet.");
+            }
         }
         val o = db.queryForMap("SELECT " + P(USER_ID, STATE, FILE_NAME) +
                 " FROM " + Q(cfg.projectExportTaskDatabaseTable) +
@@ -701,11 +714,57 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                 }, 0, cfg.projectExportTaskExpirationPollingInterval, MILLISECONDS);
             }
         }
+        if (cfg.projectExportTaskQueuingTasksTimeEstimatingInterval > 0) {
+            queuingTaskTimeEstimator.scheduleAtFixedRate(() -> {
+                try {
+                    synchronized (TASKS_MUTEX) {
+                        // {<patients, time>} sorted by patients
+                        val barrels = TreeMultiset.<Pair<Long, Long>>create(comparing(Pair::_1));
+                        val currentTime = currentTimeMillis();
+                        val timeElapsed = new AtomicLong(0);
+                        val patientExported = new AtomicLong(0);
+                        RUNNING_TASKS.forEach((taskId, task) -> {
+                            val startTime = task.localStartTime.get();
+                            val exportedPatientCount = task.exportedPatientCount.get();
+                            val totalPatientCount = task.totalPatientCount.get();
+                            if (exportedPatientCount > 0) {
+                                timeElapsed.addAndGet(currentTime - startTime);
+                                patientExported.addAndGet(exportedPatientCount);
+                            }
+                            val o = db.queryForMap("SELECT " + Q(START_TIME) +
+                                " FROM " + Q(cfg.projectExportTaskDatabaseTable) +
+                                " WHERE " + Q(TASK_ID) + " = ?",
+                                taskId);
+                            barrels.add(makePair(
+                                totalPatientCount - exportedPatientCount,
+                                currentTime - startTime + L(o.get(START_TIME))));  // prevent time out of sync
+                        });
+                        if (timeElapsed.get() == 0) {
+                            return;
+                        }
+                        val speed = patientExported.doubleValue() / timeElapsed.doubleValue();  // in (person / ms)
+                        QUEUING_TASKS.forEach((taskId, task) -> {
+                            val totalPatientCount = task.totalPatientCount.get();
+                            val barrel = barrels.pollFirstEntry().getElement();
+                            val estimatedFinishTime = (long)(barrel._2() + (totalPatientCount / speed));
+                            barrels.add(makePair(barrel._1() + totalPatientCount, estimatedFinishTime));
+                            db.update("UPDATE " + Q(cfg.projectExportTaskDatabaseTable) +
+                                " SET " + Q(ESTIMATED_FINISH_TIME) + " = ? " +
+                                " WHERE " + Q(TASK_ID) + " = ?",
+                                estimatedFinishTime, taskId);
+                        });
+                    }
+                } catch (Throwable e) {
+                    LOGGER.error(e.getLocalizedMessage(), e);
+                }
+            }, 0, cfg.projectExportTaskQueuingTasksTimeEstimatingInterval, MILLISECONDS);
+        }
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         taskExecutor.shutdownNow();
+        queuingTaskTimeEstimator.shutdownNow();
         batchCancellationExecutor.shutdownNow();
         expirationChecker.shutdownNow();
     }
@@ -740,7 +799,52 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        taskExecutor = (ThreadPoolExecutor)newFixedThreadPool((int)Math.max(cfg.projectExportTaskConcurrentTaskSizeLimit, 1));
+        val threadCount = (int)Math.max(cfg.projectExportTaskConcurrentTaskSizeLimit, 1);
+        taskExecutor = new ThreadPoolExecutor(
+            threadCount, threadCount,
+            0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>()) {
+
+            @Override
+            public void execute(Runnable command) {
+                super.execute(command);
+                val task = (ProjectExportTask)command;
+                synchronized (TASKS_MUTEX) {
+                    QUEUING_TASKS.put(task.taskId, task);
+                }
+            }
+
+            @Override
+            @SuppressWarnings("SuspiciousMethodCalls")
+            public boolean remove(Runnable task) {
+                boolean ret = super.remove(task);
+                synchronized (TASKS_MUTEX) {
+                    QUEUING_TASKS.remove(task);
+                    RUNNING_TASKS.remove(task);
+                }
+                return ret;
+            }
+
+            @Override
+            protected void afterExecute(Runnable r, Throwable t) {
+                super.afterExecute(r, t);
+                val task = (ProjectExportTask)r;
+                synchronized (TASKS_MUTEX) {
+                    RUNNING_TASKS.remove(task.taskId);
+                }
+            }
+
+            @Override
+            protected void beforeExecute(Thread t, Runnable r) {
+                super.beforeExecute(t, r);
+                val task = (ProjectExportTask)r;
+                synchronized (TASKS_MUTEX) {
+                    QUEUING_TASKS.remove(task.taskId);
+                    RUNNING_TASKS.put(task.taskId, task);
+                }
+            }
+
+        };
         clusterService.addClusterEventListener(this);
         db = databaseService.jdbcTemplate();
     }
@@ -764,6 +868,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     private ThreadPoolExecutor taskExecutor;
     private final ThreadPoolExecutor batchCancellationExecutor = (ThreadPoolExecutor)newFixedThreadPool(getRuntime().availableProcessors());
     private final ScheduledExecutorService expirationChecker = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService queuingTaskTimeEstimator = Executors.newSingleThreadScheduledExecutor();
 
     private final AtomicReference<ImmutableEndpoint> master = new AtomicReference<>();
 
