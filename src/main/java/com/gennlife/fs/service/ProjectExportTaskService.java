@@ -345,6 +345,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
             "UPDATE " + Q(cfg.projectExportTaskDatabaseTable) + " SET " +
                 Q(EXECUTOR) + " = ?, " +
                 Q(STATE) + " = ?, " +
+                Q(START_TIME) + " = NULL, " +
                 Q(LAST_MODIFY_TIME) + " = now() " +
                 "WHERE " + Q(TASK_ID) + " = ?",
             cfg.localEndpoint.toString(), QUEUING.value(), params.taskId);
