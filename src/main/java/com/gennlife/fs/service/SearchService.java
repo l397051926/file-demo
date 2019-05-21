@@ -66,7 +66,7 @@ public class SearchService {
         try {
             return PATIENT_DATA_PATH.resolveAsJSONObject(x);
         } catch (Exception e) {
-            LOGGER.warn("Patient " + params.patientSn + " may not exist. Response: " + response + ", request: " + body.toJSONString());
+//            LOGGER.warn("Patient " + params.patientSn + " may not exist. Response: " + response + ", request: " + body.toJSONString());
             return new JSONObject();
         }
     }

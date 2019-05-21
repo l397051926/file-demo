@@ -751,10 +751,10 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                             val estimatedFinishTime = (long)(barrel._2() + (totalPatientCount / speed));
                             barrels.add(makePair(barrel._1() + totalPatientCount, estimatedFinishTime));
                             db.update("UPDATE " + Q(cfg.projectExportTaskDatabaseTable) +
-                                " SET " + Q(ESTIMATED_FINISH_TIME) + " = from_unixtime(?) " +
+                                " SET " + Q(ESTIMATED_FINISH_TIME) + " = from_unixtime(?)" +
                                 " WHERE " + Q(TASK_ID) + " = ? " +
                                 " AND " + Q(STATE) + " = ?",  // prevent concurrent problems
-                                estimatedFinishTime, taskId, QUEUING.value());
+                                estimatedFinishTime / 1000, taskId, QUEUING.value());
                         });
                     }
                 } catch (Throwable e) {
