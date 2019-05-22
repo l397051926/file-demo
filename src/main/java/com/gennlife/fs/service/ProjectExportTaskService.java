@@ -40,7 +40,6 @@ import java.nio.file.Files;
 import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.gennlife.darren.collection.Pair.makePair;
@@ -364,12 +363,13 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
     public JSONObject cancel(CancelParameters params) throws ResponseException {
         requireNonNull(params.userId, "缺少参数：userId");
         requireNonNull(params.taskId, "缺少参数：taskId");
+        ProjectExportTask task;
         synchronized (TASKS_MUTEX) {
-            val task = QUEUING_TASKS.getOrDefault(params.taskId, RUNNING_TASKS.get(params.taskId));
-            if (task != null) {
-                task.shouldStop.set(true);
-                taskExecutor.remove(task);
-            }
+            task = QUEUING_TASKS.getOrDefault(params.taskId, RUNNING_TASKS.get(params.taskId));
+        }
+        if (task != null) {
+            task.shouldStop.set(true);
+            taskExecutor.remove(task);
         }
         db.update(
             "UPDATE " + Q(cfg.projectExportTaskDatabaseTable) + " SET " +
@@ -721,43 +721,47 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
         if (cfg.projectExportTaskQueuingTasksTimeEstimatingInterval > 0) {
             queuingTaskTimeEstimator.scheduleAtFixedRate(() -> {
                 try {
+                    List<ProjectExportTask> runningTasks;
+                    List<ProjectExportTask> queuingTasks;
                     synchronized (TASKS_MUTEX) {
-                        // {<patients, time>} sorted by patients
-                        val barrels = TreeMultiset.<Pair<Long, Long>>create(comparing(Pair::_1));
-                        val currentTime = currentTimeMillis();
-                        val timeElapsed = new AtomicLong(0);
-                        val patientExported = new AtomicLong(0);
-                        RUNNING_TASKS.forEach((taskId, task) -> {
-                            val startTime = task.localStartTime.get();
-                            val exportedPatientCount = task.exportedPatientCount.get();
-                            val totalPatientCount = task.totalPatientCount.get();
-                            if (exportedPatientCount > 0) {
-                                timeElapsed.addAndGet(currentTime - startTime);
-                                patientExported.addAndGet(exportedPatientCount);
-                            }
-                            val o = db.queryForMap("SELECT " + Q(START_TIME) +
+                        runningTasks = new ArrayList<>(RUNNING_TASKS.values());
+                        queuingTasks = new ArrayList<>(QUEUING_TASKS.values());
+                    }
+                    // {<patients, time>} sorted by patients
+                    val barrels = TreeMultiset.<Pair<Long, Long>>create(comparing(Pair::_1));
+                    val currentTime = currentTimeMillis();
+                    long timeElapsed = 0L;
+                    long patientExported = 0L;
+                    for (val task : runningTasks) {
+                        val startTime = task.localStartTime.get();
+                        val exportedPatientCount = task.exportedPatientCount.get();
+                        val totalPatientCount = task.totalPatientCount.get();
+                        if (exportedPatientCount > 0) {
+                            timeElapsed += currentTime - startTime;
+                            patientExported += exportedPatientCount;
+                        }
+                        val o = db.queryForMap("SELECT " + Q(START_TIME) +
                                 " FROM " + Q(cfg.projectExportTaskDatabaseTable) +
                                 " WHERE " + Q(TASK_ID) + " = ?",
-                                taskId);
-                            barrels.add(makePair(
-                                totalPatientCount - exportedPatientCount,
-                                currentTime - startTime + L(o.get(START_TIME))));  // prevent time out of sync
-                        });
-                        if (timeElapsed.get() == 0) {
-                            return;
-                        }
-                        val speed = patientExported.doubleValue() / timeElapsed.doubleValue();  // in (person / ms)
-                        QUEUING_TASKS.forEach((taskId, task) -> {
-                            val totalPatientCount = task.totalPatientCount.get();
-                            val barrel = barrels.pollFirstEntry().getElement();
-                            val estimatedFinishTime = (long)(barrel._2() + (totalPatientCount / speed));
-                            barrels.add(makePair(barrel._1() + totalPatientCount, estimatedFinishTime));
-                            db.update("UPDATE " + Q(cfg.projectExportTaskDatabaseTable) +
+                            task.taskId);
+                        barrels.add(makePair(
+                            totalPatientCount - exportedPatientCount,
+                            currentTime - startTime + L(o.get(START_TIME))));  // prevent time out of sync
+                    }
+                    if (timeElapsed == 0) {
+                        return;
+                    }
+                    val speed = (double)patientExported / (double)timeElapsed;  // in (person / ms)
+                    for (val task : queuingTasks) {
+                        val totalPatientCount = task.totalPatientCount.get();
+                        val barrel = barrels.pollFirstEntry().getElement();
+                        val estimatedFinishTime = (long)(barrel._2() + (totalPatientCount / speed));
+                        barrels.add(makePair(barrel._1() + totalPatientCount, estimatedFinishTime));
+                        db.update("UPDATE " + Q(cfg.projectExportTaskDatabaseTable) +
                                 " SET " + Q(ESTIMATED_FINISH_TIME) + " = from_unixtime(?)" +
                                 " WHERE " + Q(TASK_ID) + " = ? " +
                                 " AND " + Q(STATE) + " = ?",  // prevent concurrent problems
-                                estimatedFinishTime / 1000, taskId, QUEUING.value());
-                        });
+                            estimatedFinishTime / 1000, task.taskId, QUEUING.value());
                     }
                 } catch (Throwable e) {
                     LOGGER.error(e.getLocalizedMessage(), e);
