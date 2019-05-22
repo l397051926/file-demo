@@ -811,21 +811,22 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
             new LinkedBlockingQueue<>()) {
 
             @Override
-            public void execute(Runnable command) {
-                super.execute(command);
-                val task = (ProjectExportTask)command;
+            public void execute(Runnable cmd) {
+                super.execute(cmd);
                 synchronized (TASKS_MUTEX) {
+                    val task = (ProjectExportTask)cmd;
                     QUEUING_TASKS.put(task.taskId, task);
                 }
             }
 
             @Override
             @SuppressWarnings("SuspiciousMethodCalls")
-            public boolean remove(Runnable task) {
-                boolean ret = super.remove(task);
+            public boolean remove(Runnable cmd) {
+                boolean ret = super.remove(cmd);
                 synchronized (TASKS_MUTEX) {
-                    QUEUING_TASKS.remove(task);
-                    RUNNING_TASKS.remove(task);
+                    val task = (ProjectExportTask)cmd;
+                    QUEUING_TASKS.remove(task.taskId);
+                    RUNNING_TASKS.remove(task.taskId);
                 }
                 return ret;
             }
@@ -833,8 +834,8 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
             @Override
             protected void afterExecute(Runnable r, Throwable t) {
                 super.afterExecute(r, t);
-                val task = (ProjectExportTask)r;
                 synchronized (TASKS_MUTEX) {
+                    val task = (ProjectExportTask)r;
                     RUNNING_TASKS.remove(task.taskId);
                 }
             }
@@ -842,8 +843,8 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
             @Override
             protected void beforeExecute(Thread t, Runnable r) {
                 super.beforeExecute(t, r);
-                val task = (ProjectExportTask)r;
                 synchronized (TASKS_MUTEX) {
+                    val task = (ProjectExportTask)r;
                     QUEUING_TASKS.remove(task.taskId);
                     RUNNING_TASKS.put(task.taskId, task);
                 }
