@@ -578,7 +578,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                 CREATE_TIME, DOWNLOADED, ESTIMATED_FINISH_TIME, FILE_NAME, FILE_SIZE,
                 FINISH_TIME, HEADER_TYPE, PROGRESS, LAST_MODIFY_TIME, PATIENT_COUNT,
                 PROJECT_ID, PROJECT_NAME, START_TIME, STATE, TASK_ID, USER_ID, VISIT_TYPES) +
-                ", " + Q(ESTIMATED_FINISH_TIME) + " - now() AS " + Q(ESTIMATED_REMAIN_TIME) +
+                ", (" + Q(ESTIMATED_FINISH_TIME) + " - now()) * 1000 AS " + Q(ESTIMATED_REMAIN_TIME) +
                 " FROM " + Q(cfg.projectExportTaskDatabaseTable) +
                 " WHERE " + where +
                 " ORDER BY " + Q(STATE) + " = " + FINISHED.value() +
