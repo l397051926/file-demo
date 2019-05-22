@@ -44,6 +44,7 @@ public class ProjectExportTaskDefinitions implements InitializingBean {
     static final String PROJECT_ID = "PROJECT_ID";
     static final String PROJECT_NAME = "PROJECT_NAME";
     static final String ESTIMATED_FINISH_TIME = "ESTIMATED_FINISH_TIME";
+    static final String ESTIMATED_REMAIN_TIME = "ESTIMATED_REMAIN_TIME";
     static final String EXECUTOR = "EXECUTOR";
     static final String STATE = "STATE";
     static final String LAST_MODIFY_TIME = "LAST_MODIFY_TIME";
@@ -67,6 +68,7 @@ public class ProjectExportTaskDefinitions implements InitializingBean {
         .put(CREATE_TIME, "createTime")
         .put(DOWNLOADED, "downloaded")
         .put(ESTIMATED_FINISH_TIME, "estimatedFinishTime")
+        .put(ESTIMATED_REMAIN_TIME, "estimatedRemainTime")
         .put(FILE_NAME, "fileName")
         .put(FILE_SIZE, "fileSize")
         .put(FINISH_TIME, "finishTime")

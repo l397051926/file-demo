@@ -578,6 +578,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                 CREATE_TIME, DOWNLOADED, ESTIMATED_FINISH_TIME, FILE_NAME, FILE_SIZE,
                 FINISH_TIME, HEADER_TYPE, PROGRESS, LAST_MODIFY_TIME, PATIENT_COUNT,
                 PROJECT_ID, PROJECT_NAME, START_TIME, STATE, TASK_ID, USER_ID, VISIT_TYPES) +
+                ", " + Q(ESTIMATED_FINISH_TIME) + " - now() AS " + Q(ESTIMATED_REMAIN_TIME) +
                 " FROM " + Q(cfg.projectExportTaskDatabaseTable) +
                 " WHERE " + where +
                 " ORDER BY " + Q(STATE) + " = " + FINISHED.value() +
@@ -588,6 +589,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                 .fluentPut(K(CREATE_TIME), L(rs.getObject(CREATE_TIME)))
                 .fluentPut(K(DOWNLOADED), B(rs.getObject(DOWNLOADED)))
                 .fluentPut(K(ESTIMATED_FINISH_TIME), L(rs.getObject(ESTIMATED_FINISH_TIME)))
+                .fluentPut(K(ESTIMATED_REMAIN_TIME), L(rs.getObject(ESTIMATED_REMAIN_TIME)))
                 .fluentPut(K(FILE_NAME), S(rs.getObject(FILE_NAME)))
                 .fluentPut(K(FILE_SIZE), L(rs.getObject(FILE_SIZE)))
                 .fluentPut(K(FINISH_TIME), L(rs.getObject(FINISH_TIME)))
