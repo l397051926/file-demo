@@ -62,6 +62,8 @@ public class GeneralConfiguration implements InitializingBean {
     public String projectExportStorageFileName;
     @Value("${gennlife.fs.project-export.storage.volume-size-threshold}")
     public long projectExportStorageVolumeSizeThreshold = 0L;  // in bytes, unlimited if <= 0
+    @Value("${gennlife.fs.project-export.storage.patient-size-threshold}")
+    public long projectExportStoragePatientSizeThreshold = 0;  // unlimited if <= 0
 
     @Value("${gennlife.fs.project-export.task.expiration-period}")
     public long projectExportTaskExpirationPeriod = 0L;  // in milliseconds, unlimited if <= 0

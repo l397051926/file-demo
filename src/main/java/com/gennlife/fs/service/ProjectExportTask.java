@@ -156,8 +156,9 @@ public class ProjectExportTask implements Runnable {
             try (val out = new FileOutputStream(filePath.toFile())) {
                 val zip = new ZipOutputStream(out);
                 int line = 0;
-                int volume = 1;
-                int volumeSize = 0;
+                long volume = 1L;
+                long volumeSize = 0L;
+                long patientCount = 0L;
                 SXSSFSheet sheet = null;
                 Font boldFont = null;
                 Font errorFont = null;
@@ -168,6 +169,7 @@ public class ProjectExportTask implements Runnable {
                 for (val group : groupedPatients.keySet()) {
                     val patients = groupedPatients.get(group);
                     for (val patient : patients) {
+                        ++patientCount;
                         if (shouldStop.get()) {
                             throw new CancellationException();
                         }
@@ -428,21 +430,32 @@ public class ProjectExportTask implements Runnable {
                             }
                         }
                         sheet.flushRows();
-                        val dataSize = new AtomicLong(0);
-                        foreachValue(data, v -> {
-                            val s = S(v);
-                            if (s != null) {
-                                dataSize.addAndGet(s.getBytes().length);
+                        boolean limitExceeded = false;
+                        if (cfg.projectExportStorageVolumeSizeThreshold > 0) {
+                            val dataSize = new AtomicLong(0);
+                            foreachValue(data, v -> {
+                                val s = S(v);
+                                if (s != null) {
+                                    dataSize.addAndGet(s.getBytes().length);
+                                }
+                            });
+                            volumeSize += dataSize.get();
+                            if (volumeSize >= cfg.projectExportStorageVolumeSizeThreshold) {
+                                limitExceeded = true;
                             }
-                        });
-                        volumeSize += dataSize.get();
-                        if (cfg.projectExportStorageVolumeSizeThreshold > 0 && volumeSize >= cfg.projectExportStorageVolumeSizeThreshold) {
+                        }
+                        if (cfg.projectExportStoragePatientSizeThreshold > 0) {
+                            if (patientCount % cfg.projectExportStoragePatientSizeThreshold == 0) {
+                                limitExceeded = true;
+                            }
+                        }
+                        if (limitExceeded) {
                             workbook.write(zip);
                             zip.closeEntry();
                             workbook.dispose();
                             workbook = null;
-                            volumeSize = 0;
                             ++volume;
+                            volumeSize = 0;
                         }
                         try {
                             val progress = (float)exportedPatientCount.incrementAndGet() / (float)totalPatientCount.get();
