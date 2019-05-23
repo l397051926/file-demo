@@ -470,7 +470,7 @@ public class ProjectExportTask implements Runnable {
                         }
                     }
                 }
-                if (workbook != null && volumeSize > 0) {
+                if (workbook != null) {
                     workbook.write(zip);
                     zip.closeEntry();
                     workbook.dispose();
