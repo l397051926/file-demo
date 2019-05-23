@@ -1,6 +1,7 @@
 package com.gennlife.fs.common.configurations;
 
 import com.gennlife.darren.collection.keypath.KeyPath;
+import com.gennlife.darren.collection.keypath.KeyPathSet;
 import com.gennlife.darren.excel.ExcelTitle;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +13,13 @@ import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.gennlife.darren.excel.ExcelFileExtension.XLSX;
 import static com.gennlife.darren.excel.ExcelSheetHelper.loadRequestObjects;
 import static com.gennlife.darren.excel.ExcelWorkbookHelper.read;
 import static com.gennlife.fs.common.configurations.Model.*;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 @Component
 @Scope("singleton")
@@ -68,7 +69,10 @@ class _DefaultModelsGenerator {
             model._patientSnField = KeyPath.compile(resolver.getProperty(prefix + "patient-sn-field"));
             model._partitionGroup = KeyPath.compile(resolver.getProperty(prefix + "partition-group"));
             model._partitionField = KeyPath.compile(resolver.getProperty(prefix + "partition-field"));
-            model._sortField = KeyPath.compile(resolver.getProperty(prefix + "sort-field"));
+            model._sortFields = Stream
+                .of(resolver.getProperty(prefix + "sort-fields").split(","))
+                .map(KeyPath::compile)
+                .collect(toCollection(() -> new KeyPathSet(LinkedHashMap::new)));
             model._allFieldInfo = IntStream.range(0, lines.size())
                 .boxed()
                 .collect(toMap(

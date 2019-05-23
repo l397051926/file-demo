@@ -289,8 +289,10 @@ public class ProjectExportTask implements Runnable {
                             if (partitioned && model.isPartitioned()) {
                                 fields.add(model.partitionGroup()
                                     .keyPathByAppending(model.partitionField()));
-                                fields.add(model.partitionGroup()
-                                    .keyPathByAppending(model.sortField()));
+                                model.sortFields()
+                                    .stream()
+                                    .map(model.partitionGroup()::keyPathByAppending)
+                                    .forEach(fields::add);
                             }
                             val sub = model.isCustom() ?
                                 projectService.computeCustomVariablesValue(
@@ -317,14 +319,20 @@ public class ProjectExportTask implements Runnable {
                                     .partitionGroup()
                                     .flatFuzzyResolve(sub)
                                     .stream()
-                                    .filter(part ->
-                                        S(model.partitionField().fuzzyResolveFirst(part)) != null &&
-                                            DT(model.sortField().fuzzyResolveFirst(part)) != null)
+                                    .filter(part -> S(model.partitionField().fuzzyResolveFirst(part)) != null)
                                     .forEach(part -> {
                                         val sn = S(model.partitionField().fuzzyResolveFirst(part));
                                         val obj = groups.computeIfAbsent(sn, k -> new JSONObject());
                                         new KeyPath(model.name(), model.partitionGroup()).assign(obj, part);
-                                        groupSns.put(sn, DT(model.sortField().fuzzyResolveFirst(part)).getTime());
+                                        long time = Long.MAX_VALUE;
+                                        for (val sortField : model.sortFields()) {
+                                            val date = DT(sortField.fuzzyResolveFirst(part));
+                                            if (date != null) {
+                                                time = date.getTime();
+                                                break;
+                                            }
+                                        }
+                                        groupSns.put(sn, time);
                                     });
                             }
                         }

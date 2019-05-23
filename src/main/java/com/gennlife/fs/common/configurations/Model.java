@@ -91,8 +91,8 @@ public class Model {
         return _partitionField;
     }
 
-    public KeyPath sortField() {
-        return _sortField;
+    public KeyPathSet sortFields() {
+        return _sortFields;
     }
 
     public KeyPathSet mergedFields() {
@@ -209,7 +209,7 @@ public class Model {
     KeyPath _patientSnField;
     KeyPath _partitionGroup;
     KeyPath _partitionField;
-    KeyPath _sortField;
+    KeyPathSet _sortFields;
     KeyPathSet _mergedFields;
     String _name;
     String _rwsName;
