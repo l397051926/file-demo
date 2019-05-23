@@ -332,7 +332,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                 Q(STATE) + " = ?",
             Long.class, params.userId, QUEUING.value());
         if (cfg.projectExportTaskUserQueueSizeLimit > 0) {
-            if (queuingTaskSize > cfg.projectExportTaskUserQueueSizeLimit) {
+            if (queuingTaskSize >= cfg.projectExportTaskUserQueueSizeLimit) {
                 throw new RestrictedException("排队任务数较多，请完成后再导出");
             }
         }
