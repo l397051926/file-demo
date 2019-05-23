@@ -158,7 +158,7 @@ public class ProjectExportTask implements Runnable {
                 int line = 0;
                 long volume = 1L;
                 long volumeSize = 0L;
-                long patientCount = 0L;
+                long patientSize = 0L;
                 SXSSFSheet sheet = null;
                 Font boldFont = null;
                 Font errorFont = null;
@@ -169,7 +169,7 @@ public class ProjectExportTask implements Runnable {
                 for (val group : groupedPatients.keySet()) {
                     val patients = groupedPatients.get(group);
                     for (val patient : patients) {
-                        ++patientCount;
+                        ++patientSize;
                         if (shouldStop.get()) {
                             throw new CancellationException();
                         }
@@ -445,7 +445,7 @@ public class ProjectExportTask implements Runnable {
                             }
                         }
                         if (cfg.projectExportStoragePatientSizeThreshold > 0) {
-                            if (patientCount % cfg.projectExportStoragePatientSizeThreshold == 0) {
+                            if (patientSize >= cfg.projectExportStoragePatientSizeThreshold) {
                                 limitExceeded = true;
                             }
                         }
@@ -455,7 +455,8 @@ public class ProjectExportTask implements Runnable {
                             workbook.dispose();
                             workbook = null;
                             ++volume;
-                            volumeSize = 0;
+                            volumeSize = 0L;
+                            patientSize = 0L;
                         }
                         try {
                             val progress = (float)exportedPatientCount.incrementAndGet() / (float)totalPatientCount.get();
