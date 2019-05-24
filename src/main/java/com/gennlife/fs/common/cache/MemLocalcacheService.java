@@ -97,9 +97,9 @@ public class MemLocalcacheService extends Thread implements CacheDAOInterface<Ob
 
     @Override
     public void run() {
-        logger.debug("start === cycleTime " + cycleTime + " ms");
+//        logger.debug("start === cycleTime " + cycleTime + " ms");
         while (isRun) {
-            if (map.size() > 0) logger.debug("map size " + map.size());
+//            if (map.size() > 0) logger.debug("map size " + map.size());
             try {
                 Thread.sleep(cycleTime);
             } catch (InterruptedException e) {
@@ -144,7 +144,7 @@ public class MemLocalcacheService extends Thread implements CacheDAOInterface<Ob
         backmap.clear();
         long e = map.size();
         if (needgc) System.gc();
-        if (e != 0 || s != 0) logger.debug("clean  map  size start => " + s + " end=> " + e);
+//        if (e != 0 || s != 0) logger.debug("clean  map  size start => " + s + " end=> " + e);
     }
 
     @Override
