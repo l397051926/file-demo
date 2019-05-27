@@ -404,15 +404,22 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
         for (val o : os) {
             val taskId = L(o.get(TASK_ID));
             val userId = S(o.get(USER_ID));
-            val executor = S(o.get(EXECUTOR));
+            val endpoint = new ImmutableEndpoint(S(o.get(EXECUTOR)));
             batchCancellationExecutor.submit(() -> {
                 try {
-                    postData(
-                        new ImmutableEndpoint(executor),
-                        PROJECT_EXPORT_TASK_API_PATH + PROJECT_EXPORT_TASK_CANCEL_SUB_API_PATH,
-                        new JSONObject()
-                            .fluentPut("userId", userId)
-                            .fluentPut("taskId", taskId));
+                    if (cfg.localEndpoint.equals(endpoint)) {
+                        cancel(CancelParameters.builder()
+                            .userId(userId)
+                            .taskId(taskId)
+                            .build());
+                    } else {
+                        postData(
+                            endpoint,
+                            PROJECT_EXPORT_TASK_API_PATH + PROJECT_EXPORT_TASK_CANCEL_SUB_API_PATH,
+                            new JSONObject()
+                                .fluentPut("userId", userId)
+                                .fluentPut("taskId", taskId));
+                    }
                 } catch (Exception e) {
                     LOGGER.error(e.getLocalizedMessage(), e);
                 }
