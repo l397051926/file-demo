@@ -317,7 +317,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
         requireNonNull(params.userId, "缺少参数：userId");
         requireNonNull(params.taskId, "缺少参数：taskId");
         val o = db.queryForMap(
-            "SELECT " + P(USER_ID, PATIENT_COUNT) +
+            "SELECT " + P(USER_ID, PATIENT_COUNT, PROJECT_ID, PROJECT_NAME) +
                 " FROM " + Q(cfg.projectExportTaskDatabaseTable) +
                 " WHERE " + Q(TASK_ID) + " = ?",
             params.taskId);
@@ -325,9 +325,19 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
         if (!Objects.equals(userId, params.userId)) {
             throw new RestrictedException("用户 " + params.userId + " 无权操作此任务");
         }
+        val projectId = S(o.get(PROJECT_ID));
+        val projectName = S(o.get(PROJECT_NAME));
+        try {
+            val projectInfo = projectService.info(ProjectService.BasicInfoParameters.builder()
+                .projectId(projectId)
+                .build());
+            requireNonNull(projectInfo);
+        } catch (Exception e) {
+            throw new IncorrectStateException("项目 " + projectName + " 可能已被删除", e);
+        }
         synchronized (TASKS_MUTEX) {
             if (QUEUING_TASKS.containsKey(params.taskId) || RUNNING_TASKS.containsKey(params.taskId)) {
-                throw new IncorrentStateException("任务已经开始执行");
+                throw new IncorrectStateException("任务已经开始执行");
             }
         }
         val queuingTaskSize = db.queryForObject(
@@ -457,7 +467,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
         requireNonNull(params.taskId, "缺少参数：taskId");
         synchronized (TASKS_MUTEX) {
             if (QUEUING_TASKS.containsKey(params.taskId) || RUNNING_TASKS.containsKey(params.taskId)) {
-                throw new IncorrentStateException("Export has not been finished yet.");
+                throw new IncorrectStateException("Export has not been finished yet.");
             }
         }
         val directoryPath = def.dir(params.userId, params.taskId);
@@ -484,7 +494,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
         requireNonNull(params.taskId, "缺少参数：taskId");
         synchronized (TASKS_MUTEX) {
             if (QUEUING_TASKS.containsKey(params.taskId) || RUNNING_TASKS.containsKey(params.taskId)) {
-                throw new IncorrentStateException("Export has not been finished yet.");
+                throw new IncorrectStateException("Export has not been finished yet.");
             }
         }
         val o = db.queryForMap("SELECT " + P(USER_ID, STATE, FILE_NAME) +
@@ -497,7 +507,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
         }
         val state = TaskState.withValue(I(o.get(STATE)));
         if (!FINISHED.equals(state)) {
-            throw new IncorrentStateException("Export has not been finished yet.");
+            throw new IncorrectStateException("Export has not been finished yet.");
         }
         val fileName = S(o.get(FILE_NAME));
         try {
