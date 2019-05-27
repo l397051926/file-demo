@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import java.util.*;
 
 /**
- * @author lmx
+ * @author
  * @create 2019 29 17:23
  * @desc
  **/
@@ -53,6 +53,7 @@ public class TimerShaftSort {
         examResult.put("lung_functional_exam","肺功能检查");
         examResult.put("other_imaging_exam_diagnosis_reports","其他影像学检查诊断报告");
         examResult.put("electrocardiogram_reports","心电图报告");
+        examResult.put("pathology_reports","病理检测");
     }
 
     static {
@@ -110,7 +111,7 @@ public class TimerShaftSort {
         examResultName.put("pet_ct_reports","EXAMINATION_ITEM");
         examResultName.put("pet_mr_reports","EXAMINATION_ITEM");
         examResultName.put("lung_functional_exam","EXAMINATION_ITEM");
-        examResultName.put("other_imaging_exam_diagnosis_reports","other");
+        examResultName.put("other_imaging_exam_diagnosis_reports","EXAMINATION_ITEM");
 //        examResultName.put("electrocardiogram_reports","other");
     }
 

@@ -6,9 +6,12 @@ import com.gennlife.fs.common.response.PaginationMemoryResponse;
 import com.gennlife.fs.common.response.ResponseInterface;
 import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.response.SortResponse;
+import com.gennlife.fs.common.utils.DateUtil;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
+import com.gennlife.fs.common.utils.PagingUtils;
 import com.gennlife.fs.common.utils.StringUtil;
 import com.gennlife.fs.service.patientsdetail.model.VisitSNResponse;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -34,7 +37,10 @@ public class PharmarcyOrder {
 
         vt.execute(JsonAttrUtil.toJsonObject(paramJson));
         JsonObject result = vt.get_result();
-        JsonArray medicin = result.get("orders").getAsJsonArray();
+        if(result == null ){
+            return ResponseMsgFactory.buildFailStr("no data");
+        }
+        JsonArray medicin = result.get("medicine_order").getAsJsonArray();
 
         boolean isOrderType = true;
         boolean isOrderStatus = true;
@@ -64,8 +70,8 @@ public class PharmarcyOrder {
             }
 
             if(isOrderType && isOrderStatus && isMedicinaName){
-               String parent_order_sn = JsonAttrUtil.getStringValue("PARENT_ORDER_SN",object);
-               String order_start_time = JsonAttrUtil.getStringValue("ORDER_START_TIME",object);
+                String parent_order_sn = JsonAttrUtil.getStringValue("PARENT_ORDER_SN",object);
+                String order_start_time = JsonAttrUtil.getStringValue("ORDER_START_TIME",object);
                 if (StringUtil.isNotEmptyStr(parent_order_sn)){
                     MedicineSortClass m = new MedicineSortClass(parent_order_sn,order_start_time);
                     if(sortList.contains(m)){
@@ -101,7 +107,7 @@ public class PharmarcyOrder {
         medicineNullList =  JsonAttrUtil.sort(medicineNullList, new JsonComparatorDESCByKey("ORDER_START_TIME"));
         resultArray.addAll(JsonAttrUtil.toJsonTree(medicineNullList).getAsJsonArray());
         result.add("medicine_order",resultArray);
-        result.add("orderStatus", JsonAttrUtil.toJsonTree(orderStatusArray));
+        result.add("orderStatus",JsonAttrUtil.toJsonTree(orderStatusArray));
         return ResponseMsgFactory.buildResponseStr(result,vt.get_error());
     }
 
@@ -161,9 +167,51 @@ public class PharmarcyOrder {
             }
         }
         obj.add("orders",result);
-        obj.add("orderStatus", JsonAttrUtil.toJsonTree(orderStatusArray));
-        obj.add("willType", JsonAttrUtil.toJsonTree(willTypeArray));
+        obj.add("orderStatus",JsonAttrUtil.toJsonTree(orderStatusArray));
+        obj.add("willType",JsonAttrUtil.toJsonTree(willTypeArray));
         return  ResponseMsgFactory.buildResponseStr(obj,vt.get_error());
+    }
+
+    public String getOrdersPharmacyDay(String param) {
+        ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse("orders","orders"),"orders", QueryResult.getSortKey("orders"),false),"orders");
+        JsonObject paramJson = JsonAttrUtil.toJsonObject(param);
+        String time = JsonAttrUtil.getStringValue("time",paramJson);
+        Integer page = paramJson.get("page").getAsInt();
+        Integer size = paramJson.get("size").getAsInt();
+        if(paramJson==null){
+            return ResponseMsgFactory.buildFailStr("参数不是json");
+        }
+        vt.execute(JsonAttrUtil.toJsonObject( JsonAttrUtil.toJsonObject(param)));
+        JsonObject obj = vt.get_result();
+        if(obj == null){
+            return ResponseMsgFactory.buildFailStr("no data");
+        }
+        JsonArray res = obj.get("orders").getAsJsonArray();
+        List<JsonObject> resultList = new LinkedList<>();
+
+        for (JsonElement element : res){
+            JsonObject object = element.getAsJsonObject();
+            String times = DateUtil.getDateStr_ymd(JsonAttrUtil.getStringValue("ORDER_START_TIME",object));
+            if(time.equals(times)){
+                String titleName = JsonAttrUtil.getStringValue("ORDER_NAME",object);
+                if(StringUtil.isEmptyStr(titleName)){
+                    titleName = "非药品医嘱";
+                }
+                object.addProperty("titleName",titleName);
+                object.addProperty("configSchema","orders");
+                resultList.add(object);
+            }
+        }
+        List<JsonObject> resultData = PagingUtils.getPageContentByApi(resultList,page,size);
+        JsonObject data = new JsonObject();
+        data.add("orders",JsonAttrUtil.toJsonTree(resultData));
+        JsonObject result = new JsonObject();
+        result.addProperty("code",1);
+        result.addProperty("msg","success");
+        result.add("data",data);
+        result.addProperty("total",resultList.size());
+        return JsonAttrUtil.toJsonStr(result);
+
     }
 
     static class MedicineSortClass{

@@ -344,7 +344,13 @@ public class PatientDetailController {
     String getNewOrdersPharmacy(@RequestBody String param) {
         return new PharmarcyOrder().getNewOrdersPharmacy(param);
     }
-
+    // 新 单独每天搜索 分页 sd功能
+    @RequestMapping(value = "/Orders_Pharmacy_Day", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    String getOrdersPharmacyDay(@RequestBody String param) {
+        return new PharmarcyOrder().getOrdersPharmacyDay(param);
+    }
     //入院记录
     @RequestMapping(value = "/admission_records", method = RequestMethod.POST)
     public
@@ -520,4 +526,21 @@ public class PatientDetailController {
         logger.info("一个病案号对应多个病人的信息");
         return new PatientInfo().getManyPatientInfo(param);
     }
+
+    //泳道图
+    @RequestMapping(value = "/swimlane", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    String getSwimlane(@RequestBody String param) {
+        return new SwimlaneService().getSwimlane(param);
+    }
+
+    //病案首页
+    @RequestMapping(value = "/newMedical_records", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    String getNewMedicalRecord(@RequestBody String param) {
+        return new MedicalRecord().getNewMedicalRecord(param);
+    }
+
 }
