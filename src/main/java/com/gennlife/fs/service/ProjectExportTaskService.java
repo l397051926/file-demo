@@ -84,8 +84,8 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
             ProjectService.BasicInfoParameters.builder()
                 .projectId(params.projectId)
                 .build());
-        if (!info.creatorId.equals(params.userId)) {
-            throw new RestrictedException("用户 " + params.userId + " 无权创建该项目的导出任务");
+        if (!params.userId.equals(info.creatorId)) {
+            throw new RestrictedException("用户 " + info.creatorId + " 无权创建该项目的导出任务");
         }
         val groupedPatients =
             projectService.patients(
@@ -104,6 +104,9 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
             }
         }
         val mainModel = modelByRwsName(info.crfId);
+        if (mainModel == null) {
+            throw new UnexpectedException("未知的crfId：" + info.crfId);
+        }
         val models = new ArrayList<Model>();
         models.add(mainModel);  // SD-6100
         if (mainModel.isCRF()) {
