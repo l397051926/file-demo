@@ -82,6 +82,8 @@ public class GeneralConfiguration implements InitializingBean {
     @Value("${gennlife.fs.project-export.task.database-table}")
     public String projectExportTaskDatabaseTable;
 
+    @Value("${gennlife.fs.project-export.message.producer.enabled}")
+    public boolean projectExportMessageProducerEnabled;
     @Value("${gennlife.fs.project-export.message.producer.server-endpoint}")
     public ImmutableEndpoint projectExportMessageProducerServerEndpoint;
     @Value("${gennlife.fs.project-export.message.producer.group-name}")

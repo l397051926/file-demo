@@ -110,6 +110,9 @@ public class ProjectExportTaskDefinitions implements InitializingBean {
     }
 
     void sendMessage(String tags, JSONObject body) {
+        if (mq == null) {
+            return;
+        }
         val msg = new Message();
         msg.setTopic("TOPIC_PRO");
         msg.setTags(tags);
@@ -123,7 +126,7 @@ public class ProjectExportTaskDefinitions implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        {
+        if (cfg.projectExportMessageProducerEnabled) {
             val p = new DefaultMQProducer();
             p.setNamesrvAddr(cfg.projectExportMessageProducerServerEndpoint.toString());
             p.setProducerGroup(cfg.projectExportMessageProducerGroupName);
@@ -138,7 +141,9 @@ public class ProjectExportTaskDefinitions implements InitializingBean {
 
     @PreDestroy
     public void destroy() {
-        mq.shutdown();
+        if (mq != null) {
+            mq.shutdown();
+        }
     }
 
 }
