@@ -51,7 +51,8 @@ import static com.gennlife.fs.common.utils.DBUtils.*;
 import static com.gennlife.fs.common.utils.HttpRequestUtil.postData;
 import static com.gennlife.fs.common.utils.KeyPathUtil.toPathString;
 import static com.gennlife.fs.common.utils.TypeUtil.*;
-import static com.gennlife.fs.controller.ProjectExportTaskController.PROJECT_EXPORT_TASK_CANCEL_BY_PROJECT_ID_SUB_API_PATH;
+import static com.gennlife.fs.controller.ProjectExportTaskController.PROJECT_EXPORT_TASK_API_PATH;
+import static com.gennlife.fs.controller.ProjectExportTaskController.PROJECT_EXPORT_TASK_CANCEL_SUB_API_PATH;
 import static com.gennlife.fs.service.ProjectExportTaskDefinitions.*;
 import static java.lang.Runtime.getRuntime;
 import static java.lang.String.join;
@@ -408,7 +409,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                 try {
                     postData(
                         new ImmutableEndpoint(executor),
-                        PROJECT_EXPORT_TASK_CANCEL_BY_PROJECT_ID_SUB_API_PATH,
+                        PROJECT_EXPORT_TASK_API_PATH + PROJECT_EXPORT_TASK_CANCEL_SUB_API_PATH,
                         new JSONObject()
                             .fluentPut("userId", userId)
                             .fluentPut("taskId", taskId));
