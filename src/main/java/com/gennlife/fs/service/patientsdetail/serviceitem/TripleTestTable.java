@@ -1,7 +1,7 @@
 package com.gennlife.fs.service.patientsdetail.serviceitem;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.gennlife.darren.collection.keypath.KeyPath;
 import com.gennlife.fs.common.enums.TripleTestPartitionEnum;
 import com.gennlife.fs.common.response.*;
 import com.gennlife.fs.common.utils.DateUtil;
@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
+
 public class TripleTestTable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TripleTestTable.class);
@@ -48,9 +50,7 @@ public class TripleTestTable {
 
     }
 
-    GeneralConfiguration cfg;
-
-    public String getNewsTripleTestTable(String param) {
+    public String getNewsTripleTestTable(String param) throws Exception {
         Integer num = 0;
         VisitSNResponse visitSN = new VisitSNResponse("triple_test_table");
         SortResponse vt=new SortResponse(visitSN);
@@ -65,6 +65,14 @@ public class TripleTestTable {
         }
         vt.execute(JsonAttrUtil.toJsonObject(paramJson));
         JsonObject result = vt.get_result();
+        if (cfg.patientDetailModelConversionEnabled) {
+            KeyPath path = KeyPath.compile("visits[0]");
+            JSONObject original = new JSONObject();
+            path.assign(original, result);
+            JSONObject converted = cfg.patientDetailModelConverter.convert(original);
+            JSONObject convertedResult = path.resolveAsJSONObject(converted);
+            result = JsonAttrUtil.toJsonObject(convertedResult);
+        }
         if (result == null) return ResponseMsgFactory.buildFailStr(vt.get_error());
         JsonArray triple_test_tables = result.get("triple_test_table").getAsJsonArray();
         Map<String,JsonObject> map = new HashMap<>();
@@ -98,13 +106,23 @@ public class TripleTestTable {
                     query.addProperty("visitSn", visitSn);
                     //获取 gernomics
                     JsonArray source = new JsonArray();
-                    source.add("visits.visit_info.ADMISSION_DATE");
-                    source.add("visits.visit_info.VISIT_SN");
-                    source.add("visits.visit_info.REGISTERED_DATE ");
-                    source.add("visits.discharge_records.HOSPITAL_DISCHARGE_DATE");
-                    source.add("visits.operation_records.OPERATION_DATE");
-                    source.add("visits.discharge_records.VISIT_SN");
-                    source.add("visits.operation_records.VISIT_SN");
+                    if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+                        source.add("visits.visit_info.VISIT_SN");
+                        source.add("visits.visit_info.ADMISSION_DATE");
+                        source.add("visits.visit_info.REGISTERED_DATE");
+                        source.add("visits.discharge_record.VISIT_SN");
+                        source.add("visits.discharge_record.DISCHARGE_DATE");
+                        source.add("visits.operation_record.VISIT_SN");
+                        source.add("visits.operation_record.OPERATION_DATE");
+                    } else {
+                        source.add("visits.visit_info.VISIT_SN");
+                        source.add("visits.visit_info.ADMISSION_DATE");
+                        source.add("visits.visit_info.REGISTERED_DATE");
+                        source.add("visits.discharge_records.VISIT_SN");
+                        source.add("visits.discharge_records.HOSPITAL_DISCHARGE_DATE");
+                        source.add("visits.operation_records.VISIT_SN");
+                        source.add("visits.operation_records.OPERATION_DATE");
+                    }
                     query.add("source", source);
                     LOGGER.debug("获取住院时间  出院时间  就诊编号 visitSN"+visitSn);
                     String data = HttpRequestUtils.getSearchEmr(new Gson().toJson(query));
@@ -113,9 +131,15 @@ public class TripleTestTable {
                     hospitalDischargeDate = new JsonArray();
                     hospitalAdmissionDate = new JsonArray();
                     operationDate = new JsonArray();
-                    addAdmissionDataParam(dataJson,hospitalAdmissionDate,"visit_info");
-                    addParamJsonData(dataJson,hospitalDischargeDate,"discharge_records");
-                    addParamJsonData(dataJson,operationDate,"operation_records");
+                    addAdmissionDataParam(dataJson, hospitalAdmissionDate,"visit_info");
+                    addParamJsonData(dataJson, hospitalDischargeDate,
+                        cfg.patientDetailModelVersion.compareTo("4") >= 0 ?
+                            "discharge_record" :
+                            "discharge_records");
+                    addParamJsonData(dataJson, operationDate,
+                        cfg.patientDetailModelVersion.compareTo("4") >= 0 ?
+                            "operation_record" :
+                            "operation_records");
                 }
                 visSn.add(visitSn);
 //            String bloodPressure = "";
@@ -293,5 +317,7 @@ public class TripleTestTable {
         array.set(i,new Gson().toJsonTree(val));
         return array;
     }
+
+    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
 
 }

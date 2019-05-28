@@ -102,7 +102,11 @@ public class GeneralConfiguration implements InitializingBean {
     @Value("${gennlife.fs.project-export.message.producer.charset}")
     public Charset projectExportMessageProducerCharset = UTF_8;
 
-    @Value("${gennlife.fs.patient-detail.model.conversion-profile}")
+    @Value("${gennlife.fs.patient-detail.model.version}")
+    public String patientDetailModelVersion;
+    @Value("${gennlife.fs.patient-detail.model.conversion.enabled}")
+    public boolean patientDetailModelConversionEnabled;
+    @Value("${gennlife.fs.patient-detail.model.conversion.profile}")
     public String patientDetailModelConversionProfile;
     public ModelConverter patientDetailModelConverter;
 
@@ -128,7 +132,7 @@ public class GeneralConfiguration implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        {
+        if (patientDetailModelConversionEnabled) {
             val path = "/configurations/patient-detail/model/conversion/" + patientDetailModelConversionProfile + ".json";
             val is = getClass().getResourceAsStream(path);
             val s = IOUtils.toString(is, UTF_8);
