@@ -237,6 +237,13 @@
             <version>3.10.5</version>
         </dependency>
 
+        <!-- Runtime reflections -->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.11</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -296,9 +303,15 @@
 
     <profiles>
         <profile>
-            <id>base</id>
+            <id>郑州中心医院</id>
             <properties>
-                <package.id>base</package.id>
+                <package.id>郑州中心医院</package.id>
+            </properties>
+        </profile>
+        <profile>
+            <id>西安交通大学第一附属医院</id>
+            <properties>
+                <package.id>西安交通大学第一附属医院</package.id>
             </properties>
         </profile>
         <profile>

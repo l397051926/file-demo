@@ -1,4 +1,4 @@
-package com.gennlife.fs.common.configurations;
+package com.gennlife.fs.configurations.projectexport;
 
 import com.gennlife.darren.collection.keypath.KeyPath;
 import lombok.Builder;

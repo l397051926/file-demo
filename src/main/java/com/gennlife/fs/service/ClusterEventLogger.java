@@ -1,7 +1,7 @@
 package com.gennlife.fs.service;
 
 import com.gennlife.darren.util.ImmutableEndpoint;
-import com.gennlife.fs.common.configurations.GeneralConfiguration;
+import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

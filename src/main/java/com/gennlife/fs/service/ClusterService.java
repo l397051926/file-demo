@@ -8,7 +8,7 @@ import com.gennlife.darren.controlflow.function.ThrowableConsumer;
 import com.gennlife.darren.controlflow.function.ThrowableRunnable;
 import com.gennlife.darren.util.Endpoint;
 import com.gennlife.darren.util.ImmutableEndpoint;
-import com.gennlife.fs.common.configurations.GeneralConfiguration;
+import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.common.exception.ResponseCode;
 import com.gennlife.fs.common.utils.HttpRequestUtil;
 import com.google.common.collect.ImmutableSet;

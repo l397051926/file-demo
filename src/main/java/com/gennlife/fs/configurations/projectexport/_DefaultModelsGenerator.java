@@ -1,4 +1,4 @@
-package com.gennlife.fs.common.configurations;
+package com.gennlife.fs.configurations.projectexport;
 
 import com.gennlife.darren.collection.keypath.KeyPath;
 import com.gennlife.darren.collection.keypath.KeyPathSet;
@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 import static com.gennlife.darren.excel.ExcelFileExtension.XLSX;
 import static com.gennlife.darren.excel.ExcelSheetHelper.loadRequestObjects;
 import static com.gennlife.darren.excel.ExcelWorkbookHelper.read;
-import static com.gennlife.fs.common.configurations.Model.*;
+import static com.gennlife.fs.configurations.projectexport.Model.*;
 import static java.util.stream.Collectors.*;
 
 @Component

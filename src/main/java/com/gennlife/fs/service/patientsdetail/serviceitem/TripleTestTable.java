@@ -1,11 +1,14 @@
 package com.gennlife.fs.service.patientsdetail.serviceitem;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.gennlife.fs.common.enums.TripleTestPartitionEnum;
 import com.gennlife.fs.common.response.*;
 import com.gennlife.fs.common.utils.DateUtil;
 import com.gennlife.fs.common.utils.HttpRequestUtils;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
 import com.gennlife.fs.common.utils.StringUtil;
+import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.service.patientsdetail.dataoperator.TripleTestTableOperator;
 import com.gennlife.fs.service.patientsdetail.dataoperator.impl.TripleTestTableSort;
 import com.gennlife.fs.service.patientsdetail.dataoperator.interfaces.IDataSortOperate;
@@ -45,6 +48,7 @@ public class TripleTestTable {
 
     }
 
+    GeneralConfiguration cfg;
 
     public String getNewsTripleTestTable(String param) {
         Integer num = 0;

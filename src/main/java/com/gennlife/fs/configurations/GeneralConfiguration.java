@@ -1,6 +1,10 @@
-package com.gennlife.fs.common.configurations;
+package com.gennlife.fs.configurations;
 
+import com.alibaba.fastjson.JSON;
 import com.gennlife.darren.util.ImmutableEndpoint;
+import com.gennlife.fs.configurations.patientdetail.conversion.ModelConverter;
+import lombok.val;
+import org.apache.commons.io.IOUtils;
 import org.redisson.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +14,10 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Set;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Component
 @PropertySource("classpath:general.properties")
@@ -95,7 +100,11 @@ public class GeneralConfiguration implements InitializingBean {
     @Value("${gennlife.fs.project-export.message.producer.max-retry-times}")
     public int projectPexportMessageProducerMaxRetryTimes = 3;
     @Value("${gennlife.fs.project-export.message.producer.charset}")
-    public Charset projectExportMessageProducerCharset = StandardCharsets.UTF_8;
+    public Charset projectExportMessageProducerCharset = UTF_8;
+
+    @Value("${gennlife.fs.patient-detail.model.conversion-profile}")
+    public String patientDetailModelConversionProfile;
+    public ModelConverter patientDetailModelConverter;
 
     @Value("${gennlife.rwss.endpoint}")
     public ImmutableEndpoint rwsServerEndpoint;
@@ -119,6 +128,13 @@ public class GeneralConfiguration implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        {
+            val path = "/configurations/patient-detail/model/conversion/" + patientDetailModelConversionProfile + ".json";
+            val is = getClass().getResourceAsStream(path);
+            val s = IOUtils.toString(is, UTF_8);
+            val arr = JSON.parseArray(s);
+            patientDetailModelConverter = new ModelConverter(arr);
+        }
         LOGGER.info("General configuration has been successfully loaded.");
     }
 

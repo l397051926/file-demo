@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.gennlife.darren.controlflow.function.ThrowableConsumer;
 import com.gennlife.darren.util.ImmutableEndpoint;
-import com.gennlife.fs.common.configurations.GeneralConfiguration;
+import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.common.exception.ResponseException;
 import com.gennlife.fs.common.exception.UndefinedException;
 import org.apache.commons.io.IOUtils;

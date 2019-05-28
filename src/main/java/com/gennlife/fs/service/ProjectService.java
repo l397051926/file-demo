@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gennlife.darren.collection.keypath.KeyPath;
-import com.gennlife.fs.common.configurations.GeneralConfiguration;
+import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.common.exception.FormatCorruptedException;
 import com.gennlife.fs.common.exception.NotFoundException;
 import com.gennlife.fs.common.exception.ResponseException;

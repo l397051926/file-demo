@@ -1,6 +1,6 @@
 package com.gennlife.fs.service;
 
-import com.gennlife.fs.common.configurations.GeneralConfiguration;
+import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.val;
 import org.slf4j.Logger;

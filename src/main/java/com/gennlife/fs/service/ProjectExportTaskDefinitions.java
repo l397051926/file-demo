@@ -2,7 +2,7 @@ package com.gennlife.fs.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.gennlife.fs.common.configurations.GeneralConfiguration;
+import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.google.common.collect.ImmutableBiMap;
 import lombok.val;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;

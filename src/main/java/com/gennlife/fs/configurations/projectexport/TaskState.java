@@ -1,4 +1,4 @@
-package com.gennlife.fs.common.configurations;
+package com.gennlife.fs.configurations.projectexport;
 
 import java.util.Map;
 import java.util.stream.Stream;
