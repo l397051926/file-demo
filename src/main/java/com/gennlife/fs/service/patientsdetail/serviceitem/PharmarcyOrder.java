@@ -10,6 +10,7 @@ import com.gennlife.fs.common.utils.DateUtil;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
 import com.gennlife.fs.common.utils.PagingUtils;
 import com.gennlife.fs.common.utils.StringUtil;
+import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.service.patientsdetail.model.VisitSNResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -18,14 +19,25 @@ import com.google.gson.JsonObject;
 
 import java.util.*;
 
+import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
+
 public class PharmarcyOrder {
+    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
+
     public String getPharmarcyOrder(String param) {
         ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse("medicine_order","orders"),"orders", QueryResult.getSortKey("medicine_order"),true),"orders");
         return ResponseMsgFactory.getResponseStr(vt,param);
     }
 
     public String getNewPharmarcyOrder(String param) {
-        VisitSNResponse vt =  new VisitSNResponse("medicine_order","medicine_order");
+        String drug_order = "drug_order";
+        String DRUG_GENERIC_NAME = "MEDICINE_NAME";
+        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+            drug_order = "operation_pre_summary";
+            DRUG_GENERIC_NAME = "DRUG_GENERIC_NAME";
+        }
+        VisitSNResponse vt =  new VisitSNResponse(drug_order,
+            drug_order);
         JsonObject paramJson = JsonAttrUtil.toJsonObject(param);
         if(paramJson==null)return ResponseMsgFactory.buildFailStr("参数不是json");
 
@@ -65,7 +77,7 @@ public class PharmarcyOrder {
             }
 
             if(StringUtil.isNotEmptyStr(medicineName)){
-                String medicine_name = JsonAttrUtil.getStringValue("MEDICINE_NAME",object);
+                String medicine_name = JsonAttrUtil.getStringValue(DRUG_GENERIC_NAME,object);
                 isMedicinaName = StringUtil.isNotEmptyStr(medicine_name) && medicine_name.contains(medicineName);
             }
 
@@ -112,7 +124,11 @@ public class PharmarcyOrder {
     }
 
     public String getNewOrdersPharmacy(String param) {
-        ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse("orders","orders"),"orders", QueryResult.getSortKey("orders"),false),"orders");
+        String non_drug_orders = "orders";
+        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+            non_drug_orders = "non_drug_orders";
+        }
+        ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse(non_drug_orders,non_drug_orders),non_drug_orders, QueryResult.getSortKey(non_drug_orders),false),non_drug_orders);
         JsonObject paramJson = JsonAttrUtil.toJsonObject(param);
         if(paramJson==null)return ResponseMsgFactory.buildFailStr("参数不是json");
 
@@ -173,7 +189,15 @@ public class PharmarcyOrder {
     }
 
     public String getOrdersPharmacyDay(String param) {
-        ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse("orders","orders"),"orders", QueryResult.getSortKey("orders"),false),"orders");
+        String non_drug_orders = "orders";
+        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+            non_drug_orders = "non_drug_orders";
+        }
+        ResponseInterface vt=new PaginationMemoryResponse(
+            new SortResponse(
+                new VisitSNResponse(non_drug_orders,
+                    non_drug_orders),
+                non_drug_orders, QueryResult.getSortKey(non_drug_orders),false),non_drug_orders);
         JsonObject paramJson = JsonAttrUtil.toJsonObject(param);
         String time = JsonAttrUtil.getStringValue("time",paramJson);
         Integer page = paramJson.get("page").getAsInt();

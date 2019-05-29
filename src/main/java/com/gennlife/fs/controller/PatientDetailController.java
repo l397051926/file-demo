@@ -345,7 +345,7 @@ public class PatientDetailController {
         return new PharmarcyOrder().getNewOrdersPharmacy(param);
     }
     // 新 单独每天搜索 分页 sd功能
-    @RequestMapping(value = "/Orders_Pharmacy_Day", method = RequestMethod.POST)
+    @RequestMapping(value = "/orders_pharmacy_day", method = RequestMethod.POST)
     public
     @ResponseBody
     String getOrdersPharmacyDay(@RequestBody String param) {

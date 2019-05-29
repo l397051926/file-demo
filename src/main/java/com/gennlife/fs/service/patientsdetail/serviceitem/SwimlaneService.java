@@ -9,6 +9,7 @@ import com.gennlife.fs.common.response.ResponseInterface;
 import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.response.SortResponse;
 import com.gennlife.fs.common.utils.*;
+import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.service.patientsdetail.model.VisitSNResponse;
 import com.gennlife.fs.system.bean.BeansContextUtil;
 import com.gennlife.fs.system.config.GroupVisitSearch;
@@ -20,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
+
 /**
  *
  * 分类详情-病程记录
@@ -30,11 +33,26 @@ public class SwimlaneService {
     private static final JsonObject SWIMLANCE_SORT ;
     private static final JsonObject SWIMLANCE_SHOW_NAME ;
     private static final JsonObject SWIMLANCE_SHOW_STR_NAME ;
+    private static final JsonArray FIELD_NAME;
+    private static final JsonObject SWIMLANCE_SHOW_CONFIG;
+    private static final String OPERATION_DATE_COUNT="OperationDays";
+    private static final String ADMISSION_DATE_COUNT="hospitalDays";
+    private static final String TIME="Dates";
+    private static final String IMAGING_REPORTS="ImagingReports";
+    private static final String INSPECTION_REPORTS="InspectionReports";
+    private static final String OPERATION="Operation";
+    private static final String LONG_MEDICINE="LongMedicine";
+    private static final String ONCE_MEDICINE="OnceMedicine";
+    private static final String NON_ORDER="NonOrder";
+    private static final String MEDICAL_RECORDS="MedicalRecords";
     static {
         JsonObject swimlanceConfig = JsonAttrUtil.getJsonObjectfromFile(SystemUtil.getPath("/data/swimlance.json"));
+        JsonObject swimlanceshowconfig = JsonAttrUtil.getJsonObjectfromFile(SystemUtil.getPath("/data/swimlanceShowName.json"));
         SWIMLANCE_SORT = swimlanceConfig.getAsJsonObject("sort");
         SWIMLANCE_SHOW_NAME = swimlanceConfig.getAsJsonObject("showName");
         SWIMLANCE_SHOW_STR_NAME = swimlanceConfig.getAsJsonObject("strongShowName");
+        FIELD_NAME = swimlanceshowconfig.getAsJsonArray("fieldName");
+        SWIMLANCE_SHOW_CONFIG = swimlanceshowconfig.getAsJsonObject("swimlanceConfig");
     }
 
     public String getSwimlane(String param) {
@@ -84,12 +102,12 @@ public class SwimlaneService {
         getElectronic(timeLines,param);
         getMedicalOrders(timeLines,param,endTime);
 
-        Map<String,JsonObject> resultTimeLines = transForTimeLinesDays(timeLines,startTime,endTime);
+        Map<String,JsonObject> resultTimeLines = transForTimeLinesDays(timeLines,startTime,endTime,startTime);
 
         List<JsonObject> resultList = new LinkedList<>();
         for (Map.Entry<String,JsonObject> entry : resultTimeLines.entrySet()){
             JsonObject object = new JsonObject();
-            object.addProperty("time",entry.getKey());
+            object.addProperty(TIME,entry.getKey());
             object.add("data",entry.getValue());
             resultList.add(object);
         }
@@ -98,6 +116,7 @@ public class SwimlaneService {
         data.add("diagnose",diagnose);
         data.add("timerShaft", JsonAttrUtil.toJsonTree(resultData));
         JsonObject result = new JsonObject();
+        result.add("fieldName",FIELD_NAME);
         result.addProperty("code",1);
         result.addProperty("msg","success");
         result.add("data",data);
@@ -105,51 +124,74 @@ public class SwimlaneService {
         return JsonAttrUtil.toJsonStr(result);
     }
 
-    private Map<String, JsonObject> transForTimeLinesDays(Map<String, JsonObject> timeLines, String startTime, String endTime) {
+    private Map<String, JsonObject> transForTimeLinesDays(Map<String, JsonObject> timeLines, String startTime, String endTime, String admissionDate) {
         Map<String,JsonObject> resultMap = new LinkedHashMap<>();
         String beforTime = "";
         String[] operatorData = new String [2];
         for (Map.Entry<String,JsonObject> entry : timeLines.entrySet()){
             String time = entry.getKey();
             JsonObject val = entry.getValue();
-            //手术逻辑
-            if(StringUtil.isNotEmptyStr(operatorData[0])){
-                if(val.has("OPERATION_DATE")){
-                    String operTimeTmp = JsonAttrUtil.getStringValue("OPERATION_DATE",val);
-                    Long days = DateUtil.getDurationWithDays(operatorData[0],operTimeTmp);
-                    if(days>14){
-                        operatorData[0] = operTimeTmp;
-                    }else {
-                        operatorData[1] = operTimeTmp;
-                    }
-                }else {
-                    val.addProperty("OPERATION_DATE",operatorData[0]);
-                }
-            }else {
-                operatorData[0] = JsonAttrUtil.getStringValue("OPERATION_DATE",val);
-            }
             if(endTime.compareTo(time) < 0){
                 break;
             }
             while (resultMap.size()<=0 && startTime.compareTo(time) < 0){
-                resultMap.put(startTime,new JsonObject());
+                JsonObject obj = new JsonObject();
+                addDays(obj,startTime,admissionDate,operatorData);
+                resultMap.put(startTime,obj);
                 startTime = DateUtil.getSpecifiedDayAfter(startTime);
             }
             while (StringUtil.isNotEmptyStr(beforTime) && beforTime.compareTo(time) < 0){
-                resultMap.put(beforTime,new JsonObject());
+                JsonObject obj = new JsonObject();
+                addDays(obj,beforTime,admissionDate,operatorData);
+                resultMap.put(beforTime,obj);
                 beforTime = DateUtil.getSpecifiedDayAfter(beforTime);
             }
+            addDays(val,time,admissionDate,operatorData);
             beforTime = DateUtil.getSpecifiedDayAfter(time);
             resultMap.put(time,val);
         }
         while ( resultMap.size() % 7 !=0){
-            resultMap.put(beforTime,new JsonObject());
+            JsonObject obj = new JsonObject();
+            addDays(obj,beforTime,admissionDate,operatorData);
+            resultMap.put(beforTime,obj);
             beforTime = DateUtil.getSpecifiedDayAfter(beforTime);
         }
         return resultMap;
 
     }
 
+    private void addDays(JsonObject val,String time,String admissionDate,String[] operatorData) {
+        Long admissionDays = DateUtil.getDurationWithDays(time,admissionDate) + 1;
+        val.addProperty(ADMISSION_DATE_COUNT,admissionDays);
+        //手术逻辑
+
+        if(StringUtil.isNotEmptyStr(operatorData[0]) ){
+            if(val.has("OPERATION_DATE")){
+                String operTimeTmp = JsonAttrUtil.getStringValue("OPERATION_DATE",val);
+                Long days = DateUtil.getDurationWithDays(operatorData[0],operTimeTmp);
+                if(days>14){
+                    operatorData[0] = operTimeTmp;
+                    operatorData[1] = "";
+                    Long count = DateUtil.getDurationWithDays(time,operatorData[0])+1;
+                    val.addProperty(OPERATION_DATE_COUNT,count);
+                }else {
+                    Long count1 = DateUtil.getDurationWithDays(time,operatorData[0])+1;
+                    Long count2 = DateUtil.getDurationWithDays(time,operatorData[1])+1;
+                    operatorData[1] = operTimeTmp;
+                    val.addProperty(OPERATION_DATE_COUNT,count2+"/"+count1);
+                }
+                val.addProperty("OPERATION_DATE",operTimeTmp);
+            }else {
+                val.addProperty("OPERATION_DATE",operatorData[0]);
+                Long count = DateUtil.getDurationWithDays(time,operatorData[0])+1;
+                val.addProperty(OPERATION_DATE_COUNT,count);
+            }
+        }else if(val.has("OPERATION_DATE")){
+            operatorData[0] = JsonAttrUtil.getStringValue("OPERATION_DATE",val);
+            Long count = DateUtil.getDurationWithDays(time,operatorData[0])+1;
+            val.addProperty(OPERATION_DATE_COUNT,count);
+        }
+    }
 
     private void getMedicalOrders(Map<String, JsonObject> timeLines, String param, String endTime) {
         VisitSNResponse vt =  new VisitSNResponse("medicine_order","medicine_order");
@@ -159,7 +201,7 @@ public class SwimlaneService {
         JsonObject result = vt.get_result();
         JsonArray medicin = result.get("medicine_order").getAsJsonArray();
         JsonArray longMedicin = new JsonArray();
-        JSONArray shortMedicin = new JSONArray();
+        JsonArray shortMedicin = new JsonArray();
         for (JsonElement element : medicin){
             JsonObject object = element.getAsJsonObject();
             String LONG_ONCE_FLAG = JsonAttrUtil.getStringValue("LONG_ONCE_FLAG",object);
@@ -187,12 +229,12 @@ public class SwimlaneService {
             }
         }
 
-        transForArrayTimeMap(longMedicin,timeLines,"stading_order");
-        transForArrayTimeMap(longMedicin, timeLines, "stat_order");
+        transForArrayTimeMap(longMedicin,timeLines,LONG_MEDICINE,LONG_MEDICINE);
+        transForArrayTimeMap(shortMedicin, timeLines, ONCE_MEDICINE,ONCE_MEDICINE);
 
     }
 
-    private void transForArrayTimeMap(JsonArray longMedicin, Map<String, JsonObject> timeLines, String key) {
+    private void transForArrayTimeMap(JsonArray longMedicin, Map<String, JsonObject> timeLines, String key,String configSchema) {
         Map<String,List<JsonObject>> longTimeMap = new HashMap<>();
         for (JsonElement element : longMedicin){
             JsonObject object = element.getAsJsonObject();
@@ -204,8 +246,11 @@ public class SwimlaneService {
             if(StringUtil.isEmptyStr(titleName)){
                 titleName = "非药品医嘱";
             }
+            object.addProperty("type",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(key).get("type").getAsString());
+            object.addProperty("unfold",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(key).get("unfold").getAsBoolean());
+            object.addProperty("port",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(key).get("port").getAsString());
             object.addProperty("titleName",titleName);
-            object.addProperty("configSchema",key);
+            object.addProperty("configSchema",configSchema);
             if(!longTimeMap.containsKey(time)){
                 longTimeMap.put(time,new LinkedList<>());
             }
@@ -255,6 +300,9 @@ public class SwimlaneService {
                     }else {
                         titleName = key;
                     }
+                    tmpObj.addProperty("type",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(MEDICAL_RECORDS).get("type").getAsString());
+                    tmpObj.addProperty("unfold",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(MEDICAL_RECORDS).get("unfold").getAsBoolean());
+                    tmpObj.addProperty("port",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(MEDICAL_RECORDS).get("port").getAsString());
                     tmpObj.addProperty("titleName",titleName);
                     tmpObj.addProperty("configSchema",key);
                     if(!timeMap.containsKey(time)){
@@ -264,7 +312,7 @@ public class SwimlaneService {
                     timeMap.get(time).add(tmpObj);
                 }
             }
-            putTimeLinesValues(timeMap,timeLines,"electronic");
+            putTimeLinesValues(timeMap,timeLines,MEDICAL_RECORDS);
         }
 
     }
@@ -283,7 +331,7 @@ public class SwimlaneService {
             return ;
         }
         JsonArray res = obj.get("orders").getAsJsonArray();
-        transForArrayTimeMap(res, timeLines, "orders");
+        transForArrayTimeMap(res, timeLines, NON_ORDER,"orders");
     }
 
     private void getOperationRecods(Map<String, JsonObject> timeLines, String param) {
@@ -307,6 +355,9 @@ public class SwimlaneService {
             if(StringUtil.isEmptyStr(titleName)){
                 titleName = "手术记录";
             }
+            elObj.addProperty("type",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(OPERATION).get("type").getAsString());
+            elObj.addProperty("unfold",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(OPERATION).get("unfold").getAsBoolean());
+            elObj.addProperty("port",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(OPERATION).get("port").getAsString());
             elObj.addProperty("titleName",titleName);
             elObj.addProperty("configSchema","operation_records");
             String time = DateUtil.getDateStr_ymd(date);
@@ -319,7 +370,7 @@ public class SwimlaneService {
             }
             timeLines.get(time).addProperty("OPERATION_DATE",time);
         }
-        putTimeLinesValues(timeMap,timeLines,"operation_records");
+        putTimeLinesValues(timeMap,timeLines,OPERATION);
     }
 
     private void getLabResultItem(Map<String, JsonObject> timeLines, String param) {
@@ -336,14 +387,32 @@ public class SwimlaneService {
             visit_sn = param_json.get("visit_sn").getAsString();
         }
 
+        String INSPECTION_SN =  "inspection_reports.INSPECTION_SN";
+        String INSPECTION_NAME = "inspection_reports.INSPECTION_NAME";
+        String SPECIMEN_NAME = "inspection_reports.SPECIMEN_NAME";
+        String SUBMITTING_DEPARTMENT = "inspection_reports.SUBMITTING_DEPARTMENT";
+        String ACQUISITION_TIME = "inspection_reports.ACQUISITION_TIME";
+        String RECEIVE_TIME ="inspection_reports.RECEIVE_TIME";
+        String REPORT_TIME = "inspection_reports.REPORT_TIME";
+        String inspection_reports = "inspection_reports";
+        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+            INSPECTION_SN =  "inspection_report.INSPECTION_SN";
+            INSPECTION_NAME = "inspection_report.INSPECTION_NAME";
+            SPECIMEN_NAME = "inspection_report.SPECIMEN_NAME";
+            SUBMITTING_DEPARTMENT = "inspection_report.SUBMITTING_DEPARTMENT";
+            ACQUISITION_TIME = "inspection_report.ACQUISITION_TIME";
+            RECEIVE_TIME ="inspection_report.RECEIVE_TIME";
+            REPORT_TIME = "inspection_report.REPORT_TIME";
+            inspection_reports = "inspection_report";
+        }
         QueryParam qp = new QueryParam(param_json, patient_sn, new String[]{
-            "inspection_reports.INSPECTION_SN",
-            "inspection_reports.INSPECTION_NAME",
-            "inspection_reports.SPECIMEN_NAME",
-            "inspection_reports.SUBMITTING_DEPARTMENT",
-            "inspection_reports.ACQUISITION_TIME",
-            "inspection_reports.RECEIVE_TIME",
-            "inspection_reports.REPORT_TIME"
+            INSPECTION_SN,
+            INSPECTION_NAME,
+            SPECIMEN_NAME,
+            SUBMITTING_DEPARTMENT,
+            ACQUISITION_TIME,
+            RECEIVE_TIME,
+            REPORT_TIME
         });
 
         GroupVisitSearch groupVisitSearch = new GroupVisitSearch(BeansContextUtil.getUrlBean().getVisitIndexName(),patient_sn,visit_sn);
@@ -354,7 +423,7 @@ public class SwimlaneService {
         if (visit == null) {
             return;
         }
-        JsonArray visits = visit.getAsJsonArray("inspection_reports");
+        JsonArray visits = visit.getAsJsonArray(inspection_reports);
         Map<String,List<JsonObject>> timeMap = new HashMap<>();
         for (JsonElement element : visits){
             JsonObject object = element.getAsJsonObject();
@@ -362,8 +431,11 @@ public class SwimlaneService {
             if(StringUtil.isEmptyStr(titleName)){
                 titleName = "实验室检验";
             }
+            object.addProperty("type",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(INSPECTION_REPORTS).get("type").getAsString());
+            object.addProperty("unfold",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(INSPECTION_REPORTS).get("unfold").getAsBoolean());
+            object.addProperty("port",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(INSPECTION_REPORTS).get("port").getAsString());
             object.addProperty("titleName",titleName);
-            object.addProperty("configSchema","inspection_reports");
+            object.addProperty("configSchema",inspection_reports);
             String time = DateUtil.getDateStr_ymd(JsonAttrUtil.getStringValue("REPORT_TIME",object));
             if(StringUtil.isEmptyStr(time)){
                 continue;
@@ -373,7 +445,7 @@ public class SwimlaneService {
             }
             timeMap.get(time).add(object);
         }
-        putTimeLinesValues(timeMap,timeLines,"inspection_reports");
+        putTimeLinesValues(timeMap,timeLines,INSPECTION_REPORTS);
 
     }
 
@@ -413,6 +485,9 @@ public class SwimlaneService {
                     if(StringUtil.isEmptyStr(titleName)){
                         titleName = JsonAttrUtil.getStringValue(key,SWIMLANCE_SHOW_STR_NAME);
                     }
+                    tmpObj.addProperty("type",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(IMAGING_REPORTS).get("type").getAsString());
+                    tmpObj.addProperty("unfold",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(IMAGING_REPORTS).get("unfold").getAsBoolean());
+                    tmpObj.addProperty("port",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(IMAGING_REPORTS).get("port").getAsString());
                     tmpObj.addProperty("titleName",titleName);
                     tmpObj.addProperty("configSchema",key);
                     if(!timeMap.containsKey(time)){
@@ -424,10 +499,11 @@ public class SwimlaneService {
             putTimeLinesValues(timeMap,timeLines,"exam_result");
 
             json = new JsonObject();
-            json.add("exam_result", result);
+            json.add(IMAGING_REPORTS, result);
         }
 
     }
+
     public void putTimeLinesValues( Map<String,List<JsonObject>> timeMap,Map<String, JsonObject> timeLines,String key){
         for (Map.Entry<String,List<JsonObject>> entry : timeMap.entrySet()){
             String time = entry.getKey();
@@ -442,7 +518,6 @@ public class SwimlaneService {
             timeLines.get(time).add(key, JsonAttrUtil.toJsonTree(entry.getValue()));
         }
     }
-
 
     private JsonObject getDiannoseCount(JsonObject param_json) {
         VisitSNResponse snResponse = new VisitSNResponse(new String[]{"diagnose","visit_info"});
@@ -512,5 +587,6 @@ public class SwimlaneService {
         }
     }
 
+    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
 
 }

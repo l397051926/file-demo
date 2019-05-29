@@ -15,13 +15,13 @@ public class ClinicMedicalRecords {
 
     public String getData(String param) {
         VisitSNResponse vt = new VisitSNResponse(new String[]{
-                "clinic_medical_records"
+                "clinic_medical_record"
         },
                 new String[]{
-                        "clinic_medical_records"//门诊病历
+                        "clinic_medical_record"//门诊病历
                 }
         );
-        HashMap<String, String> map = QueryResult.subMap("clinic_medical_records");
+        HashMap<String, String> map = QueryResult.subMap("clinic_medical_record");
         ResponseInterface sort = new SortResponse(vt, map, true);
         return ResponseMsgFactory.getResponseStr(sort, param);
     }

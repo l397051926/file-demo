@@ -263,6 +263,7 @@ public class QueryResult {
         sortMap.put("forsz_study", "SD_APPLY_TIME");
         sortMap.put("inspection_reports","REPORT_TIME");
         sortMap.put("orders","ORDER_START_TIME");
+        sortMap.put("non_drug_orders","ORDER_START_TIME");
     }
 
     public static HashMap<String, String> subMap(String... key) {

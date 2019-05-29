@@ -11,7 +11,7 @@ import com.gennlife.fs.common.utils.ImageResponseUtils;
  */
 public class PathologyReports {
     public String getPathologyReports(String param) {
-        ResponseInterface template = ImageResponseUtils.getImageResponseInterface("pathology_reports");
+        ResponseInterface template = ImageResponseUtils.getImageResponseInterface("pathology_report");
         return ResponseMsgFactory.getResponseStr(template, param);
 
     }

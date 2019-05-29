@@ -5,6 +5,7 @@ import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
 import com.gennlife.fs.common.utils.StringUtil;
 import com.gennlife.fs.common.utils.TimerShaftSort;
+import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.service.patientsdetail.base.PatientDetailService;
 import com.gennlife.fs.service.patientsdetail.model.TimeValueEntity;
 import com.gennlife.fs.system.bean.BeansContextUtil;
@@ -19,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
 
+import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
 import static com.gennlife.fs.service.patientsdetail.serviceitem.LabResultItemList.exchange;
 
 
@@ -94,15 +96,45 @@ public class LabResultItem extends PatientDetailService {
         qp.setIndexName(BeansContextUtil.getUrlBean().getVisitIndexName());
         qp.setSize(1);
         JsonArray visits = null;
+        String INSPECTION_NAME = null;
+        String SUB_INSPECTION_CN = null;
+        String SUB_INSPECTION_EN = null;
+        String SUB_INSPECTION_RESULT = null;
+        String SUB_INSPECTION_RESULT_NUMBER = null;
+        String SUB_INSPECTION_UNIT = null;
+        String SUB_INSPECTION_REFERENCE_INTERVAL = null;
+        String REPORT_TIME = null;
+        String inspection_reports = null;
+        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+            INSPECTION_NAME = "visits.inspection_report.INSPECTION_NAME";
+            SUB_INSPECTION_CN =  "visits.inspection_report.sub_inspection.SUB_INSPECTION_CN";
+            SUB_INSPECTION_EN = "visits.inspection_report.sub_inspection.SUB_INSPECTION_EN";
+            SUB_INSPECTION_RESULT = "visits.inspection_report.sub_inspection.SUB_INSPECTION_RESULT";
+            SUB_INSPECTION_RESULT_NUMBER = "visits.inspection_report.sub_inspection.SUB_INSPECTION_RESULT_NUMBER";
+            SUB_INSPECTION_UNIT ="visits.inspection_report.sub_inspection.SUB_INSPECTION_UNIT";
+            SUB_INSPECTION_REFERENCE_INTERVAL = "visits.inspection_report.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL";
+            REPORT_TIME = "visits.inspection_report.REPORT_TIME";
+            inspection_reports = "inspection_report";
+        }else {
+            INSPECTION_NAME = "visits.inspection_reports.INSPECTION_NAME";
+            SUB_INSPECTION_CN =  "visits.inspection_reports.sub_inspection.SUB_INSPECTION_CN";
+            SUB_INSPECTION_EN = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_EN";
+            SUB_INSPECTION_RESULT = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_RESULT";
+            SUB_INSPECTION_RESULT_NUMBER = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_RESULT_NUMBER";
+            SUB_INSPECTION_UNIT ="visits.inspection_reports.sub_inspection.SUB_INSPECTION_UNIT";
+            SUB_INSPECTION_REFERENCE_INTERVAL = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL";
+            REPORT_TIME = "visits.inspection_reports.REPORT_TIME";
+            inspection_reports = "inspection_reports";
+        }
         if (visit_sn == null) {
-            qp.addsource("visits.inspection_reports.INSPECTION_NAME",
-                    "visits.inspection_reports.sub_inspection.SUB_INSPECTION_CN",
-                    "visits.inspection_reports.sub_inspection.SUB_INSPECTION_EN",
-                    "visits.inspection_reports.sub_inspection.SUB_INSPECTION_RESULT",
-                    "visits.inspection_reports.sub_inspection.SUB_INSPECTION_RESULT_NUMBER",
-                    "visits.inspection_reports.sub_inspection.SUB_INSPECTION_UNIT",
-                    "visits.inspection_reports.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL",
-                    "visits.inspection_reports.REPORT_TIME");
+            qp.addsource(INSPECTION_NAME,
+                SUB_INSPECTION_CN,
+                SUB_INSPECTION_EN,
+                SUB_INSPECTION_RESULT,
+                SUB_INSPECTION_RESULT_NUMBER,
+                SUB_INSPECTION_UNIT,
+                SUB_INSPECTION_REFERENCE_INTERVAL,
+                REPORT_TIME);
             visits = filterPatientVisitsJsonArray(qp, param_json);
             if (visits == null) {
                 return ResponseMsgFactory.buildFailStr(" no visit ");
@@ -115,13 +147,12 @@ public class LabResultItem extends PatientDetailService {
             }
             visits.add(visit);
         }
-
         for (JsonElement one_visit : visits) {
             logger.debug("getLabResultItem(): one visit ...");
             JsonObject one_visit_json = one_visit.getAsJsonObject();
             JsonArray all_reports = null;
-            if (one_visit_json.has("inspection_reports")) {
-                all_reports = one_visit_json.get("inspection_reports").getAsJsonArray();
+            if (one_visit_json.has(inspection_reports)) {
+                all_reports = one_visit_json.get(inspection_reports).getAsJsonArray();
             } else {
                 continue;
             }
@@ -274,15 +305,32 @@ public class LabResultItem extends PatientDetailService {
             return ResponseMsgFactory.buildFailStr("no patient_sn");
         }
         JsonObject result = new JsonObject();
-
+        String INSPECTION_SN =  "inspection_reports.INSPECTION_SN";
+        String INSPECTION_NAME = "inspection_reports.INSPECTION_NAME";
+        String SPECIMEN_NAME = "inspection_reports.SPECIMEN_NAME";
+        String SUBMITTING_DEPARTMENT = "inspection_reports.SUBMITTING_DEPARTMENT";
+        String ACQUISITION_TIME = "inspection_reports.ACQUISITION_TIME";
+        String RECEIVE_TIME ="inspection_reports.RECEIVE_TIME";
+        String REPORT_TIME = "inspection_reports.REPORT_TIME";
+        String inspection_reports = "inspection_reports";
+        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+             INSPECTION_SN =  "inspection_report.INSPECTION_SN";
+             INSPECTION_NAME = "inspection_report.INSPECTION_NAME";
+             SPECIMEN_NAME = "inspection_report.SPECIMEN_NAME";
+             SUBMITTING_DEPARTMENT = "inspection_report.SUBMITTING_DEPARTMENT";
+             ACQUISITION_TIME = "inspection_report.ACQUISITION_TIME";
+             RECEIVE_TIME ="inspection_report.RECEIVE_TIME";
+             REPORT_TIME = "inspection_report.REPORT_TIME";
+            inspection_reports = "inspection_report";
+        }
         QueryParam qp = new QueryParam(param_json, patient_sn, new String[]{
-            "inspection_reports.INSPECTION_SN",
-            "inspection_reports.INSPECTION_NAME",
-            "inspection_reports.SPECIMEN_NAME",
-            "inspection_reports.SUBMITTING_DEPARTMENT",
-            "inspection_reports.ACQUISITION_TIME",
-            "inspection_reports.RECEIVE_TIME",
-            "inspection_reports.REPORT_TIME"
+            INSPECTION_SN,
+            INSPECTION_NAME,
+            SPECIMEN_NAME,
+            SUBMITTING_DEPARTMENT,
+            ACQUISITION_TIME,
+            RECEIVE_TIME,
+            REPORT_TIME
         });
         qp.setQuery("[患者基本信息.患者编号] 包含 " + patient_sn);
         qp.setIndexName(BeansContextUtil.getUrlBean().getVisitIndexName());
@@ -292,7 +340,7 @@ public class LabResultItem extends PatientDetailService {
             return ResponseMsgFactory.buildFailStr("no visit");
         }
 
-        JsonArray visits = visit.getAsJsonArray("inspection_reports");
+        JsonArray visits = visit.getAsJsonArray(inspection_reports);
         if(visits == null){
             return ResponseMsgFactory.buildFailStr("no inspection_reports");
         }
@@ -406,15 +454,45 @@ public class LabResultItem extends PatientDetailService {
         qp.setIndexName(BeansContextUtil.getUrlBean().getVisitIndexName());
         qp.setSize(1);
         JsonArray visits = null;
+        String INSPECTION_NAME = null;
+        String SUB_INSPECTION_CN = null;
+        String SUB_INSPECTION_EN = null;
+        String SUB_INSPECTION_RESULT = null;
+        String SUB_INSPECTION_RESULT_NUMBER = null;
+        String SUB_INSPECTION_UNIT = null;
+        String SUB_INSPECTION_REFERENCE_INTERVAL = null;
+        String REPORT_TIME = null;
+        String inspection_reports = null;
+        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+            INSPECTION_NAME = "visits.inspection_report.INSPECTION_NAME";
+            SUB_INSPECTION_CN =  "visits.inspection_report.sub_inspection.SUB_INSPECTION_CN";
+            SUB_INSPECTION_EN = "visits.inspection_report.sub_inspection.SUB_INSPECTION_EN";
+            SUB_INSPECTION_RESULT = "visits.inspection_report.sub_inspection.SUB_INSPECTION_RESULT";
+            SUB_INSPECTION_RESULT_NUMBER = "visits.inspection_report.sub_inspection.SUB_INSPECTION_RESULT_NUMBER";
+            SUB_INSPECTION_UNIT ="visits.inspection_report.sub_inspection.SUB_INSPECTION_UNIT";
+            SUB_INSPECTION_REFERENCE_INTERVAL = "visits.inspection_report.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL";
+            REPORT_TIME = "visits.inspection_report.REPORT_TIME";
+            inspection_reports = "inspection_report";
+        }else {
+            INSPECTION_NAME = "visits.inspection_reports.INSPECTION_NAME";
+            SUB_INSPECTION_CN =  "visits.inspection_reports.sub_inspection.SUB_INSPECTION_CN";
+            SUB_INSPECTION_EN = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_EN";
+            SUB_INSPECTION_RESULT = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_RESULT";
+            SUB_INSPECTION_RESULT_NUMBER = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_RESULT_NUMBER";
+            SUB_INSPECTION_UNIT ="visits.inspection_reports.sub_inspection.SUB_INSPECTION_UNIT";
+            SUB_INSPECTION_REFERENCE_INTERVAL = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL";
+            REPORT_TIME = "visits.inspection_reports.REPORT_TIME";
+            inspection_reports = "inspection_reports";
+        }
         if (visit_sn == null) {
-            qp.addsource("visits.inspection_reports.INSPECTION_NAME",
-                "visits.inspection_reports.sub_inspection.SUB_INSPECTION_CN",
-                "visits.inspection_reports.sub_inspection.SUB_INSPECTION_EN",
-                "visits.inspection_reports.sub_inspection.SUB_INSPECTION_RESULT",
-                "visits.inspection_reports.sub_inspection.SUB_INSPECTION_RESULT_NUMBER",
-                "visits.inspection_reports.sub_inspection.SUB_INSPECTION_UNIT",
-                "visits.inspection_reports.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL",
-                "visits.inspection_reports.REPORT_TIME");
+            qp.addsource(INSPECTION_NAME,
+                SUB_INSPECTION_CN,
+                SUB_INSPECTION_EN,
+                SUB_INSPECTION_RESULT,
+                SUB_INSPECTION_RESULT_NUMBER,
+                SUB_INSPECTION_UNIT,
+                SUB_INSPECTION_REFERENCE_INTERVAL,
+                REPORT_TIME);
             visits = filterPatientVisitsJsonArray(qp, param_json);
             if (visits == null) {
                 return ResponseMsgFactory.buildFailStr(" no visit ");
@@ -432,7 +510,7 @@ public class LabResultItem extends PatientDetailService {
             logger.debug("getLabResultItem(): one visit ...");
             JsonObject one_visit_json = one_visit.getAsJsonObject();
             JsonArray all_reports = null;
-            if (one_visit_json.has("inspection_reports")) {
+            if (one_visit_json.has(inspection_reports)) {
                 all_reports = one_visit_json.get("inspection_reports").getAsJsonArray();
             } else {
                 continue;
@@ -558,23 +636,55 @@ public class LabResultItem extends PatientDetailService {
         }else {
             return ResponseMsgFactory.buildFailStr("pageparam is not sub_inspection_unit ");
         }
-
+        String INSPECTION_NAME = null;
+        String SPECIMEN_NAME = null;
+        String SUB_INSPECTION_CN = null;
+        String SUB_INSPECTION_EN = null;
+        String SUB_INSPECTION_RESULT = null;
+        String SUB_INSPECTION_RESULT_NUMBER = null;
+        String SUB_INSPECTION_UNIT = null;
+        String SUB_INSPECTION_REFERENCE_INTERVAL = null;
+        String REPORT_TIME = null;
+        String inspection_reports = null;
+        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+            INSPECTION_NAME = "visits.inspection_report.INSPECTION_NAME";
+            SPECIMEN_NAME = "visits.inspection_reports.SPECIMEN_NAME";
+            SUB_INSPECTION_CN =  "visits.inspection_report.sub_inspection.SUB_INSPECTION_CN";
+            SUB_INSPECTION_EN = "visits.inspection_report.sub_inspection.SUB_INSPECTION_EN";
+            SUB_INSPECTION_RESULT = "visits.inspection_report.sub_inspection.SUB_INSPECTION_RESULT";
+            SUB_INSPECTION_RESULT_NUMBER = "visits.inspection_report.sub_inspection.SUB_INSPECTION_RESULT_NUMBER";
+            SUB_INSPECTION_UNIT ="visits.inspection_report.sub_inspection.SUB_INSPECTION_UNIT";
+            SUB_INSPECTION_REFERENCE_INTERVAL = "visits.inspection_report.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL";
+            REPORT_TIME = "visits.inspection_report.REPORT_TIME";
+            inspection_reports = "inspection_report";
+        }else {
+            INSPECTION_NAME = "visits.inspection_reports.INSPECTION_NAME";
+            SPECIMEN_NAME = "visits.inspection_reports.SPECIMEN_NAME";
+            SUB_INSPECTION_CN =  "visits.inspection_reports.sub_inspection.SUB_INSPECTION_CN";
+            SUB_INSPECTION_EN = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_EN";
+            SUB_INSPECTION_RESULT = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_RESULT";
+            SUB_INSPECTION_RESULT_NUMBER = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_RESULT_NUMBER";
+            SUB_INSPECTION_UNIT ="visits.inspection_reports.sub_inspection.SUB_INSPECTION_UNIT";
+            SUB_INSPECTION_REFERENCE_INTERVAL = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL";
+            REPORT_TIME = "visits.inspection_reports.REPORT_TIME";
+            inspection_reports = "inspection_reports";
+        }
         QueryParam qp = new QueryParam(param_json, patient_sn, new String[]{
-            "inspection_reports",
+            inspection_reports,
         });
         qp.setQuery("[患者基本信息.患者编号] 包含 " + patient_sn);
         qp.setIndexName(BeansContextUtil.getUrlBean().getVisitIndexName());
         qp.setSize(1);
         qp.addsource(
-            "visits.inspection_reports.INSPECTION_NAME",
-            "visits.inspection_reports.SPECIMEN_NAME",
-            "visits.inspection_reports.REPORT_TIME",
-            "visits.inspection_reports.sub_inspection.SUB_INSPECTION_CN",
-            "visits.inspection_reports.sub_inspection.SUB_INSPECTION_EN",
-            "visits.inspection_reports.sub_inspection.SUB_INSPECTION_RESULT",
-            "visits.inspection_reports.sub_inspection.SUB_INSPECTION_RESULT_NUMBER",
-            "visits.inspection_reports.sub_inspection.SUB_INSPECTION_UNIT",
-            "visits.inspection_reports.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL");
+            INSPECTION_NAME,
+            SPECIMEN_NAME,
+            REPORT_TIME,
+            SUB_INSPECTION_CN,
+            SUB_INSPECTION_EN,
+            SUB_INSPECTION_RESULT,
+            SUB_INSPECTION_RESULT_NUMBER,
+            SUB_INSPECTION_UNIT,
+            SUB_INSPECTION_REFERENCE_INTERVAL);
         JsonArray visits = null;
         visits = filterPatientVisitsJsonArray(qp, param_json);
         if (visits == null) {
@@ -585,7 +695,7 @@ public class LabResultItem extends PatientDetailService {
 
             JsonObject one_visit_json = one_visit.getAsJsonObject();
             JsonArray all_reports = null;
-            if (one_visit_json.has("inspection_reports")) {
+            if (one_visit_json.has(inspection_reports)) {
                 all_reports = one_visit_json.get("inspection_reports").getAsJsonArray();
             } else {
                 continue INS;
@@ -666,4 +776,5 @@ public class LabResultItem extends PatientDetailService {
         return ResponseMsgFactory.buildSuccessStr(result);
 
     }
+    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
 }

@@ -39,29 +39,28 @@ public class MedicalCourseText {
     }
 
     public String getNewMedicalCourseText(String param) {
+        String difficulty_case_records = "difficulty_case_records";
+        String stage_summary = "stage_summary";
+        String discharge_summary = "discharge_summary";
+        String transferred_in_records = "transferred_in_records";
+        String transferred_out_records = "transferred_out_records";
+        String rescue_records = "rescue_records";
+        String death_summary = "death_summary";
+        String death_records = "death_records";
+        String death_discuss_records = "death_discuss_records";
+        String handover_record = "handover_record";
         VisitSNResponse template=new VisitSNResponse(
-            new String[]{
-                "difficulty_case_records",
-                "stage_summary",
-                "discharge_summary",
-                "transferred_in_records",
-                "transferred_out_records",
-                "rescue_records",
-                "death_summary",
-                "death_records",
-                "death_discuss_records",
-                "handover_record"
-            },new String[]{
-            "difficulty_case_records",//疑难病例讨论记录
-            "stage_summary",//阶段小结
-            "discharge_summary",//出院小结
-            "transferred_in_records",//转入记录
-            "transferred_out_records",//转出记录
-            "rescue_records",//抢救记录
-            "death_summary",//死亡小结
-            "death_records",//死亡记录
-            "death_discuss_records",//死亡病例讨论记录
-            "handover_record"//交接班记录
+         new String[]{
+             difficulty_case_records,//疑难病例讨论记录
+             stage_summary,//阶段小结
+             discharge_summary,//出院小结
+             transferred_in_records,//转入记录
+             transferred_out_records,//转出记录
+             rescue_records,//抢救记录
+             death_summary,//死亡小结
+             death_records,//死亡记录
+             death_discuss_records,//死亡病例讨论记录
+             handover_record//交接班记录
         }
         );
 

@@ -19,9 +19,8 @@ import java.util.List;
 public class MedicalRecord {
     private static List<String> CONFIG_LIST = new ArrayList<>();
     static {
-        CONFIG_LIST.add("dis_main_diag");
+        CONFIG_LIST.add("diag");
         CONFIG_LIST.add("operation");
-        CONFIG_LIST.add("dis_main_diag");
     }
     public String getMedicalRecord (String param){
         VisitSNResponse vt=new VisitSNResponse("medical_record_home_page","medical_record");
@@ -33,6 +32,7 @@ public class MedicalRecord {
         vt.execute(JsonAttrUtil.toJsonObject(param));
         JsonObject mdicalResult = vt.get_result();
         JsonObject result = transforMdicalResult(mdicalResult,"medical_record_home_page");
+        result.addProperty("code",1);
         return ResponseMsgFactory.buildResponseStr(result, vt.get_error());
     }
 
