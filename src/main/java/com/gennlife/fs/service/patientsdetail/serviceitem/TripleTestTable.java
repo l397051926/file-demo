@@ -106,7 +106,7 @@ public class TripleTestTable {
                     query.addProperty("visitSn", visitSn);
                     //获取 gernomics
                     JsonArray source = new JsonArray();
-                    if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+                    if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
                         source.add("visits.visit_info.VISIT_SN");
                         source.add("visits.visit_info.ADMISSION_DATE");
                         source.add("visits.visit_info.REGISTERED_DATE");
@@ -133,11 +133,11 @@ public class TripleTestTable {
                     operationDate = new JsonArray();
                     addAdmissionDataParam(dataJson, hospitalAdmissionDate,"visit_info");
                     addParamJsonData(dataJson, hospitalDischargeDate,
-                        cfg.patientDetailModelVersion.compareTo("4") >= 0 ?
+                        cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4") ?
                             "discharge_record" :
                             "discharge_records");
                     addParamJsonData(dataJson, operationDate,
-                        cfg.patientDetailModelVersion.compareTo("4") >= 0 ?
+                        cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4") ?
                             "operation_record" :
                             "operation_records");
                 }

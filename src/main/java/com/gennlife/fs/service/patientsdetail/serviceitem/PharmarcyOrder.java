@@ -38,8 +38,8 @@ public class PharmarcyOrder {
     public String getNewPharmarcyOrder(String param) {
         String drug_order = "medicine_order";
         String DRUG_GENERIC_NAME = "MEDICINE_NAME";
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
-            drug_order = "drug_order";
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+            drug_order = "operation_pre_summary";
             DRUG_GENERIC_NAME = "DRUG_GENERIC_NAME";
         }
         VisitSNResponse vt =  new VisitSNResponse(drug_order,
@@ -131,7 +131,7 @@ public class PharmarcyOrder {
 
     public String getNewOrdersPharmacy(String param) {
         String non_drug_orders = "orders";
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
             non_drug_orders = "non_drug_orders";
         }
         ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse(non_drug_orders,non_drug_orders),non_drug_orders, QueryResult.getSortKey(non_drug_orders),false),non_drug_orders);
@@ -196,7 +196,7 @@ public class PharmarcyOrder {
 
     public String getOrdersPharmacyDay(String param) {
         String non_drug_orders = "orders";
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
             non_drug_orders = "non_drug_orders";
         }
         ResponseInterface vt=new PaginationMemoryResponse(

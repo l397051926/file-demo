@@ -1,6 +1,5 @@
 package com.gennlife.fs.service.patientsdetail.serviceitem;
 
-import com.alibaba.fastjson.JSONArray;
 import com.gennlife.fs.common.comparator.JsonComparatorASCByKey;
 import com.gennlife.fs.common.model.QueryParam;
 import com.gennlife.fs.common.model.QueryResult;
@@ -395,7 +394,7 @@ public class SwimlaneService {
         String RECEIVE_TIME ="inspection_reports.RECEIVE_TIME";
         String REPORT_TIME = "inspection_reports.REPORT_TIME";
         String inspection_reports = "inspection_reports";
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
             INSPECTION_SN =  "inspection_report.INSPECTION_SN";
             INSPECTION_NAME = "inspection_report.INSPECTION_NAME";
             SPECIMEN_NAME = "inspection_report.SPECIMEN_NAME";

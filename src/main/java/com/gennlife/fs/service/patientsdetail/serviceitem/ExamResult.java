@@ -52,7 +52,7 @@ public class ExamResult {
         String other_imaging_exam_diagnosis_reports = "other_imaging_exam_diagnosis_reports";
         String electrocardiogram_reports = "electrocardiogram_reports";
 
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
              ultrasonic_diagnosis_reports = "ultrasonic_diagnosis_report";
              xray_image_reports = "xray_image_report";
              ct_reports = "ct_report";

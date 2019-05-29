@@ -3,6 +3,7 @@ package com.gennlife.fs.configurations;
 import com.alibaba.fastjson.JSON;
 import com.gennlife.darren.util.ImmutableEndpoint;
 import com.gennlife.fs.configurations.patientdetail.conversion.ModelConverter;
+import com.gennlife.fs.configurations.projectexport.ModelVersion;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.redisson.config.Config;
@@ -27,6 +28,9 @@ public class GeneralConfiguration implements InitializingBean {
 
     @Value("#{T(com.gennlife.darren.util.Networking).tomcatEndpoint()}")
     public ImmutableEndpoint localEndpoint;
+
+    @Value("${gennlife.fs.model.version}")
+    public ModelVersion modelVersion;
 
     @Value("${gennlife.fs.storage.root}")
     public Path storageRoot = null;
@@ -102,8 +106,6 @@ public class GeneralConfiguration implements InitializingBean {
     @Value("${gennlife.fs.project-export.message.producer.charset}")
     public Charset projectExportMessageProducerCharset = UTF_8;
 
-    @Value("${gennlife.fs.patient-detail.model.version}")
-    public String patientDetailModelVersion;
     @Value("${gennlife.fs.patient-detail.model.conversion.enabled}")
     public boolean patientDetailModelConversionEnabled;
     @Value("${gennlife.fs.patient-detail.model.conversion.profile}")
