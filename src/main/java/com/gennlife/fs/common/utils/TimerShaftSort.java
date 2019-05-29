@@ -1,10 +1,13 @@
 package com.gennlife.fs.common.utils;
 
+import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.*;
+
+import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
 
 /**
  * @author
@@ -19,26 +22,53 @@ public class TimerShaftSort {
     private static Map<String,String> sortMap = new HashMap<>();
     private static Map<String,String> examResultName = new HashMap<>();
 
+    private static class SingleTimerShaftSortInstance{
+        private static final TimerShaftSort instance = new TimerShaftSort();
+    }
+    private TimerShaftSort(){};
+    public static TimerShaftSort getInstance(){
+        return SingleTimerShaftSortInstance.instance;
+    }
+
     static{
         courseRecords.put("admissions_records","入院记录");
         courseRecords.put("discharge_records","出院记录");
-        courseRecords.put("first_course_record","首次病程记录");
+        courseRecords.put("first_course_records","首次病程记录");
         courseRecords.put("attending_physician_rounds_records","上级医师查房记录");
         courseRecords.put("course_record","日常病程记录");
         courseRecords.put("post_course_record","术后病程记录");
+
+        courseRecords.put("admissions_record","入院记录");
+        courseRecords.put("discharge_record","出院记录");
+        courseRecords.put("first_course_record","首次病程记录");
+        courseRecords.put("attending_physician_rounds_record","上级医师查房记录");
+        courseRecords.put("course_record","日常病程记录");
+        courseRecords.put("operation_post_course_record","术后病程记录");
     }
 
     static {
-        medicalCourse.put("difficulty_case_records","疑难病例讨论记录");
-        medicalCourse.put("stage_summary","阶段小结");
         medicalCourse.put("discharge_summary","出院小结");
+        medicalCourse.put("death_discuss_records","死亡病例讨论记录");
+        medicalCourse.put("death_records","死亡记录");
+        medicalCourse.put("death_summary","死亡小结");
+        medicalCourse.put("difficulty_case_records","疑难病例讨论记录");
+        medicalCourse.put("handover_record","交接班记录");
+        medicalCourse.put("rescue_records","抢救记录");
+        medicalCourse.put("stage_summary","阶段小结");
         medicalCourse.put("transferred_in_records","转入记录");
         medicalCourse.put("transferred_out_records","转出记录");
-        medicalCourse.put("rescue_records","抢救记录");
+
+        medicalCourse.put("discharge_summary","出院小结");
+        medicalCourse.put("death_discuss_record","死亡病例讨论记录");
+        medicalCourse.put("death_record","死亡记录");
         medicalCourse.put("death_summary","死亡小结");
-        medicalCourse.put("death_records","死亡记录");
-        medicalCourse.put("death_discuss_records","死亡病例讨论记录");
+        medicalCourse.put("difficulty_case_record","疑难病例讨论记录");
         medicalCourse.put("handover_record","交接班记录");
+        medicalCourse.put("rescue_record","抢救记录");
+        medicalCourse.put("stage_summary","阶段小结");
+        medicalCourse.put("transferred_in_record","转入记录");
+        medicalCourse.put("transferred_out_record","转出记录");
+
     }
 
     static {
@@ -51,15 +81,22 @@ public class TimerShaftSort {
         examResult.put("pet_mr_reports","PET_MR检查");
         examResult.put("microscopic_exam_reports","镜检");
         examResult.put("lung_functional_exam","肺功能检查");
-        examResult.put("other_imaging_exam_diagnosis_reports","其他影像学检查诊断报告");
         examResult.put("electrocardiogram_reports","心电图报告");
-        examResult.put("pathology_reports","病理检测");
+        examResult.put("other_imaging_exam_diagnosis_reports","其他影像学检查诊断报告");
+
+        examResult.put("ultrasonic_diagnosis_report","超声检查");
+        examResult.put("xray_image_report","X线影像诊断");
+        examResult.put("lung_functional_exam","肺功能检查");
+        examResult.put("electrocardiogram_report","心电图报告");
+        examResult.put("other_imaging_exam_diagnosis_reports","其他影像学检查诊断报告");
+
     }
 
     static {
         operation.put("operation_pre_summary","术前小结");
         operation.put("operation_info","手术信息");
         operation.put("operation_records","手术记录");
+        operation.put("operation_record","手术记录");
     }
 
     /**
@@ -68,10 +105,18 @@ public class TimerShaftSort {
     static {
         sortMap.put("admissions_records","RECORD_DATE");
         sortMap.put("discharge_records","HOSPITAL_DISCHARGE_DATE");
-        sortMap.put("first_course_record","RECORD_DATE");
+        sortMap.put("first_course_records","RECORD_DATE");
         sortMap.put("attending_physician_rounds_records","RECORD_DATE");
         sortMap.put("course_record","RECORD_DATE");
         sortMap.put("post_course_record","RECORD_DATE");
+
+        courseRecords.put("admissions_record","RECORD_DATE");
+        courseRecords.put("discharge_record","RECORD_DATE");
+        courseRecords.put("first_course_record","RECORD_DATE");
+        courseRecords.put("attending_physician_rounds_record","RECORD_DATE");
+        courseRecords.put("course_record","RECORD_DATE");
+        courseRecords.put("operation_post_course_record","RECORD_DATE");
+
 
         sortMap.put("discharge_summary","RECORD_DATE");
         sortMap.put("death_discuss_records","DISCUSS_DATE");
@@ -86,6 +131,19 @@ public class TimerShaftSort {
         sortMap.put("consultation_opinion_records","CONSULTATION_TIME");
         sortMap.put("invasive_records","OPERATION_DATE");
 
+        medicalCourse.put("discharge_summary","RECORD_DATE");
+        medicalCourse.put("death_discuss_record","DISCUSS_DATE");
+        medicalCourse.put("death_record","RECORD_DATE");
+        medicalCourse.put("death_summary","RECORD_DATE");
+        medicalCourse.put("difficulty_case_record","DISCUSSED_DATE");
+        medicalCourse.put("handover_record","HANDOVER_DATE");
+        medicalCourse.put("rescue_record","RECORD_DATE");
+        medicalCourse.put("stage_summary","SUMMARY_DATE");
+        medicalCourse.put("transferred_in_record","TRANSFERRED_IN_DATE");
+        medicalCourse.put("transferred_out_record","TRANSFERRED_OUT_DATE");
+        sortMap.put("consultation_opinion_record","CONSULTATION_TIME");
+        sortMap.put("invasive_record","OPERATION_DATE");
+
         sortMap.put("ultrasonic_diagnosis_reports","REPORT_DATE");
         sortMap.put("xray_image_reports","REPORT_DATE");
         sortMap.put("ct_reports","REPORT_DATE");
@@ -98,9 +156,17 @@ public class TimerShaftSort {
         sortMap.put("other_imaging_exam_diagnosis_reports","REPORT_DATE");
         sortMap.put("electrocardiogram_reports","REPORT_DATE");
 
+        examResult.put("ultrasonic_diagnosis_report","REPORT_DATE");
+        examResult.put("xray_image_report","REPORT_DATE");
+        examResult.put("lung_functional_exam","REPORT_DATE");
+        examResult.put("other_imaging_exam_diagnosis_reports","REPORT_DATE");
+        examResult.put("electrocardiogram_report","REPORT_DATE");
+
         sortMap.put("operation_pre_summary","RECORD_DATE");
         sortMap.put("operation_info","OPERATION_START_TIME");
         sortMap.put("operation_records","OPERATION_DATE");
+
+        sortMap.put("operation_record","OPERATION_DATE");
     }
 
     static {
@@ -112,10 +178,17 @@ public class TimerShaftSort {
         examResultName.put("pet_mr_reports","EXAMINATION_ITEM");
         examResultName.put("lung_functional_exam","EXAMINATION_ITEM");
         examResultName.put("other_imaging_exam_diagnosis_reports","EXAMINATION_ITEM");
+
+        examResultName.put("xray_image_report","INTUBATION_ITEM");
+        examResultName.put("ct_report","EXAMINATION_ITEM");
+        examResultName.put("ect_report","EXAMINATION_ITEM");
+        examResultName.put("mr_report","EXAMINATION_ITEM");
+        examResultName.put("pet_ct_report","EXAMINATION_ITEM");
+        examResultName.put("pet_mr_report","EXAMINATION_ITEM");
 //        examResultName.put("electrocardiogram_reports","other");
     }
 
-    public static JsonObject disposeExamResult(JsonObject examObj){
+    public  JsonObject disposeExamResult(JsonObject examObj){
         JsonObject result = new JsonObject();
         List<JsonObject> resultList = new LinkedList<>();
         List<JsonObject> nameList = new ArrayList<>();
@@ -158,15 +231,15 @@ public class TimerShaftSort {
         return result;
     }
 
-    public static JsonObject disposeMedicalCourse(JsonObject examObj){
+    public  JsonObject disposeMedicalCourse(JsonObject examObj){
         return disposeForOnlyBySort(examObj, medicalCourse);
     }
 
-    public static JsonObject disposeOperator(JsonObject examObj){
+    public  JsonObject disposeOperator(JsonObject examObj){
         return disposeForOnlyBySort(examObj, operation);
     }
 
-    private static JsonObject disposeForOnlyBySort(JsonObject examObj, Map<String, String> operation) {
+    private  JsonObject disposeForOnlyBySort(JsonObject examObj, Map<String, String> operation) {
         JsonObject result = new JsonObject();
         List<JsonObject> resultList = new LinkedList<>();
         List<JsonObject> nameList = new ArrayList<>();
@@ -183,31 +256,39 @@ public class TimerShaftSort {
         return result;
     }
 
-    public static JsonObject disposeCourseRecord(JsonObject obj) {
+    public  JsonObject disposeCourseRecord(JsonObject obj) {
         JsonObject result = new JsonObject();
         List<JsonObject> resultList = new LinkedList<>();
         List<JsonObject> nameList = new ArrayList<>();
         List<String> sortList = new ArrayList<>();
+        String admissions_records = "admissions_records";
+        String discharge_records = "discharge_records";
+        String first_course_record = "first_course_records";
+        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+             admissions_records = "admissions_record";
+             discharge_records = "discharge_record";
+             first_course_record = "first_course_record";
+        }
         //处理入院记录
         for (Map.Entry<String,JsonElement> entry : obj.entrySet()){
             String key = entry.getKey();
-            if("admissions_records".equals(key) || "discharge_records".equals(key) || "first_course_record".equals(key)){
+            if(admissions_records.equals(key) || discharge_records.equals(key) || first_course_record.equals(key)){
                 continue;
             }
             JsonArray value = entry.getValue().getAsJsonArray();
             int titleNum = 0;
             transforValuesArray(resultList, nameList, sortList, key, value, titleNum, courseRecords);
         }
-       Integer num1 = addCourseRecordByKey(obj,resultList,nameList,"admissions_records",0);
-       Integer num2 =  addCourseRecordByKey(obj,resultList,nameList,"discharge_records",num1);
-        addCourseRecordByKey(obj,resultList,nameList,"first_course_record",num2);
+       Integer num1 = addCourseRecordByKey(obj,resultList,nameList,admissions_records,0);
+       Integer num2 =  addCourseRecordByKey(obj,resultList,nameList,discharge_records,num1);
+        addCourseRecordByKey(obj,resultList,nameList,first_course_record,num2);
         result.add("data",JsonAttrUtil.toJsonTree(resultList));
         result.add("catalogue",JsonAttrUtil.toJsonTree(nameList));
 
         return result;
     }
 
-    private static void transforValuesArray(List<JsonObject> resultList, List<JsonObject> nameList, List<String> sortList, String key, JsonArray value, int titleNum, Map<String, String> courseRecords) {
+    private  void transforValuesArray(List<JsonObject> resultList, List<JsonObject> nameList, List<String> sortList, String key, JsonArray value, int titleNum, Map<String, String> courseRecords) {
         for (JsonElement element : value){
             String titleKey = key+"_"+titleNum;
             titleNum++;
@@ -230,7 +311,7 @@ public class TimerShaftSort {
         }
     }
 
-    private static Integer addCourseRecordByKey(JsonObject obj, List<JsonObject> resultList, List<JsonObject> nameList, String key, int num) {
+    private  Integer addCourseRecordByKey(JsonObject obj, List<JsonObject> resultList, List<JsonObject> nameList, String key, int num) {
         JsonArray admissionsObj = obj.getAsJsonArray(key);
         int titleNums = 0;
         for (JsonElement element : admissionsObj){
@@ -255,7 +336,7 @@ public class TimerShaftSort {
         return num;
     }
 
-    private static void transforTime(List<JsonObject> resultList, List<JsonObject> nameList, List<String> sortList, JsonObject eleObj, JsonObject nameObj, String time,boolean rank) {
+    private void transforTime(List<JsonObject> resultList, List<JsonObject> nameList, List<String> sortList, JsonObject eleObj, JsonObject nameObj, String time,boolean rank) {
         if(StringUtil.isEmptyStr(time)){
             resultList.add(eleObj);
             nameObj.addProperty("time","未知");
@@ -284,7 +365,7 @@ public class TimerShaftSort {
     }
 
 
-    public static void transforTimeByJsonObject(List<JsonObject> resultList, List<String> sortList, JsonObject eleObj, String time) {
+    public void transforTimeByJsonObject(List<JsonObject> resultList, List<String> sortList, JsonObject eleObj, String time) {
         if(StringUtil.isEmptyStr(time)){
             resultList.add(eleObj);
         }else {
@@ -299,7 +380,7 @@ public class TimerShaftSort {
         }
     }
 
-    public static int getSortListNum(List<String> sortList, String time) {
+    public int getSortListNum(List<String> sortList, String time) {
 
         if(sortList.size() == 0){
             return 0;
@@ -315,7 +396,7 @@ public class TimerShaftSort {
         }
     }
 
-    public static int binSearch(List<String> sortList, int start, int end, String key) {
+    public int binSearch(List<String> sortList, int start, int end, String key) {
         int mid = (end - start) / 2 + start;
         if (key.equals(sortList.get(mid))) {
             return mid;
@@ -335,7 +416,7 @@ public class TimerShaftSort {
         return -1;
     }
 
-    public static int getSortListNumDesc(List<String> sortList, String time) {
+    public int getSortListNumDesc(List<String> sortList, String time) {
 
         if(sortList.size() == 0){
             return 0;
@@ -351,7 +432,7 @@ public class TimerShaftSort {
         }
     }
 
-    public static int binSearchDesc(List<String> sortList, int start, int end, String key) {
+    public int binSearchDesc(List<String> sortList, int start, int end, String key) {
         int mid = (end - start) / 2 + start;
         if (key.equals(sortList.get(mid))) {
             return mid;
@@ -372,5 +453,5 @@ public class TimerShaftSort {
         return -1;
     }
 
-
+    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
 }

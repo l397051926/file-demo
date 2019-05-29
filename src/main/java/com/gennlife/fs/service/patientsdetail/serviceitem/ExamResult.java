@@ -89,7 +89,7 @@ public class ExamResult {
         }else {
             return ResponseMsgFactory.buildFailStr("no data");
         }
-        JsonObject data = TimerShaftSort.disposeExamResult(json);
+        JsonObject data = TimerShaftSort.getInstance().disposeExamResult(json);
         return ResponseMsgFactory.buildResponseStr(data, template.get_error());
     }
 

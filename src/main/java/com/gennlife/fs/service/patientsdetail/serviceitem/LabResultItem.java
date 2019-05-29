@@ -390,7 +390,7 @@ public class LabResultItem extends PatientDetailService {
             if(StringUtil.isNotEmptyStr(item_name_cn) && !item_name_cn.equals(inspectionName) ){
                 continue;
             }
-            TimerShaftSort.transforTimeByJsonObject(resultObj,sortList,object,time);
+            TimerShaftSort.getInstance().transforTimeByJsonObject(resultObj,sortList,object,time);
         }
         return (JsonArray) JsonAttrUtil.toJsonTree(resultObj);
 

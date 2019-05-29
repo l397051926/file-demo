@@ -232,6 +232,7 @@ public class QueryResult {
         sortMap.put("discharge_records", "HOSPITAL_DISCHARGE_DATE");
         sortMap.put("admissions_records", "HOSPITAL_ADMISSION_DATE");
         sortMap.put("medicine_order", "ORDER_SN");
+        sortMap.put("drug_order", "ORDER_SN");
         sortMap.put("course_records", "RECORD_DATE");
         sortMap.put("attending_physician_rounds_records", "RECORD_DATE");
         sortMap.put("first_course_records", "RECORD_DATE");
@@ -260,6 +261,7 @@ public class QueryResult {
         sortMap.put("death_summary", "RECORD_DATE");
         sortMap.put("rescue_records", "RECORD_DATE");
         sortMap.put("clinic_medical_records", "VISIT_TIME");
+        sortMap.put("clinic_medical_record", "VISIT_TIME");
         sortMap.put("forsz_study", "SD_APPLY_TIME");
         sortMap.put("inspection_reports","REPORT_TIME");
         sortMap.put("orders","ORDER_START_TIME");

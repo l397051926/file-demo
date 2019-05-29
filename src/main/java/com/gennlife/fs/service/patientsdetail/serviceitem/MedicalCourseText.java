@@ -69,7 +69,7 @@ public class MedicalCourseText {
         if(obj == null){
             return ResponseMsgFactory.buildFailStr("no data");
         }
-        JsonObject data = TimerShaftSort.disposeMedicalCourse(obj);
+        JsonObject data = TimerShaftSort.getInstance().disposeMedicalCourse(obj);
        return ResponseMsgFactory.buildResponseStr(data,template.get_error());
 
     }

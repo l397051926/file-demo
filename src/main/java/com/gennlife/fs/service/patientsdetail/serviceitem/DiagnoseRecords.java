@@ -117,7 +117,7 @@ public class DiagnoseRecords extends PatientDetailService {
             }else {
                 List<JsonObject> tmpList = new ArrayList<>();
                 tmpList.add(obj);
-                int size = TimerShaftSort.getSortListNum(sortList,date);
+                int size = TimerShaftSort.getInstance().getSortListNum(sortList,date);
                 sortList.add(size,date);
                 result.add(size,tmpList);
             }

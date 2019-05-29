@@ -18,10 +18,20 @@ public class OperationRecords {
     private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
 
     public String getOperationRecords (String param){
+        String operation_pre_summary = "operation_pre_summary";
+        String operation_record = "operation_records";
+        String operation_info = "operation_info";
+        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+            operation_pre_summary = "operation_pre_summary";
+            operation_record = "operation_record";
+            operation_info = "operation_info";
+        }
         VisitSNResponse vt=new VisitSNResponse(
-                new String[]{"operation_pre_summary",
-                        "operation_records","operation_info"},
-                new String[]{"operation_pre_summary","operation_records","operation_info"}
+            new String[]{
+                operation_pre_summary,
+                operation_record,
+                operation_info
+            }
         );
         return ResponseMsgFactory.getResponseStr(vt,param);
 
@@ -29,7 +39,7 @@ public class OperationRecords {
 
     public String getNewOperationRecords(String param) {
         String operation_pre_summary = "operation_pre_summary";
-        String operation_record = "operation_record";
+        String operation_record = "operation_records";
         String operation_info = "operation_info";
         if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
              operation_pre_summary = "operation_pre_summary";
@@ -48,7 +58,7 @@ public class OperationRecords {
         if(obj == null){
             return ResponseMsgFactory.buildFailStr("no data");
         }
-        JsonObject data = TimerShaftSort.disposeOperator(obj);
+        JsonObject data = TimerShaftSort.getInstance().disposeOperator(obj);
         return ResponseMsgFactory.buildResponseStr(data,vt.get_error());
     }
 }

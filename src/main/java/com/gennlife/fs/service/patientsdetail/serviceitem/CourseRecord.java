@@ -93,7 +93,7 @@ public class CourseRecord {
         if(obj == null){
             return ResponseMsgFactory.buildFailStr("no data");
         }
-        JsonObject data = TimerShaftSort.disposeCourseRecord(obj);
+        JsonObject data = TimerShaftSort.getInstance().disposeCourseRecord(obj);
         return ResponseMsgFactory.buildResponseStr(data,template.get_error());
     }
 

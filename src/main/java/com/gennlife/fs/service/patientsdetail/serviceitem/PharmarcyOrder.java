@@ -25,15 +25,21 @@ public class PharmarcyOrder {
     private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
 
     public String getPharmarcyOrder(String param) {
-        ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse("medicine_order","orders"),"orders", QueryResult.getSortKey("medicine_order"),true),"orders");
+        String drug_order = "medicine_order";
+        String DRUG_GENERIC_NAME = "MEDICINE_NAME";
+        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+            drug_order = "drug_order";
+            DRUG_GENERIC_NAME = "DRUG_GENERIC_NAME";
+        }
+        ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse(drug_order,"orders"),"orders", QueryResult.getSortKey(drug_order),true),"orders");
         return ResponseMsgFactory.getResponseStr(vt,param);
     }
 
     public String getNewPharmarcyOrder(String param) {
-        String drug_order = "drug_order";
+        String drug_order = "medicine_order";
         String DRUG_GENERIC_NAME = "MEDICINE_NAME";
         if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
-            drug_order = "operation_pre_summary";
+            drug_order = "drug_order";
             DRUG_GENERIC_NAME = "DRUG_GENERIC_NAME";
         }
         VisitSNResponse vt =  new VisitSNResponse(drug_order,
