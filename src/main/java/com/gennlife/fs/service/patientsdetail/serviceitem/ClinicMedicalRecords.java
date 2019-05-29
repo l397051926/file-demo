@@ -21,7 +21,7 @@ public class ClinicMedicalRecords {
 
     public String getData(String param) {
         String clinic_medical_record = "clinic_medical_records";
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if(cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
             clinic_medical_record = "clinic_medical_record";
         }
         VisitSNResponse vt = new VisitSNResponse(new String[]{

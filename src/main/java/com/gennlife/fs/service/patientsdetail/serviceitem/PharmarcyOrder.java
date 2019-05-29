@@ -27,7 +27,7 @@ public class PharmarcyOrder {
     public String getPharmarcyOrder(String param) {
         String drug_order = "medicine_order";
         String DRUG_GENERIC_NAME = "MEDICINE_NAME";
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
             drug_order = "drug_order";
             DRUG_GENERIC_NAME = "DRUG_GENERIC_NAME";
         }

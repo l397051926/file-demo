@@ -264,7 +264,7 @@ public class TimerShaftSort {
         String admissions_records = "admissions_records";
         String discharge_records = "discharge_records";
         String first_course_record = "first_course_records";
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
              admissions_records = "admissions_record";
              discharge_records = "discharge_record";
              first_course_record = "first_course_record";

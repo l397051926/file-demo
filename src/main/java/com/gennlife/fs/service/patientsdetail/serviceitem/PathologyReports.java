@@ -16,7 +16,7 @@ public class PathologyReports {
     private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
     public String getPathologyReports(String param) {
         String pathology_report = "pathology_reports";
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
             pathology_report = "pathology_report";
         }
         ResponseInterface template = ImageResponseUtils.getImageResponseInterface(pathology_report);
