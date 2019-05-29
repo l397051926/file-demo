@@ -3,7 +3,6 @@ package com.gennlife.fs.configurations;
 import com.alibaba.fastjson.JSON;
 import com.gennlife.darren.util.ImmutableEndpoint;
 import com.gennlife.fs.configurations.patientdetail.conversion.ModelConverter;
-import com.gennlife.fs.configurations.projectexport.ModelVersion;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.redisson.config.Config;

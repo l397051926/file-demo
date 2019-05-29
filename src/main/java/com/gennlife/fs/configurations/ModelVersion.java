@@ -1,4 +1,4 @@
-package com.gennlife.fs.configurations.projectexport;
+package com.gennlife.fs.configurations;
 
 import com.gennlife.darren.collection.string.Matching;
 import com.gennlife.darren.util.NumericVersion;

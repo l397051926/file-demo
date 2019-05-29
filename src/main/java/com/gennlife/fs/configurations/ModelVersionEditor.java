@@ -1,4 +1,4 @@
-package com.gennlife.fs.configurations.projectexport;
+package com.gennlife.fs.configurations;
 
 import java.beans.PropertyEditorSupport;
 
