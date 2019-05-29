@@ -12,7 +12,6 @@ import com.gennlife.fs.common.utils.PagingUtils;
 import com.gennlife.fs.common.utils.StringUtil;
 import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.service.patientsdetail.model.VisitSNResponse;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -32,7 +31,7 @@ public class PharmarcyOrder {
     public String getNewPharmarcyOrder(String param) {
         String drug_order = "drug_order";
         String DRUG_GENERIC_NAME = "MEDICINE_NAME";
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
             drug_order = "operation_pre_summary";
             DRUG_GENERIC_NAME = "DRUG_GENERIC_NAME";
         }
@@ -125,7 +124,7 @@ public class PharmarcyOrder {
 
     public String getNewOrdersPharmacy(String param) {
         String non_drug_orders = "orders";
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
             non_drug_orders = "non_drug_orders";
         }
         ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse(non_drug_orders,non_drug_orders),non_drug_orders, QueryResult.getSortKey(non_drug_orders),false),non_drug_orders);
@@ -190,7 +189,7 @@ public class PharmarcyOrder {
 
     public String getOrdersPharmacyDay(String param) {
         String non_drug_orders = "orders";
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
             non_drug_orders = "non_drug_orders";
         }
         ResponseInterface vt=new PaginationMemoryResponse(

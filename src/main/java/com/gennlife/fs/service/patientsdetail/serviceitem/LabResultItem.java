@@ -105,7 +105,7 @@ public class LabResultItem extends PatientDetailService {
         String SUB_INSPECTION_REFERENCE_INTERVAL = null;
         String REPORT_TIME = null;
         String inspection_reports = null;
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
             INSPECTION_NAME = "visits.inspection_report.INSPECTION_NAME";
             SUB_INSPECTION_CN =  "visits.inspection_report.sub_inspection.SUB_INSPECTION_CN";
             SUB_INSPECTION_EN = "visits.inspection_report.sub_inspection.SUB_INSPECTION_EN";
@@ -313,7 +313,7 @@ public class LabResultItem extends PatientDetailService {
         String RECEIVE_TIME ="inspection_reports.RECEIVE_TIME";
         String REPORT_TIME = "inspection_reports.REPORT_TIME";
         String inspection_reports = "inspection_reports";
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
              INSPECTION_SN =  "inspection_report.INSPECTION_SN";
              INSPECTION_NAME = "inspection_report.INSPECTION_NAME";
              SPECIMEN_NAME = "inspection_report.SPECIMEN_NAME";
@@ -463,7 +463,7 @@ public class LabResultItem extends PatientDetailService {
         String SUB_INSPECTION_REFERENCE_INTERVAL = null;
         String REPORT_TIME = null;
         String inspection_reports = null;
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
             INSPECTION_NAME = "visits.inspection_report.INSPECTION_NAME";
             SUB_INSPECTION_CN =  "visits.inspection_report.sub_inspection.SUB_INSPECTION_CN";
             SUB_INSPECTION_EN = "visits.inspection_report.sub_inspection.SUB_INSPECTION_EN";
@@ -646,7 +646,7 @@ public class LabResultItem extends PatientDetailService {
         String SUB_INSPECTION_REFERENCE_INTERVAL = null;
         String REPORT_TIME = null;
         String inspection_reports = null;
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
             INSPECTION_NAME = "visits.inspection_report.INSPECTION_NAME";
             SPECIMEN_NAME = "visits.inspection_reports.SPECIMEN_NAME";
             SUB_INSPECTION_CN =  "visits.inspection_report.sub_inspection.SUB_INSPECTION_CN";

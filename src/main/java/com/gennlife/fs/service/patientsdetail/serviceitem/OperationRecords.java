@@ -31,7 +31,7 @@ public class OperationRecords {
         String operation_pre_summary = "operation_pre_summary";
         String operation_record = "operation_record";
         String operation_info = "operation_info";
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
              operation_pre_summary = "operation_pre_summary";
              operation_record = "operation_record";
              operation_info = "operation_info";

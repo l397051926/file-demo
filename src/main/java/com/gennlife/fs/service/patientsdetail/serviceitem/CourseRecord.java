@@ -60,7 +60,7 @@ public class CourseRecord {
         String discharge_record = "discharge_records";
         String attending_physician_rounds_record = "attending_physician_rounds_records";
         String operation_post_course_record = "operation_post_course_records";
-        if (cfg.patientDetailModelVersion.compareTo("4") >= 0) {
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
              admissions_record = "admissions_record";
              course_record = "course_record";
              first_course_record = "first_course_record";
