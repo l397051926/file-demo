@@ -39,7 +39,7 @@ public class PharmarcyOrder {
         String drug_order = "medicine_order";
         String DRUG_GENERIC_NAME = "MEDICINE_NAME";
         if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
-            drug_order = "operation_pre_summary";
+            drug_order = "drug_order";
             DRUG_GENERIC_NAME = "DRUG_GENERIC_NAME";
         }
         VisitSNResponse vt =  new VisitSNResponse(drug_order,
