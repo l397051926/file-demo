@@ -599,6 +599,7 @@ public class LabResultItem extends PatientDetailService {
         if(data_array.size() ==0){
             return ResponseMsgFactory.buildFailStr("no visit");
         }
+        result.addProperty("configSchema","sub_inspection");
         result.addProperty("limit", "" + page + "," + size);
         result.addProperty("total", data_array.size());
         return ResponseMsgFactory.buildSuccessStr(result);

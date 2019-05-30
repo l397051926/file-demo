@@ -1,10 +1,14 @@
 package com.gennlife.fs.service.patientsdetail.serviceitem;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
 import com.gennlife.fs.common.utils.TimerShaftSort;
+import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.service.patientsdetail.model.VisitSNResponse;
 import com.google.gson.JsonObject;
+
+import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
 
 
 /*********************************************
@@ -18,8 +22,9 @@ import com.google.gson.JsonObject;
  *******************************************/
 
 public class MedicalCourseText {
-
+    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
     public String getMedicalCourseText (String param){
+
         VisitSNResponse vt=new VisitSNResponse(
             new String[]{
                     "discharge_summary",
@@ -49,21 +54,30 @@ public class MedicalCourseText {
         String death_records = "death_records";
         String death_discuss_records = "death_discuss_records";
         String handover_record = "handover_record";
-        VisitSNResponse template=new VisitSNResponse(
-         new String[]{
-             difficulty_case_records,//疑难病例讨论记录
-             stage_summary,//阶段小结
-             discharge_summary,//出院小结
-             transferred_in_records,//转入记录
-             transferred_out_records,//转出记录
-             rescue_records,//抢救记录
-             death_summary,//死亡小结
-             death_records,//死亡记录
-             death_discuss_records,//死亡病例讨论记录
-             handover_record//交接班记录
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+            difficulty_case_records = "difficulty_case_record";
+            stage_summary = "stage_summary";
+            discharge_summary = "discharge_summary";
+            transferred_in_records = "transferred_in_record";
+            transferred_out_records = "transferred_out_record";
+            rescue_records = "rescue_record";
+            death_summary = "death_summary";
+            death_records = "death_record";
+            death_discuss_records = "death_discuss_record";
+            handover_record = "handover_record";
         }
+        VisitSNResponse template=new VisitSNResponse(
+            difficulty_case_records,//疑难病例讨论记录
+            stage_summary,//阶段小结
+            discharge_summary,//出院小结
+            transferred_in_records,//转入记录
+            transferred_out_records,//转出记录
+            rescue_records,//抢救记录
+            death_summary,//死亡小结
+            death_records,//死亡记录
+            death_discuss_records,//死亡病例讨论记录
+            handover_record//交接班记录
         );
-
         template.execute(JsonAttrUtil.toJsonObject( JsonAttrUtil.toJsonObject(param)));
         JsonObject obj = template.get_result();
         if(obj == null){

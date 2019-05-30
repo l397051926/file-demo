@@ -44,6 +44,9 @@ public class SwimlaneService {
     private static final String ONCE_MEDICINE="OnceMedicine";
     private static final String NON_ORDER="NonOrder";
     private static final String MEDICAL_RECORDS="MedicalRecords";
+    private static final String NON_ORDER_CONFIG = "orders";
+    private static final String LONG_MEDICINE_CONFIG = "medicineOrder";
+    private static final String ONCE_MEDICINE_CONFIG = "medicine_order";
     static {
         JsonObject swimlanceConfig = JsonAttrUtil.getJsonObjectfromFile(SystemUtil.getPath("/data/swimlance.json"));
         JsonObject swimlanceshowconfig = JsonAttrUtil.getJsonObjectfromFile(SystemUtil.getPath("/data/swimlanceShowName.json"));
@@ -189,6 +192,8 @@ public class SwimlaneService {
             operatorData[0] = JsonAttrUtil.getStringValue("OPERATION_DATE",val);
             Long count = DateUtil.getDurationWithDays(time,operatorData[0])+1;
             val.addProperty(OPERATION_DATE_COUNT,count);
+        }else {
+            val.addProperty(OPERATION_DATE_COUNT,"");
         }
     }
 
@@ -227,10 +232,8 @@ public class SwimlaneService {
                 shortMedicin.add(object);
             }
         }
-
-        transForArrayTimeMap(longMedicin,timeLines,LONG_MEDICINE,LONG_MEDICINE);
-        transForArrayTimeMap(shortMedicin, timeLines, ONCE_MEDICINE,ONCE_MEDICINE);
-
+        transForArrayTimeMap(longMedicin,timeLines,LONG_MEDICINE,LONG_MEDICINE_CONFIG);
+        transForArrayTimeMap(shortMedicin, timeLines, ONCE_MEDICINE,ONCE_MEDICINE_CONFIG);
     }
 
     private void transForArrayTimeMap(JsonArray longMedicin, Map<String, JsonObject> timeLines, String key,String configSchema) {
@@ -259,8 +262,9 @@ public class SwimlaneService {
     }
 
     private void getElectronic(Map<String, JsonObject> timeLines, String param) {
-        VisitSNResponse template=new VisitSNResponse(
-            new String[]{
+        String[] s1 = null;
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+            s1 = new String[]{
                 "admissions_records",
                 "discharge_records",
                 "first_course_record",
@@ -277,8 +281,30 @@ public class SwimlaneService {
                 "rescue_records",
                 "stage_summary",
                 "transferred_in_records",
-                "transferred_out_records"
-            }
+                "transferred_out_records"};
+        }else {
+            s1 = new String[]{
+                "admissions_record",
+                "discharge_record",
+                "first_course_record",
+                "attending_physician_rounds_record",
+                "course_record",
+                "post_course_record",
+                "operation_pre_summary",
+                "discharge_summary",
+                "death_discuss_record",
+                "death_record",
+                "death_summary",
+                "difficulty_case_record",
+                "handover_record",
+                "rescue_record",
+                "stage_summary",
+                "transferred_in_record",
+                "transferred_out_record"
+            };
+        }
+        VisitSNResponse template=new VisitSNResponse(
+            s1
         );
         template.execute(JsonAttrUtil.toJsonObject( JsonAttrUtil.toJsonObject(param)));
         JsonObject result = template.get_result();
@@ -317,9 +343,13 @@ public class SwimlaneService {
     }
 
     private void getOrders(Map<String, JsonObject> timeLines, String param) {
-        ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse("orders","orders"),"orders", QueryResult.getSortKey("orders"),false),"orders");
+        String orders = "orders";
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+            orders= "non_drug_orders";
+        }
+        ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse(orders,orders),orders, QueryResult.getSortKey(orders),false),orders);
         JsonObject paramJson = JsonAttrUtil.toJsonObject(param);
-        paramJson.addProperty("page_size",2147483647);
+        paramJson.addProperty("page_size",Integer.MAX_VALUE-1);
         paramJson.addProperty("currentPage",1);
         if(paramJson==null){
             return;
@@ -329,20 +359,24 @@ public class SwimlaneService {
         if(obj == null){
             return ;
         }
-        JsonArray res = obj.get("orders").getAsJsonArray();
-        transForArrayTimeMap(res, timeLines, NON_ORDER,"orders");
+        JsonArray res = obj.get(orders).getAsJsonArray();
+        transForArrayTimeMap(res, timeLines, NON_ORDER,NON_ORDER_CONFIG);
     }
 
     private void getOperationRecods(Map<String, JsonObject> timeLines, String param) {
+        String operation_record = "operation_records";
+        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+            operation_record = "operation_record";
+        }
         VisitSNResponse vt=new VisitSNResponse(
-            new String[]{"operation_records"}
+            new String[]{operation_record}
         );
         vt.execute(JsonAttrUtil.toJsonObject( JsonAttrUtil.toJsonObject(param)));
         JsonObject obj = vt.get_result();
         if(obj == null){
             return ;
         }
-        JsonArray array = obj.getAsJsonArray("operation_records");
+        JsonArray array = obj.getAsJsonArray(operation_record);
         Map<String,List<JsonObject>> timeMap = new HashMap<>();
         for (JsonElement element : array){
             JsonObject elObj = element.getAsJsonObject();
@@ -358,7 +392,7 @@ public class SwimlaneService {
             elObj.addProperty("unfold",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(OPERATION).get("unfold").getAsBoolean());
             elObj.addProperty("port",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(OPERATION).get("port").getAsString());
             elObj.addProperty("titleName",titleName);
-            elObj.addProperty("configSchema","operation_records");
+            elObj.addProperty("configSchema",operation_record);
             String time = DateUtil.getDateStr_ymd(date);
             if(!timeMap.containsKey(time)){
                 timeMap.put(time,new LinkedList<>());
@@ -467,7 +501,6 @@ public class SwimlaneService {
         ResponseInterface template = ImageResponseUtils.getImageResponseInterface(keys);
         template.execute(JsonAttrUtil.toJsonObject(param));
         JsonObject result = template.get_result();
-        JsonObject json = null;
         if (result != null) {
             Map<String,List<JsonObject>> timeMap = new HashMap<>();
             ONE: for (Map.Entry<String,JsonElement> entry : result.entrySet()){
@@ -495,10 +528,7 @@ public class SwimlaneService {
                     timeMap.get(time).add(tmpObj);
                 }
             }
-            putTimeLinesValues(timeMap,timeLines,"exam_result");
-
-            json = new JsonObject();
-            json.add(IMAGING_REPORTS, result);
+            putTimeLinesValues(timeMap,timeLines,IMAGING_REPORTS);
         }
 
     }
