@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 
 import static com.gennlife.darren.collection.Pair.makePair;
 import static com.gennlife.fs.common.utils.KeyPathUtil.toPathString;
-import static java.util.Comparator.comparing;
+import static java.util.Comparator.comparingInt;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
@@ -176,13 +176,13 @@ public class Model {
     }
 
     // requires (name, displayName, allFieldInfo)
-    void generateCaches() {
+    private void generateCaches() {
         _allPaths = new KeyPathSet(_allFieldInfo.keySet());
         _projectExportFields = _allFieldInfo
             .entrySet()
             .stream()
             .filter(e -> e.getValue().supportsProjectExport())
-            .sorted(comparing(e -> e.getValue().projectExport.index))
+            .sorted(comparingInt(e -> e.getValue().projectExport.index))
             .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
         _projectExportSelectByDefaultFields = _projectExportFields
             .entrySet()
