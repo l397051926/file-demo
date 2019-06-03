@@ -1,6 +1,5 @@
 package com.gennlife.fs.service.patientsdetail.serviceitem;
 
-import com.alibaba.fastjson.JSONObject;
 import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
 import com.gennlife.fs.common.utils.TimerShaftSort;
@@ -9,6 +8,7 @@ import com.gennlife.fs.service.patientsdetail.model.VisitSNResponse;
 import com.google.gson.JsonObject;
 
 import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
+import static com.gennlife.fs.configurations.model.Model.emrModel;
 
 
 /*********************************************
@@ -22,7 +22,7 @@ import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
  *******************************************/
 
 public class MedicalCourseText {
-    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
+
     public String getMedicalCourseText (String param){
 
         VisitSNResponse vt=new VisitSNResponse(
@@ -54,7 +54,7 @@ public class MedicalCourseText {
         String death_records = "death_records";
         String death_discuss_records = "death_discuss_records";
         String handover_record = "handover_record";
-        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             difficulty_case_records = "difficulty_case_record";
             stage_summary = "stage_summary";
             discharge_summary = "discharge_summary";

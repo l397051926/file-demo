@@ -248,7 +248,6 @@
 
     <build>
         <finalName>FileService</finalName>
-
         <resources>
             <resource>
                 <directory>src/main/resources/${package.basedir}/${package.id}</directory>
@@ -303,18 +302,6 @@
 
     <profiles>
         <profile>
-            <id>郑州中心医院</id>
-            <properties>
-                <package.id>郑州中心医院</package.id>
-            </properties>
-        </profile>
-        <profile>
-            <id>西安交通大学第一附属医院</id>
-            <properties>
-                <package.id>西安交通大学第一附属医院</package.id>
-            </properties>
-        </profile>
-        <profile>
             <id>dev</id>
             <properties>
                 <package.id>dev</package.id>
@@ -329,5 +316,18 @@
                 <package.id>debug</package.id>
             </properties>
         </profile>
+        <profile>
+            <id>郑州中心医院</id>
+            <properties>
+                <package.id>郑州中心医院</package.id>
+            </properties>
+        </profile>
+        <profile>
+            <id>西安交通大学第一附属医院</id>
+            <properties>
+                <package.id>西安交通大学第一附属医院</package.id>
+            </properties>
+        </profile>
     </profiles>
+
 </project>

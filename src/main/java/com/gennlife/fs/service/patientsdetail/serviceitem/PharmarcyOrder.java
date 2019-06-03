@@ -12,7 +12,6 @@ import com.gennlife.fs.common.utils.PagingUtils;
 import com.gennlife.fs.common.utils.StringUtil;
 import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.service.patientsdetail.model.VisitSNResponse;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -20,14 +19,14 @@ import com.google.gson.JsonObject;
 import java.util.*;
 
 import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
+import static com.gennlife.fs.configurations.model.Model.emrModel;
 
 public class PharmarcyOrder {
-    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
 
     public String getPharmarcyOrder(String param) {
         String drug_order = "medicine_order";
         String DRUG_GENERIC_NAME = "MEDICINE_NAME";
-        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             drug_order = "drug_order";
             DRUG_GENERIC_NAME = "DRUG_GENERIC_NAME";
         }
@@ -38,7 +37,7 @@ public class PharmarcyOrder {
     public String getNewPharmarcyOrder(String param) {
         String drug_order = "medicine_order";
         String DRUG_GENERIC_NAME = "MEDICINE_NAME";
-        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             drug_order = "drug_order";
             DRUG_GENERIC_NAME = "DRUG_GENERIC_NAME";
         }
@@ -131,7 +130,7 @@ public class PharmarcyOrder {
 
     public String getNewOrdersPharmacy(String param) {
         String non_drug_orders = "orders";
-        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             non_drug_orders = "non_drug_orders";
         }
         ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse(non_drug_orders,non_drug_orders),non_drug_orders, QueryResult.getSortKey(non_drug_orders),false),non_drug_orders);
@@ -196,7 +195,7 @@ public class PharmarcyOrder {
 
     public String getOrdersPharmacyDay(String param) {
         String non_drug_orders = "orders";
-        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             non_drug_orders = "non_drug_orders";
         }
         ResponseInterface vt=new PaginationMemoryResponse(

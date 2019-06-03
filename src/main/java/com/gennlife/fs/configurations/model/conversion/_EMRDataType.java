@@ -1,4 +1,4 @@
-package com.gennlife.fs.configurations.patientdetail.conversion;
+package com.gennlife.fs.configurations.model.conversion;
 
 enum _EMRDataType {
 

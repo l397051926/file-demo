@@ -8,6 +8,7 @@ import com.gennlife.fs.service.patientsdetail.model.VisitSNResponse;
 import com.google.gson.JsonObject;
 
 import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
+import static com.gennlife.fs.configurations.model.Model.emrModel;
 
 /**
  * Created by xuhui on 2016/7/26.
@@ -15,13 +16,12 @@ import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
  * 术前小结、手术记录、术后病程
  */
 public class OperationRecords {
-    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
 
     public String getOperationRecords (String param){
         String operation_pre_summary = "operation_pre_summary";
         String operation_record = "operation_records";
         String operation_info = "operation_info";
-        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             operation_pre_summary = "operation_pre_summary";
             operation_record = "operation_record";
             operation_info = "operation_info";
@@ -38,7 +38,7 @@ public class OperationRecords {
         String operation_pre_summary = "operation_pre_summary";
         String operation_record = "operation_records";
         String operation_info = "operation_info";
-        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
              operation_pre_summary = "operation_pre_summary";
              operation_record = "operation_record";
              operation_info = "operation_info";

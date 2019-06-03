@@ -9,12 +9,12 @@ import com.gennlife.darren.collection.keypath.KeyPathSet;
 import com.gennlife.darren.collection.string.Escape;
 import com.gennlife.darren.util.Endpoint;
 import com.gennlife.darren.util.ImmutableEndpoint;
-import com.gennlife.fs.configurations.GeneralConfiguration;
-import com.gennlife.fs.configurations.projectexport.Model;
-import com.gennlife.fs.configurations.projectexport.TaskState;
 import com.gennlife.fs.common.exception.*;
 import com.gennlife.fs.common.utils.DBUtils;
 import com.gennlife.fs.common.utils.KeyPathUtil;
+import com.gennlife.fs.configurations.GeneralConfiguration;
+import com.gennlife.fs.configurations.model.Model;
+import com.gennlife.fs.configurations.project.export.TaskState;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.TreeMultiset;
 import lombok.Builder;
@@ -45,12 +45,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.gennlife.darren.collection.Pair.makePair;
 import static com.gennlife.darren.controlflow.for_.Foreach.foreach;
 import static com.gennlife.darren.util.Constants.INT_TRUE_VALUE;
-import static com.gennlife.fs.configurations.projectexport.Model.*;
-import static com.gennlife.fs.configurations.projectexport.TaskState.*;
 import static com.gennlife.fs.common.utils.DBUtils.*;
 import static com.gennlife.fs.common.utils.HttpRequestUtil.postData;
 import static com.gennlife.fs.common.utils.KeyPathUtil.toPathString;
 import static com.gennlife.fs.common.utils.TypeUtil.*;
+import static com.gennlife.fs.configurations.model.Model.*;
+import static com.gennlife.fs.configurations.project.export.TaskState.*;
 import static com.gennlife.fs.controller.ProjectExportTaskController.PROJECT_EXPORT_TASK_API_PATH;
 import static com.gennlife.fs.controller.ProjectExportTaskController.PROJECT_EXPORT_TASK_CANCEL_SUB_API_PATH;
 import static com.gennlife.fs.service.ProjectExportTaskDefinitions.*;
@@ -141,11 +141,10 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                         .stream()
                         .filter(model -> !mainModel.isCRF() || !model.isEMR())  // SD-6100
                         .flatMap(model -> model
-                            .allFieldInfo()
-                            .values()
+                            .projectExportSelectByDefaultFields()
+                            .keySet()
                             .stream()
-                            .filter(x -> x.selectedByDefault)
-                            .map(x -> new KeyPath(model.name(), x.path)))
+                            .map(field -> new KeyPath(model.name(), field)))
                         .map(KeyPathUtil::toPathString)
                         .collect(toCollection(JSONArray::new))
                         .toJSONString(),
@@ -209,7 +208,8 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                 .fluentPut("selectedFields", JSON.parseArray(S(o.get(SELECTED_FIELDS))))
                 .fluentPut("mergedFields", models
                     .stream()
-                    .flatMap(model -> model.mergedFields()
+                    .flatMap(model -> model.projectExportMergedFields()
+                        .keySet()
                         .stream()
                         .map(path -> new KeyPath(model.name(), path)))
                     .map(KeyPathUtil::toPathString)
@@ -269,10 +269,10 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                         throw new UnexpectedException("Model not found: " + path.firstAsString());
                     }
                     val field = path.keyPathByRemovingFirst();
-                    if (!model.fields().contains(field)) {
+                    if (!model.allPaths().contains(field)) {
                         throw new UnexpectedException("Field not found: " + toPathString(path));
                     }
-                    if (!model.fieldInfo(field).exportSupported) {
+                    if (!model.fieldInfo(field).supportsProjectExport()) {
                         throw new UnexpectedException(toPathString(path) + " doesn't support export operation.");
                     }
                 }

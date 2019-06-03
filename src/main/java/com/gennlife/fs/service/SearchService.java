@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.gennlife.darren.collection.keypath.KeyPath;
 import com.gennlife.darren.collection.keypath.KeyPathSet;
 import com.gennlife.fs.configurations.GeneralConfiguration;
-import com.gennlife.fs.configurations.projectexport.Model;
+import com.gennlife.fs.configurations.model.Model;
 import com.gennlife.fs.common.exception.FormatCorruptedException;
 import com.gennlife.fs.common.exception.TransferFailedException;
 import com.gennlife.fs.common.utils.KeyPathUtil;

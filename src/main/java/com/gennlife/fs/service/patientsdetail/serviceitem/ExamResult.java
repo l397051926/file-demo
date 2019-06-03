@@ -9,13 +9,14 @@ import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.google.gson.JsonObject;
 
 import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
+import static com.gennlife.fs.configurations.model.Model.emrModel;
 
 /**
  * Created by zhangshijian on 2016/7/19.
  * 分类详情-检验检查-检查
  */
 public class ExamResult {
-    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
+
     public String getExamResult(String param) {
         String[] keys = new String[]{
                 "ultrasonic_diagnosis_reports",//超声检查
@@ -52,7 +53,7 @@ public class ExamResult {
         String other_imaging_exam_diagnosis_reports = "other_imaging_exam_diagnosis_reports";
         String electrocardiogram_reports = "electrocardiogram_reports";
 
-        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
              ultrasonic_diagnosis_reports = "ultrasonic_diagnosis_report";
              xray_image_reports = "xray_image_report";
              ct_reports = "ct_report";

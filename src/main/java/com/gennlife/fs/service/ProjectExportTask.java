@@ -5,10 +5,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gennlife.darren.collection.keypath.KeyPath;
 import com.gennlife.darren.collection.keypath.KeyPathSet;
-import com.gennlife.fs.configurations.GeneralConfiguration;
-import com.gennlife.fs.configurations.projectexport.HeaderType;
-import com.gennlife.fs.configurations.projectexport.Model;
 import com.gennlife.fs.common.utils.TypeUtil;
+import com.gennlife.fs.configurations.GeneralConfiguration;
+import com.gennlife.fs.configurations.model.Model;
+import com.gennlife.fs.configurations.project.export.HeaderType;
 import lombok.val;
 import lombok.var;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -35,14 +35,14 @@ import java.util.zip.ZipOutputStream;
 import static com.gennlife.darren.controlflow.exception.Suppress.suppress;
 import static com.gennlife.darren.controlflow.exception.Try.try_;
 import static com.gennlife.darren.controlflow.for_.ForeachJSON.foreachValue;
-import static com.gennlife.fs.configurations.projectexport.Model.CUSTOM_MODEL_NAME;
-import static com.gennlife.fs.configurations.projectexport.Model.modelByName;
-import static com.gennlife.fs.configurations.projectexport.TaskState.*;
 import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
 import static com.gennlife.fs.common.utils.DBUtils.P;
 import static com.gennlife.fs.common.utils.DBUtils.Q;
 import static com.gennlife.fs.common.utils.KeyPathUtil.toPathString;
 import static com.gennlife.fs.common.utils.TypeUtil.*;
+import static com.gennlife.fs.configurations.model.Model.CUSTOM_MODEL_NAME;
+import static com.gennlife.fs.configurations.model.Model.modelByName;
+import static com.gennlife.fs.configurations.project.export.TaskState.*;
 import static com.gennlife.fs.service.ProjectExportTaskDefinitions.*;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.sleep;
@@ -119,7 +119,7 @@ public class ProjectExportTask implements Runnable {
                 .stream()
                 .flatMap(model -> unorderedPaths.subSet(model.name())
                     .stream()
-                    .sorted(comparingInt(field -> model.fieldInfo(field).index))
+                    .sorted(comparingInt(field -> model.fieldInfo(field).projectExport.index))
                     .map(field -> new KeyPath(model.name(), field)))
                 .collect(toList());
             val paths = new KeyPathSet(pathList, LinkedHashMap::new);
@@ -291,7 +291,8 @@ public class ProjectExportTask implements Runnable {
                             if (partitioned && model.isPartitioned()) {
                                 fields.add(model.partitionGroup()
                                     .keyPathByAppending(model.partitionField()));
-                                model.sortFields()
+                                model.projectExportSortFields()
+                                    .keySet()
                                     .stream()
                                     .map(model.partitionGroup()::keyPathByAppending)
                                     .forEach(fields::add);
@@ -327,7 +328,7 @@ public class ProjectExportTask implements Runnable {
                                         val obj = groups.computeIfAbsent(sn, k -> new JSONObject());
                                         new KeyPath(model.name(), model.partitionGroup()).assign(obj, part);
                                         long time = Long.MAX_VALUE;
-                                        for (val sortField : model.sortFields()) {
+                                        for (val sortField : model.projectExportSortFields().keySet()) {
                                             val date = DT(sortField.fuzzyResolveFirst(part));
                                             if (date != null) {
                                                 time = date.getTime();

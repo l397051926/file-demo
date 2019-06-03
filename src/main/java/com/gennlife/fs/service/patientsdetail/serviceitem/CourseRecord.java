@@ -14,13 +14,14 @@ import com.google.gson.JsonObject;
 import java.util.HashMap;
 
 import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
+import static com.gennlife.fs.configurations.model.Model.emrModel;
 
 /**
  * Created by Xuhui on 2016/7/26.
  * 分类详情-病程记录
  */
 public class CourseRecord {
-    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
+
     public String getCourseRecord(String param) {
         String[] s1 = new String[]{
                 "admissions_records",
@@ -60,7 +61,7 @@ public class CourseRecord {
         String discharge_record = "discharge_records";
         String attending_physician_rounds_record = "attending_physician_rounds_records";
         String operation_post_course_record = "operation_post_course_records";
-        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
              admissions_record = "admissions_record";
              course_record = "course_record";
              first_course_record = "first_course_record";

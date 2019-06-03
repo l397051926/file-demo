@@ -29,6 +29,10 @@ public class TypeUtil {
         return GenericTypeConverters.toBoolean(o);
     }
 
+    public static boolean BV(Object o) {
+        return GenericTypeConverters.toBooleanValue(o);
+    }
+
     public static String S(Object o) {
         return GenericTypeConverters.toString(o);
     }

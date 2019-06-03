@@ -6,22 +6,20 @@ import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.response.SortResponse;
 import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.service.patientsdetail.model.VisitSNResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
 import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
+import static com.gennlife.fs.configurations.model.Model.emrModel;
 
 /**
  * Created by Chenjinfeng on 2018/1/16.
  */
 public class ClinicMedicalRecords {
-    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
 
     public String getData(String param) {
         String clinic_medical_record = "clinic_medical_records";
-        if(cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if(emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             clinic_medical_record = "clinic_medical_record";
         }
         VisitSNResponse vt = new VisitSNResponse(new String[]{

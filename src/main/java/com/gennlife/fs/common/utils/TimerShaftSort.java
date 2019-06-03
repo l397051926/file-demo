@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import java.util.*;
 
 import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
+import static com.gennlife.fs.configurations.model.Model.emrModel;
 
 /**
  * @author
@@ -264,7 +265,7 @@ public class TimerShaftSort {
         String admissions_records = "admissions_records";
         String discharge_records = "discharge_records";
         String first_course_record = "first_course_records";
-        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
              admissions_records = "admissions_record";
              discharge_records = "discharge_record";
              first_course_record = "first_course_record";
@@ -453,5 +454,4 @@ public class TimerShaftSort {
         return -1;
     }
 
-    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
 }

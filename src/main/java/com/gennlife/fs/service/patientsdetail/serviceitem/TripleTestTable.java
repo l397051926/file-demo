@@ -9,6 +9,7 @@ import com.gennlife.fs.common.utils.HttpRequestUtils;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
 import com.gennlife.fs.common.utils.StringUtil;
 import com.gennlife.fs.configurations.GeneralConfiguration;
+import com.gennlife.fs.configurations.model.conversion.ModelConverter;
 import com.gennlife.fs.service.patientsdetail.dataoperator.TripleTestTableOperator;
 import com.gennlife.fs.service.patientsdetail.dataoperator.impl.TripleTestTableSort;
 import com.gennlife.fs.service.patientsdetail.dataoperator.interfaces.IDataSortOperate;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
+import static com.gennlife.fs.configurations.model.Model.emrModel;
 
 public class TripleTestTable {
 
@@ -65,11 +67,12 @@ public class TripleTestTable {
         }
         vt.execute(JsonAttrUtil.toJsonObject(paramJson));
         JsonObject result = vt.get_result();
-        if (cfg.patientDetailModelConversionEnabled) {
+        ModelConverter cvt = emrModel().converter();
+        if (cvt != null) {
             KeyPath path = KeyPath.compile("visits[0]");
             JSONObject original = new JSONObject();
             path.assign(original, result);
-            JSONObject converted = cfg.patientDetailModelConverter.convert(original);
+            JSONObject converted = cvt.convert(original);
             JSONObject convertedResult = path.resolveAsJSONObject(converted);
             result = JsonAttrUtil.toJsonObject(convertedResult);
         }
@@ -106,7 +109,7 @@ public class TripleTestTable {
                     query.addProperty("visitSn", visitSn);
                     //获取 gernomics
                     JsonArray source = new JsonArray();
-                    if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+                    if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
                         source.add("visits.visit_info.VISIT_SN");
                         source.add("visits.visit_info.ADMISSION_DATE");
                         source.add("visits.visit_info.REGISTERED_DATE");
@@ -133,11 +136,11 @@ public class TripleTestTable {
                     operationDate = new JsonArray();
                     addAdmissionDataParam(dataJson, hospitalAdmissionDate,"visit_info");
                     addParamJsonData(dataJson, hospitalDischargeDate,
-                        cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4") ?
+                        emrModel().version().mainVersion().isHigherThanOrEqualTo(4) ?
                             "discharge_record" :
                             "discharge_records");
                     addParamJsonData(dataJson, operationDate,
-                        cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4") ?
+                        emrModel().version().mainVersion().isHigherThanOrEqualTo(4) ?
                             "operation_record" :
                             "operation_records");
                 }
@@ -317,7 +320,5 @@ public class TripleTestTable {
         array.set(i,new Gson().toJsonTree(val));
         return array;
     }
-
-    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
 
 }

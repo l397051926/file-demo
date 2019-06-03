@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
+import static com.gennlife.fs.configurations.model.Model.emrModel;
 
 /**
  *
@@ -263,7 +264,7 @@ public class SwimlaneService {
 
     private void getElectronic(Map<String, JsonObject> timeLines, String param) {
         String[] s1 = null;
-        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             s1 = new String[]{
                 "admissions_records",
                 "discharge_records",
@@ -344,7 +345,7 @@ public class SwimlaneService {
 
     private void getOrders(Map<String, JsonObject> timeLines, String param) {
         String orders = "orders";
-        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             orders= "non_drug_orders";
         }
         ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse(orders,orders),orders, QueryResult.getSortKey(orders),false),orders);
@@ -365,7 +366,7 @@ public class SwimlaneService {
 
     private void getOperationRecods(Map<String, JsonObject> timeLines, String param) {
         String operation_record = "operation_records";
-        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             operation_record = "operation_record";
         }
         VisitSNResponse vt=new VisitSNResponse(
@@ -428,7 +429,7 @@ public class SwimlaneService {
         String RECEIVE_TIME ="inspection_reports.RECEIVE_TIME";
         String REPORT_TIME = "inspection_reports.REPORT_TIME";
         String inspection_reports = "inspection_reports";
-        if (cfg.modelVersion.mainVersion().isHigherThanOrEqualTo("4")) {
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             INSPECTION_SN =  "inspection_report.INSPECTION_SN";
             INSPECTION_NAME = "inspection_report.INSPECTION_NAME";
             SPECIMEN_NAME = "inspection_report.SPECIMEN_NAME";
@@ -615,7 +616,5 @@ public class SwimlaneService {
             resultObj.addProperty(str, JsonAttrUtil.getStringValue(str,sourceObj));
         }
     }
-
-    private GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
 
 }

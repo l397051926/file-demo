@@ -1,35 +1,32 @@
-package com.gennlife.fs.configurations.patientdetail.conversion;
+package com.gennlife.fs.configurations.model.conversion;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gennlife.darren.collection.keypath.KeyPath;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.gennlife.darren.controlflow.for_.Foreach.foreach;
 import static com.gennlife.darren.controlflow.for_.ForeachJSON.foreachKeyPath;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
-@_CommandName("array to grouped maps")
-public class _ArrayToGroupedMapsCommand extends _Command {
+@_CommandName("array to map")
+public class _ArrayToMapCommand extends _Command {
 
     KeyPath fromGroup;
     KeyPath toGroup;
     KeyPath itemPath;
-    KeyPath groupByPath;
     List<_From> froms;
     Map<String, _To> tos;
-    List<_Command> commands;
 
     static _Command compile(JSONObject args) {
-        _ArrayToGroupedMapsCommand ret = new _ArrayToGroupedMapsCommand();
+        _ArrayToMapCommand ret = new _ArrayToMapCommand();
         ret.fromGroup = KeyPath.compile(args.getString("from"));
         ret.toGroup = KeyPath.compile(args.getString("to"));
         ret.itemPath = KeyPath.compile(args.getString("item"));
-        ret.groupByPath = KeyPath.compile(args.getString("groupBy"));
         ret.froms = args.getJSONArray("sources")
             .stream()
             .map(JSONObject.class::cast)
@@ -52,7 +49,6 @@ public class _ArrayToGroupedMapsCommand extends _Command {
                     t.type = _EMRDataType.valueOf(value.getString("type").toUpperCase());
                     return t;
                 }));
-        ret.commands = _Command.compile(args.getJSONArray("commands"));
         return ret;
     }
 
@@ -61,44 +57,28 @@ public class _ArrayToGroupedMapsCommand extends _Command {
         final AtomicBoolean ret = new AtomicBoolean(false);
         foreachKeyPath(source, fromGroup, (path, sourceArray) -> {
             if (sourceArray instanceof JSONArray) {
-                final KeyPath targetArrayPath = path
+                final KeyPath targetObjectPath = path
                     .keyPathByRemovingLastUntilStringRemains(toGroup.size(), true)
                     .keyPathByReplacingStrings(toGroup);
-                Map<Object, Integer> indexes = new HashMap<>();
                 // noinspection unchecked
-                for (JSONObject sourceObject: (List<JSONObject>)sourceArray) {
-                    final Object sn = groupByPath.tryResolve(sourceObject);
+                foreach((List<JSONObject>)sourceArray, sourceObject -> {
                     // noinspection SuspiciousMethodCalls
                     final _To to = tos.get(itemPath.tryResolve(sourceObject));  // null if failed to resolve value
                     if (to != null) {
                         ret.set(true);
-                        if (!targetArrayPath.isEmpty()) {
-                            targetArrayPath.assignIfAbsent(target, new JSONArray());
+                        if (!targetObjectPath.isEmpty()) {
+                            targetObjectPath.assignIfAbsent(target, new JSONObject());
                         }
-                        final JSONArray targetArray = targetArrayPath.resolveAsJSONArray(target);
+                        final JSONObject targetObject = targetObjectPath.tryResolveAsJSONObject(target);
                         for (_From from: froms) {
                             final Object value = _TypeConversionPlugin.convert(from.field.tryResolve(sourceObject), from.type, to.type);
                             if (value != null) {
-                                final JSONObject targetObject;
-                                if (sn == null) {
-                                    targetObject = new JSONObject();
-                                    targetArray.add(targetObject);
-                                } else {
-                                    targetObject = targetArray.getJSONObject(
-                                        indexes.computeIfAbsent(sn, k -> {
-                                            targetArray.add(new JSONObject());
-                                            return targetArray.size() - 1;
-                                        }));
-                                }
                                 targetObject.put(to.field, value);
-                                for (_Command command: commands) {
-                                    command.run(sourceObject, targetObject);
-                                }
                                 break;
                             }
                         }
                     }
-                }
+                });
             }
         });
         return true;

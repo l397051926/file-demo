@@ -1,8 +1,8 @@
-package com.gennlife.fs.configurations.patientdetail.conversion;
+package com.gennlife.fs.configurations.model.conversion;
 
 import com.alibaba.fastjson.JSONObject;
 
-import static com.gennlife.fs.configurations.patientdetail.conversion._Converters.DEFAULT_CONVERTERS;
+import static com.gennlife.fs.configurations.model.conversion._Converters.DEFAULT_CONVERTERS;
 
 public class _TypeConversionPlugin {
 

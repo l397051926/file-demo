@@ -1,4 +1,4 @@
-package com.gennlife.fs.configurations.patientdetail.conversion;
+package com.gennlife.fs.configurations.model.conversion;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 import static com.gennlife.darren.controlflow.exception.Force.force;
 import static com.gennlife.darren.controlflow.exception.Try.try_;
-import static com.gennlife.fs.configurations.patientdetail.conversion._EMRDataType.*;
+import static com.gennlife.fs.configurations.model.conversion._EMRDataType.*;
 import static java.lang.Boolean.TRUE;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Double.parseDouble;

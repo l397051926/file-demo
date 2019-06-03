@@ -1,13 +1,17 @@
-package com.gennlife.fs.configurations.projectexport;
+package com.gennlife.fs.configurations.model;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.gennlife.darren.collection.Pair;
 import com.gennlife.darren.collection.keypath.KeyPath;
 import com.gennlife.darren.collection.keypath.KeyPathSet;
+import com.gennlife.fs.configurations.ModelVersion;
+import com.gennlife.fs.configurations.model.conversion.ModelConverter;
 import com.gennlife.fs.service.ProjectService;
 import lombok.val;
 import lombok.var;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -18,11 +22,13 @@ import java.util.stream.Stream;
 
 import static com.gennlife.darren.collection.Pair.makePair;
 import static com.gennlife.fs.common.utils.KeyPathUtil.toPathString;
+import static java.util.Comparator.comparing;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toMap;
 
 public class Model {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Model.class);
 
     public static final String EMR_MODEL_NAME = "emr";
     public static final String CUSTOM_MODEL_NAME = "custom";
@@ -48,18 +54,17 @@ public class Model {
             .mapToObj(i -> {
                 val v = vars.get(i);
                 return FieldInfo.builder()
-                    .groupOrdinal(0)
-                    .fieldOrdinal(i)
-                    .index(i)
                     .path(new KeyPath(v.id))
                     .displayPath(new KeyPath(v.name))
-                    .exportSupported(true)
-                    .mergeCells(true)
-                    .selectedByDefault(true)
-                    .sorted(false)
+                    .projectExport(ProjectExportFieldInfo.builder()
+                        .index(i)
+                        .mergeCells(true)
+                        .selectedByDefault(true)
+                        .sorted(false)
+                        .build())
                     .build();
             })
-            .collect(toMap(info -> info.path, identity(), (a, b) -> a, LinkedHashMap::new));
+            .collect(toMap(info -> info.path, identity(), (a, b) -> a));
         generateCaches();
     }
 
@@ -79,6 +84,14 @@ public class Model {
         return _displayName;
     }
 
+    public ModelVersion version() {
+        return _version;
+    }
+
+    public ModelConverter converter() {
+        return _converter;
+    }
+
     public KeyPath patientSnField() {
         return _patientSnField;
     }
@@ -89,14 +102,6 @@ public class Model {
 
     public KeyPath partitionField() {
         return _partitionField;
-    }
-
-    public KeyPathSet sortFields() {
-        return _sortFields;
-    }
-
-    public KeyPathSet mergedFields() {
-        return _mergedFields;
     }
 
     public boolean isEMR() {
@@ -120,19 +125,35 @@ public class Model {
     }
 
     public boolean isEmpty() {
-        return _fields.isEmpty();
+        return _allPaths.isEmpty();
+    }
+
+    public FieldInfo fieldInfo(Comparable ...keyOrKeyPaths) {
+        return _allFieldInfo.get(new KeyPath(keyOrKeyPaths));
+    }
+
+    public KeyPathSet allPaths() {
+        return _allPaths;
     }
 
     public Map<KeyPath, FieldInfo> allFieldInfo() {
         return _allFieldInfo;
     }
 
-    public KeyPathSet fields() {
-        return _fields;
+    public Map<KeyPath, FieldInfo> projectExportFields() {
+        return _projectExportFields;
     }
 
-    public FieldInfo fieldInfo(Comparable ...keyOrKeyPaths) {
-        return _allFieldInfo.get(new KeyPath(keyOrKeyPaths));
+    public Map<KeyPath, FieldInfo> projectExportSelectByDefaultFields() {
+        return _projectExportSelectByDefaultFields;
+    }
+
+    public Map<KeyPath, FieldInfo> projectExportSortFields() {
+        return _projectExportSortFields;
+    }
+
+    public Map<KeyPath, FieldInfo> projectExportMergedFields() {
+        return _projectExportMergedFields;
     }
 
     public Map<KeyPath, KeyPath> pathDictionary() {
@@ -147,15 +168,32 @@ public class Model {
         _predefined = true;
     }
 
+    public static void generateCachesForAllModels() {
+        MODELS.values().forEach(model -> {
+            model.generateCaches();
+            LOGGER.info("已成功为模型 " + model + " 生成了缓存成员");
+        });
+    }
+
     // requires (name, displayName, allFieldInfo)
     void generateCaches() {
-        _fields = new KeyPathSet(_allFieldInfo.keySet(), LinkedHashMap::new);
-        _mergedFields = _allFieldInfo
-            .values()
+        _allPaths = new KeyPathSet(_allFieldInfo.keySet());
+        _projectExportFields = _allFieldInfo
+            .entrySet()
             .stream()
-            .filter(info -> info.mergeCells)
-            .map(info -> info.path)
-            .collect(toCollection(KeyPathSet::new));
+            .filter(e -> e.getValue().supportsProjectExport())
+            .sorted(comparing(e -> e.getValue().projectExport.index))
+            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+        _projectExportSelectByDefaultFields = _projectExportFields
+            .entrySet()
+            .stream()
+            .filter(e -> e.getValue().projectExport.selectedByDefault)
+            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+        _projectExportMergedFields = _projectExportFields
+            .entrySet()
+            .stream()
+            .filter(e -> e.getValue().projectExport.mergeCells)
+            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
         _pathDictionary = _allFieldInfo
             .values()
             .stream()
@@ -171,13 +209,13 @@ public class Model {
                 return s.build();
             })
             .collect(toMap(Pair::key, Pair::value, (a, b) -> a));
-        _frontEndObject = toFrontEndObject(new KeyPath(), _fields);
+        _frontEndObject = toFrontEndObject(new KeyPath(), _allPaths);
     }
 
     private JSONObject toFrontEndObject(KeyPath path, KeyPathSet set) {
         val ret = new JSONObject();
-        if (_fields.contains(path)) {
-            if (_allFieldInfo.get(path).exportSupported) {
+        if (_allPaths.contains(path)) {
+            if (_allFieldInfo.get(path).projectExport != null) {
                 ret
                     .fluentPut(FRONT_END_TITLE_FIELD, toPathString(new KeyPath(_displayName, _pathDictionary.get(path))))
                     .fluentPut(FRONT_END_KEY_FIELD, toPathString(new KeyPath(_name, path)));
@@ -202,19 +240,28 @@ public class Model {
         return ret.isEmpty() ? null : ret;
     }
 
+    @Override
+    public String toString() {
+        return _name + " (" + _version + ")";
+    }
+
     boolean _predefined;
-    KeyPathSet _fields;
-    Map<KeyPath, FieldInfo> _allFieldInfo;
-    Map<KeyPath, KeyPath> _pathDictionary;
-    KeyPath _patientSnField;
-    KeyPath _partitionGroup;
-    KeyPath _partitionField;
-    KeyPathSet _sortFields;
-    KeyPathSet _mergedFields;
     String _name;
     String _rwsName;
     String _indexName;
     String _displayName;
+    ModelVersion _version;
+    ModelConverter _converter;
+    KeyPathSet _allPaths;
+    Map<KeyPath, FieldInfo> _allFieldInfo;
+    Map<KeyPath, FieldInfo> _projectExportFields;
+    Map<KeyPath, FieldInfo> _projectExportSelectByDefaultFields;
+    Map<KeyPath, FieldInfo> _projectExportSortFields;
+    Map<KeyPath, FieldInfo> _projectExportMergedFields;
+    Map<KeyPath, KeyPath> _pathDictionary;
+    KeyPath _patientSnField;
+    KeyPath _partitionGroup;
+    KeyPath _partitionField;
     JSONObject _frontEndObject;
 
     static final Map<String, Model> MODELS = new HashMap<>();
