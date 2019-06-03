@@ -215,7 +215,7 @@ public class Model {
     private JSONObject toFrontEndObject(KeyPath path, KeyPathSet set) {
         val ret = new JSONObject();
         if (_allPaths.contains(path)) {
-            if (_allFieldInfo.get(path).projectExport != null) {
+            if (_allFieldInfo.get(path).supportsProjectExport()) {
                 ret
                     .fluentPut(FRONT_END_TITLE_FIELD, toPathString(new KeyPath(_displayName, _pathDictionary.get(path))))
                     .fluentPut(FRONT_END_KEY_FIELD, toPathString(new KeyPath(_name, path)));
