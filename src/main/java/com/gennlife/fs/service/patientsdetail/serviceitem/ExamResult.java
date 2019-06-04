@@ -63,7 +63,7 @@ public class ExamResult {
              pet_mr_reports = "pet_mr_report";
              microscopic_exam_reports = "microscopic_exam_report";
              lung_functional_exam = "lung_functional_exam";
-             other_imaging_exam_diagnosis_reports = "other_imaging_exam_diagnosis_report";
+             other_imaging_exam_diagnosis_reports = "imaging_exam_diagnosis_report";
              electrocardiogram_reports = "electrocardiogram_report";
         }
 

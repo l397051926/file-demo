@@ -248,6 +248,7 @@ public class QueryResult {
         sortMap.put("microscopic_exam_reports", "REPORT_DATE");
         sortMap.put("pet_ct_reports", "REPORT_DATE");
         sortMap.put("other_imaging_exam_diagnosis_reports", "REPORT_DATE");
+        sortMap.put("imaging_exam_diagnosis_report", "REPORT_DATE");
         sortMap.put("pathology_reports", "REPORT_DATE");
         sortMap.put("ultrasonic_diagnosis_reports", "REPORT_DATE");
         sortMap.put("lung_functional_exam", "REPORT_DATE");

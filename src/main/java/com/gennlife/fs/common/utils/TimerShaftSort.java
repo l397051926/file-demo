@@ -89,7 +89,7 @@ public class TimerShaftSort {
         examResult.put("xray_image_report","X线影像诊断");
         examResult.put("lung_functional_exam","肺功能检查");
         examResult.put("electrocardiogram_report","心电图报告");
-        examResult.put("other_imaging_exam_diagnosis_reports","其他影像学检查诊断报告");
+        examResult.put("imaging_exam_diagnosis_report","影像学检查诊断报告");
 
     }
 
@@ -111,12 +111,12 @@ public class TimerShaftSort {
         sortMap.put("course_record","RECORD_DATE");
         sortMap.put("post_course_record","RECORD_DATE");
 
-        courseRecords.put("admissions_record","RECORD_DATE");
-        courseRecords.put("discharge_record","RECORD_DATE");
-        courseRecords.put("first_course_record","RECORD_DATE");
-        courseRecords.put("attending_physician_rounds_record","RECORD_DATE");
-        courseRecords.put("course_record","RECORD_DATE");
-        courseRecords.put("operation_post_course_record","RECORD_DATE");
+        sortMap.put("admissions_record","RECORD_DATE");
+        sortMap.put("discharge_record","RECORD_DATE");
+        sortMap.put("first_course_record","RECORD_DATE");
+        sortMap.put("attending_physician_rounds_record","RECORD_DATE");
+        sortMap.put("course_record","RECORD_DATE");
+        sortMap.put("operation_post_course_record","RECORD_DATE");
 
 
         sortMap.put("discharge_summary","RECORD_DATE");
@@ -132,16 +132,17 @@ public class TimerShaftSort {
         sortMap.put("consultation_opinion_records","CONSULTATION_TIME");
         sortMap.put("invasive_records","OPERATION_DATE");
 
-        medicalCourse.put("discharge_summary","RECORD_DATE");
-        medicalCourse.put("death_discuss_record","DISCUSS_DATE");
-        medicalCourse.put("death_record","RECORD_DATE");
-        medicalCourse.put("death_summary","RECORD_DATE");
-        medicalCourse.put("difficulty_case_record","DISCUSSED_DATE");
-        medicalCourse.put("handover_record","HANDOVER_DATE");
-        medicalCourse.put("rescue_record","RECORD_DATE");
-        medicalCourse.put("stage_summary","SUMMARY_DATE");
-        medicalCourse.put("transferred_in_record","TRANSFERRED_IN_DATE");
-        medicalCourse.put("transferred_out_record","TRANSFERRED_OUT_DATE");
+        sortMap.put("discharge_summary","RECORD_DATE");
+        sortMap.put("death_discuss_record","RECORD_TIME");
+        sortMap.put("death_record","RECORD_DATE");
+        sortMap.put("death_summary","RECORD_DATE");
+        sortMap.put("difficulty_case_record","RECORD_TIME");
+        sortMap.put("handover_record","RECORD_TIME");
+        sortMap.put("rescue_record","RECORD_DATE");
+        sortMap.put("stage_summary","PHYSICIAN_SIGN");
+        sortMap.put("transferred_in_record","RECORD_TIME");
+        sortMap.put("transferred_out_record","RECORD_TIME");
+
         sortMap.put("consultation_opinion_record","CONSULTATION_TIME");
         sortMap.put("invasive_record","OPERATION_DATE");
 
@@ -154,14 +155,14 @@ public class TimerShaftSort {
         sortMap.put("pet_mr_reports","REPORT_DATE");
         sortMap.put("microscopic_exam_reports","REPORT_DATE");
         sortMap.put("lung_functional_exam","REPORT_DATE");
-        sortMap.put("other_imaging_exam_diagnosis_reports","REPORT_DATE");
+        sortMap.put("imaging_exam_diagnosis_report","REPORT_DATE");
         sortMap.put("electrocardiogram_reports","REPORT_DATE");
 
-        examResult.put("ultrasonic_diagnosis_report","REPORT_DATE");
-        examResult.put("xray_image_report","REPORT_DATE");
-        examResult.put("lung_functional_exam","REPORT_DATE");
-        examResult.put("other_imaging_exam_diagnosis_reports","REPORT_DATE");
-        examResult.put("electrocardiogram_report","REPORT_DATE");
+        sortMap.put("ultrasonic_diagnosis_report","REPORT_DATE");
+        sortMap.put("xray_image_report","REPORT_DATE");
+        sortMap.put("lung_functional_exam","REPORT_DATE");
+        sortMap.put("other_imaging_exam_diagnosis_reports","REPORT_DATE");
+        sortMap.put("electrocardiogram_report","REPORT_DATE");
 
         sortMap.put("operation_pre_summary","RECORD_DATE");
         sortMap.put("operation_info","OPERATION_START_TIME");

@@ -698,7 +698,7 @@ public class LabResultItem extends PatientDetailService {
             JsonObject one_visit_json = one_visit.getAsJsonObject();
             JsonArray all_reports = null;
             if (one_visit_json.has(inspection_reports)) {
-                all_reports = one_visit_json.get("inspection_reports").getAsJsonArray();
+                all_reports = one_visit_json.get(inspection_reports).getAsJsonArray();
             } else {
                 continue INS;
             }

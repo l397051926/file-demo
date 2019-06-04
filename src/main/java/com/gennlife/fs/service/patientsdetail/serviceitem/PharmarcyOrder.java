@@ -35,20 +35,50 @@ public class PharmarcyOrder {
     }
 
     public String getNewPharmarcyOrder(String param) {
-        String drug_order = "medicine_order";
-        String DRUG_GENERIC_NAME = "MEDICINE_NAME";
-        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
-            drug_order = "drug_order";
-            DRUG_GENERIC_NAME = "DRUG_GENERIC_NAME";
-        }
-        VisitSNResponse vt =  new VisitSNResponse(drug_order,
-            drug_order);
+
         JsonObject paramJson = JsonAttrUtil.toJsonObject(param);
         if(paramJson==null)return ResponseMsgFactory.buildFailStr("参数不是json");
 
+        Integer visitType = paramJson.get("visitType").getAsInt();
         JsonArray orderType = paramJson.get("orderType").getAsJsonArray();
         String orderStatus = paramJson.get("orderStatus").getAsString();
         String medicineName = paramJson.get("medicineName").getAsString();
+
+        String ORDER_STATUS_NAME = "";
+        String LONG_ONCE_FLAG = "";
+        String PARENT_ORDER_SN = "";
+        String ORDER_START_TIME = "";
+        String drug_order = "";
+        String DRUG_GENERIC_NAME = "";
+        if(0 == visitType){ //住院
+            drug_order = "medicine_order";
+            ORDER_STATUS_NAME = "ORDER_STATUS_NAME";
+            LONG_ONCE_FLAG = "LONG_ONCE_FLAG";
+            PARENT_ORDER_SN = "PARENT_ORDER_SN";
+            ORDER_START_TIME = "ORDER_START_TIME";
+            DRUG_GENERIC_NAME = "MEDICINE_NAME";
+            if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
+                drug_order = "drug_order";
+                DRUG_GENERIC_NAME = "DRUG_GENERIC_NAME";
+            }
+        }else {
+            drug_order = "medicine_order";
+            ORDER_STATUS_NAME = "ORDER_STATUS_NAME";
+            LONG_ONCE_FLAG = "LONG_ONCE_FLAG";
+            PARENT_ORDER_SN = "PARENT_ORDER_SN";
+            ORDER_START_TIME = "ORDER_START_TIME";
+            DRUG_GENERIC_NAME = "MEDICINE_NAME";
+            if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
+                drug_order = "outpatient_precribe_drug";
+                ORDER_STATUS_NAME = "DRUG_STATUS";
+                LONG_ONCE_FLAG = "";
+                PARENT_ORDER_SN = "PRECRIBE_NO";
+                ORDER_START_TIME = "PRECRIBE_DATE";
+                DRUG_GENERIC_NAME = "DRUG_NAME";
+            }
+        }
+        VisitSNResponse vt =  new VisitSNResponse(drug_order,
+            drug_order);
 
         Set<String> orderStatusArray  = new HashSet<>();
 
@@ -57,7 +87,7 @@ public class PharmarcyOrder {
         if(result == null ){
             return ResponseMsgFactory.buildFailStr("no data");
         }
-        JsonArray medicin = result.get("medicine_order").getAsJsonArray();
+        JsonArray medicin = result.get(drug_order).getAsJsonArray();
 
         boolean isOrderType = true;
         boolean isOrderStatus = true;
@@ -66,12 +96,12 @@ public class PharmarcyOrder {
         List<MedicineSortClass> sortList = new LinkedList<>();
         for (JsonElement element : medicin){
             JsonObject object = element.getAsJsonObject();
-            String order_status = JsonAttrUtil.getStringValue("ORDER_STATUS_NAME",object);
+            String order_status = JsonAttrUtil.getStringValue(ORDER_STATUS_NAME,object);
             if(StringUtil.isNotEmptyStr(order_status)){
                 orderStatusArray.add(order_status);
             }
-            if(orderType.size()>0){
-                String long_once_flag = JsonAttrUtil.getStringValue("LONG_ONCE_FLAG",object);
+            if(orderType.size()>0 && StringUtil.isNotEmptyStr(LONG_ONCE_FLAG) ){
+                String long_once_flag = JsonAttrUtil.getStringValue(LONG_ONCE_FLAG,object);
                 isOrderType = orderType.contains(JsonAttrUtil.toJsonElement(long_once_flag));
             }else {
                 isOrderStatus = false;
@@ -87,8 +117,8 @@ public class PharmarcyOrder {
             }
 
             if(isOrderType && isOrderStatus && isMedicinaName){
-                String parent_order_sn = JsonAttrUtil.getStringValue("PARENT_ORDER_SN",object);
-                String order_start_time = JsonAttrUtil.getStringValue("ORDER_START_TIME",object);
+                String parent_order_sn = JsonAttrUtil.getStringValue(PARENT_ORDER_SN,object);
+                String order_start_time = JsonAttrUtil.getStringValue(ORDER_START_TIME,object);
                 if (StringUtil.isNotEmptyStr(parent_order_sn)){
                     MedicineSortClass m = new MedicineSortClass(parent_order_sn,order_start_time);
                     if(sortList.contains(m)){
@@ -115,32 +145,58 @@ public class PharmarcyOrder {
         JsonArray resultArray = new JsonArray();
         for (MedicineSortClass m : sortList){
             List<JsonElement> tmpList = m.getDates();
-            tmpList = JsonAttrUtil.sort(tmpList, new JsonComparatorDESCByKey("ORDER_START_TIME"));
+            tmpList = JsonAttrUtil.sort(tmpList, new JsonComparatorDESCByKey(ORDER_START_TIME));
             for (JsonElement element : tmpList){
                 resultArray.add(element);
             }
         }
 
-        medicineNullList =  JsonAttrUtil.sort(medicineNullList, new JsonComparatorDESCByKey("ORDER_START_TIME"));
+        medicineNullList =  JsonAttrUtil.sort(medicineNullList, new JsonComparatorDESCByKey(ORDER_START_TIME));
         resultArray.addAll(JsonAttrUtil.toJsonTree(medicineNullList).getAsJsonArray());
-        result.add("medicine_order",resultArray);
+        result.add(drug_order,resultArray);
         result.add("orderStatus",JsonAttrUtil.toJsonTree(orderStatusArray));
         return ResponseMsgFactory.buildResponseStr(result,vt.get_error());
     }
 
     public String getNewOrdersPharmacy(String param) {
-        String non_drug_orders = "orders";
-        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
-            non_drug_orders = "non_drug_orders";
-        }
-        ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse(non_drug_orders,non_drug_orders),non_drug_orders, QueryResult.getSortKey(non_drug_orders),false),non_drug_orders);
         JsonObject paramJson = JsonAttrUtil.toJsonObject(param);
         if(paramJson==null)return ResponseMsgFactory.buildFailStr("参数不是json");
 
+        Integer visitType = paramJson.get("visitType").getAsInt();
         JsonArray orderType = paramJson.get("orderType").getAsJsonArray();
         String medicineName = paramJson.get("medicineName").getAsString();
         String orderStatus = paramJson.get("orderStatus").getAsString();
         String willType = paramJson.get("willType").getAsString();
+
+        String non_drug_orders = "";
+        String ORDER_STATUS_NAME = "";
+        String ORDER_TYPE_NAME = "";
+        String LONG_ONCE_FLAG = "";
+        String ORDER_NAME = "";
+        if(0 == visitType){ //住院
+            non_drug_orders = "orders";
+            ORDER_STATUS_NAME = "ORDER_STATUS_NAME";
+            ORDER_TYPE_NAME = "ORDER_TYPE_NAME";
+            LONG_ONCE_FLAG = "LONG_ONCE_FLAG";
+            ORDER_NAME = "ORDER_NAME";
+            if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
+                non_drug_orders = "non_drug_orders";
+            }
+        }else {
+            ORDER_STATUS_NAME = "ORDER_STATUS_NAME";
+            ORDER_TYPE_NAME = "ORDER_TYPE_NAME";
+            LONG_ONCE_FLAG = "LONG_ONCE_FLAG";
+            ORDER_NAME = "ORDER_NAME";
+            non_drug_orders = "orders";
+            if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
+                ORDER_STATUS_NAME = "ITEM_STATUS";
+                ORDER_TYPE_NAME = "ITEM_CLASS_NAME";
+                LONG_ONCE_FLAG = "";
+                ORDER_NAME = "ITEM_NAME";
+                non_drug_orders = "outpatient_precribe_undrug";
+            }
+        }
+        ResponseInterface vt=new PaginationMemoryResponse(new SortResponse(new VisitSNResponse(non_drug_orders,non_drug_orders),non_drug_orders, QueryResult.getSortKey(non_drug_orders),false),non_drug_orders);
 
         Set<String> orderStatusArray = new HashSet<>();
         Set<String> willTypeArray = new HashSet<>();
@@ -150,7 +206,7 @@ public class PharmarcyOrder {
         if(obj == null){
             return ResponseMsgFactory.buildFailStr("no data");
         }
-        JsonArray res = obj.get("orders").getAsJsonArray();
+        JsonArray res = obj.get(non_drug_orders).getAsJsonArray();
         JsonArray result = new JsonArray();
         boolean isOrderType = true;
         boolean isMedicinaName = true;
@@ -159,22 +215,24 @@ public class PharmarcyOrder {
 
         for (JsonElement element : res){
             JsonObject object = element.getAsJsonObject();
-            String order_status_name = JsonAttrUtil.getStringValue("ORDER_STATUS_NAME",object);
-            String order_type_name = JsonAttrUtil.getStringValue("ORDER_TYPE_NAME",object);
+            String order_status_name = JsonAttrUtil.getStringValue(ORDER_STATUS_NAME,object);
+            String order_type_name = JsonAttrUtil.getStringValue(ORDER_TYPE_NAME,object);
             if(StringUtil.isNotEmptyStr(order_status_name) ){
                 orderStatusArray.add(order_status_name);
             }
             if(StringUtil.isNotEmptyStr(order_type_name)){
                 willTypeArray.add(order_type_name);
             }
-            if(orderType.size()>0){
-                String long_once_flag = JsonAttrUtil.getStringValue("LONG_ONCE_FLAG",object);
-                isOrderType = orderType.contains(JsonAttrUtil.toJsonElement(long_once_flag));
-            }else {
-                isOrderType = false;
+            if(StringUtil.isNotEmptyStr(LONG_ONCE_FLAG)){
+                if(orderType.size()>0){
+                    String long_once_flag = JsonAttrUtil.getStringValue(LONG_ONCE_FLAG,object);
+                    isOrderType = orderType.contains(JsonAttrUtil.toJsonElement(long_once_flag));
+                }else {
+                    isOrderType = false;
+                }
             }
             if(StringUtil.isNotEmptyStr(medicineName)){
-                String medicine_name = JsonAttrUtil.getStringValue("ORDER_NAME",object);
+                String medicine_name = JsonAttrUtil.getStringValue(ORDER_NAME,object);
                 isMedicinaName = StringUtil.isNotEmptyStr(medicine_name) && medicine_name.contains(medicineName);
             }
             if(StringUtil.isNotEmptyStr(orderStatus)){
@@ -187,7 +245,7 @@ public class PharmarcyOrder {
                 result.add(object);
             }
         }
-        obj.add("orders",result);
+        obj.add(non_drug_orders,result);
         obj.add("orderStatus",JsonAttrUtil.toJsonTree(orderStatusArray));
         obj.add("willType",JsonAttrUtil.toJsonTree(willTypeArray));
         return  ResponseMsgFactory.buildResponseStr(obj,vt.get_error());

@@ -13,7 +13,7 @@ import java.io.*;
 import static com.gennlife.fs.service.patientsdetail.serviceitem.LabResultItemList.exchange;
 
 /**
- * @author liumingxin
+ * @author
  * @create 2018 31 18:43
  * @desc
  **/

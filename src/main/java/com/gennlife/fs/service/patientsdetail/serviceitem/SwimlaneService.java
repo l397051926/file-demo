@@ -30,11 +30,11 @@ import static com.gennlife.fs.configurations.model.Model.emrModel;
 public class SwimlaneService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(SwimlaneService.class);
-    private static final JsonObject SWIMLANCE_SORT ;
-    private static final JsonObject SWIMLANCE_SHOW_NAME ;
-    private static final JsonObject SWIMLANCE_SHOW_STR_NAME ;
-    private static final JsonArray FIELD_NAME;
-    private static final JsonObject SWIMLANCE_SHOW_CONFIG;
+    private  final JsonObject SWIMLANCE_SORT ;
+    private  final JsonObject SWIMLANCE_SHOW_NAME ;
+    private  final JsonObject SWIMLANCE_SHOW_STR_NAME ;
+    private  final JsonArray FIELD_NAME;
+    private  final JsonObject SWIMLANCE_SHOW_CONFIG;
     private static final String OPERATION_DATE_COUNT="OperationDays";
     private static final String ADMISSION_DATE_COUNT="hospitalDays";
     private static final String TIME="Dates";
@@ -45,12 +45,16 @@ public class SwimlaneService {
     private static final String ONCE_MEDICINE="OnceMedicine";
     private static final String NON_ORDER="NonOrder";
     private static final String MEDICAL_RECORDS="MedicalRecords";
-    private static final String NON_ORDER_CONFIG = "orders";
-    private static final String LONG_MEDICINE_CONFIG = "medicineOrder";
     private static final String ONCE_MEDICINE_CONFIG = "medicine_order";
-    static {
-        JsonObject swimlanceConfig = JsonAttrUtil.getJsonObjectfromFile(SystemUtil.getPath("/data/swimlance.json"));
-        JsonObject swimlanceshowconfig = JsonAttrUtil.getJsonObjectfromFile(SystemUtil.getPath("/data/swimlanceShowName.json"));
+    private static final String ONCE_MEDICINE_CONFIG_4 = "drug_order";
+     {
+         JsonObject swimlanceConfig = null;
+         JsonObject swimlanceshowconfig = JsonAttrUtil.getJsonObjectfromFile(SystemUtil.getPath("/data/swimlanceShowName.json"));
+         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
+             swimlanceConfig = JsonAttrUtil.getJsonObjectfromFile(SystemUtil.getPath("/data/swimlance2.0.json"));
+         }else {
+             swimlanceConfig = JsonAttrUtil.getJsonObjectfromFile(SystemUtil.getPath("/data/swimlance1.0.json"));
+         }
         SWIMLANCE_SORT = swimlanceConfig.getAsJsonObject("sort");
         SWIMLANCE_SHOW_NAME = swimlanceConfig.getAsJsonObject("showName");
         SWIMLANCE_SHOW_STR_NAME = swimlanceConfig.getAsJsonObject("strongShowName");
@@ -233,8 +237,12 @@ public class SwimlaneService {
                 shortMedicin.add(object);
             }
         }
-        transForArrayTimeMap(longMedicin,timeLines,LONG_MEDICINE,LONG_MEDICINE_CONFIG);
-        transForArrayTimeMap(shortMedicin, timeLines, ONCE_MEDICINE,ONCE_MEDICINE_CONFIG);
+        transForArrayTimeMap(longMedicin,timeLines,LONG_MEDICINE,LONG_MEDICINE);
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
+            transForArrayTimeMap(shortMedicin, timeLines, ONCE_MEDICINE,ONCE_MEDICINE_CONFIG_4);
+        }else {
+            transForArrayTimeMap(shortMedicin, timeLines, ONCE_MEDICINE,ONCE_MEDICINE_CONFIG);
+        }
     }
 
     private void transForArrayTimeMap(JsonArray longMedicin, Map<String, JsonObject> timeLines, String key,String configSchema) {
@@ -285,13 +293,6 @@ public class SwimlaneService {
                 "transferred_out_records"};
         }else {
             s1 = new String[]{
-                "admissions_record",
-                "discharge_record",
-                "first_course_record",
-                "attending_physician_rounds_record",
-                "course_record",
-                "post_course_record",
-                "operation_pre_summary",
                 "discharge_summary",
                 "death_discuss_record",
                 "death_record",
@@ -361,7 +362,7 @@ public class SwimlaneService {
             return ;
         }
         JsonArray res = obj.get(orders).getAsJsonArray();
-        transForArrayTimeMap(res, timeLines, NON_ORDER,NON_ORDER_CONFIG);
+        transForArrayTimeMap(res, timeLines, NON_ORDER,orders);
     }
 
     private void getOperationRecods(Map<String, JsonObject> timeLines, String param) {
@@ -458,6 +459,9 @@ public class SwimlaneService {
             return;
         }
         JsonArray visits = visit.getAsJsonArray(inspection_reports);
+        if(visits == null){
+            return;
+        }
         Map<String,List<JsonObject>> timeMap = new HashMap<>();
         for (JsonElement element : visits){
             JsonObject object = element.getAsJsonObject();
@@ -495,10 +499,15 @@ public class SwimlaneService {
             "microscopic_exam_reports",//镜像检查
             "lung_functional_exam",//肺功能检查
             "other_imaging_exam_diagnosis_reports",
-            "electrocardiogram_reports",
-            "other_imaging_exam_diagnosis_reports",
             "electrocardiogram_reports"
         };
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
+            keys = new String[]{
+                "ultrasonic_diagnosis_report",//超声检查
+                "lung_functional_exam",
+                "imaging_exam_diagnosis_report"
+        };
+        }
         ResponseInterface template = ImageResponseUtils.getImageResponseInterface(keys);
         template.execute(JsonAttrUtil.toJsonObject(param));
         JsonObject result = template.get_result();
