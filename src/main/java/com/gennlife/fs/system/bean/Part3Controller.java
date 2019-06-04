@@ -1,7 +1,7 @@
 /**
  * copyRight
  */
-package com.gennlife.fs.controller;
+package com.gennlife.fs.system.bean;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gennlife.fs.common.utils.ParamUtils;
@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Controller
 @RequestMapping("/part3")
 public class Part3Controller {
-    private Logger logger = LoggerFactory.getLogger(Part3Controller.class);
+    private Logger logger = LoggerFactory.getLogger(com.gennlife.fs.controller.Part3Controller.class);
     @Autowired
     private Part3SampleService part3SampleService;
 
