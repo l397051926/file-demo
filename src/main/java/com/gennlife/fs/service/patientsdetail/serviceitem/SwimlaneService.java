@@ -203,12 +203,16 @@ public class SwimlaneService {
     }
 
     private void getMedicalOrders(Map<String, JsonObject> timeLines, String param, String endTime) {
-        VisitSNResponse vt =  new VisitSNResponse("medicine_order","medicine_order");
+         String medicine_order = "medicine_order";
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
+            medicine_order = "drug_order";
+        }
+        VisitSNResponse vt =  new VisitSNResponse(medicine_order,medicine_order);
         JsonObject paramJson = JsonAttrUtil.toJsonObject(param);
         if(paramJson==null)return  ;
         vt.execute(JsonAttrUtil.toJsonObject(paramJson));
         JsonObject result = vt.get_result();
-        JsonArray medicin = result.get("medicine_order").getAsJsonArray();
+        JsonArray medicin = result.get(medicine_order).getAsJsonArray();
         JsonArray longMedicin = new JsonArray();
         JsonArray shortMedicin = new JsonArray();
         for (JsonElement element : medicin){
@@ -429,6 +433,7 @@ public class SwimlaneService {
         String ACQUISITION_TIME = "inspection_reports.ACQUISITION_TIME";
         String RECEIVE_TIME ="inspection_reports.RECEIVE_TIME";
         String REPORT_TIME = "inspection_reports.REPORT_TIME";
+        String REPORT_TIME_KEY = "REPORT_TIME";
         String inspection_reports = "inspection_reports";
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             INSPECTION_SN =  "inspection_report.INSPECTION_SN";
@@ -437,7 +442,8 @@ public class SwimlaneService {
             SUBMITTING_DEPARTMENT = "inspection_report.SUBMITTING_DEPARTMENT";
             ACQUISITION_TIME = "inspection_report.ACQUISITION_TIME";
             RECEIVE_TIME ="inspection_report.RECEIVE_TIME";
-            REPORT_TIME = "inspection_report.REPORT_TIME";
+            REPORT_TIME = "inspection_report.REPORT_DATE";
+            REPORT_TIME_KEY = "REPORT_DATE";
             inspection_reports = "inspection_report";
         }
         QueryParam qp = new QueryParam(param_json, patient_sn, new String[]{
@@ -474,7 +480,7 @@ public class SwimlaneService {
             object.addProperty("port",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(INSPECTION_REPORTS).get("port").getAsString());
             object.addProperty("titleName",titleName);
             object.addProperty("configSchema",inspection_reports);
-            String time = DateUtil.getDateStr_ymd(JsonAttrUtil.getStringValue("REPORT_TIME",object));
+            String time = DateUtil.getDateStr_ymd(JsonAttrUtil.getStringValue(REPORT_TIME_KEY,object));
             if(StringUtil.isEmptyStr(time)){
                 continue;
             }
@@ -563,6 +569,9 @@ public class SwimlaneService {
         snResponse.execute(param_json);
         JsonObject visit= snResponse.get_result();
         JsonObject resultObj = new JsonObject();
+        if(visit == null){
+            return resultObj;
+        }
         transforDiagnose(resultObj,visit);
         transforVisitInfo(resultObj,visit);
         return resultObj;

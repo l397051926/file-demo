@@ -265,8 +265,15 @@ public class QueryResult {
         sortMap.put("clinic_medical_record", "VISIT_TIME");
         sortMap.put("forsz_study", "SD_APPLY_TIME");
         sortMap.put("inspection_reports","REPORT_TIME");
+        sortMap.put("inspection_report","REPORT_DATE");
         sortMap.put("orders","ORDER_START_TIME");
         sortMap.put("non_drug_orders","ORDER_START_TIME");
+        sortMap.put("admissions_record","RECORD_DATE");
+        sortMap.put("course_record","RECORD_DATE");
+        sortMap.put("first_course_record","RECORD_DATE");
+        sortMap.put("discharge_record","RECORD_DATE");
+        sortMap.put("attending_physician_rounds_record","RECORD_DATE");
+        sortMap.put("operation_post_course_record","RECORD_DATE");
     }
 
     public static HashMap<String, String> subMap(String... key) {

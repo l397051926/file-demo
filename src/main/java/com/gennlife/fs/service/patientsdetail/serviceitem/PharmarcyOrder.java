@@ -100,13 +100,14 @@ public class PharmarcyOrder {
             if(StringUtil.isNotEmptyStr(order_status)){
                 orderStatusArray.add(order_status);
             }
-            if(orderType.size()>0 && StringUtil.isNotEmptyStr(LONG_ONCE_FLAG) ){
-                String long_once_flag = JsonAttrUtil.getStringValue(LONG_ONCE_FLAG,object);
-                isOrderType = orderType.contains(JsonAttrUtil.toJsonElement(long_once_flag));
-            }else {
-                isOrderStatus = false;
+            if( StringUtil.isNotEmptyStr(LONG_ONCE_FLAG)){
+                if(orderType.size()>0  ){
+                    String long_once_flag = JsonAttrUtil.getStringValue(LONG_ONCE_FLAG,object);
+                    isOrderType = orderType.contains(JsonAttrUtil.toJsonElement(long_once_flag));
+                }else {
+                    isOrderStatus = false;
+                }
             }
-
             if(StringUtil.isNotEmptyStr(orderStatus)){
                 isOrderStatus = orderStatus.equals(order_status);
             }

@@ -89,14 +89,6 @@ public class LabResultItem extends PatientDetailService {
             return ResponseMsgFactory.buildFailStr("no patient_sn");
         }
         JsonObject result = new JsonObject();
-
-        QueryParam qp = new QueryParam(param_json, patient_sn, new String[]{
-                "inspection_reports",
-        });
-        qp.setQuery("[患者基本信息.患者编号] 包含 " + patient_sn);
-        qp.setIndexName(BeansContextUtil.getUrlBean().getVisitIndexName());
-        qp.setSize(1);
-        JsonArray visits = null;
         String INSPECTION_NAME = null;
         String SUB_INSPECTION_CN = null;
         String SUB_INSPECTION_EN = null;
@@ -105,6 +97,7 @@ public class LabResultItem extends PatientDetailService {
         String SUB_INSPECTION_UNIT = null;
         String SUB_INSPECTION_REFERENCE_INTERVAL = null;
         String REPORT_TIME = null;
+        String REPORT_TIME_KEY = null;
         String inspection_reports = null;
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             INSPECTION_NAME = "visits.inspection_report.INSPECTION_NAME";
@@ -114,7 +107,8 @@ public class LabResultItem extends PatientDetailService {
             SUB_INSPECTION_RESULT_NUMBER = "visits.inspection_report.sub_inspection.SUB_INSPECTION_RESULT_NUMBER";
             SUB_INSPECTION_UNIT ="visits.inspection_report.sub_inspection.SUB_INSPECTION_UNIT";
             SUB_INSPECTION_REFERENCE_INTERVAL = "visits.inspection_report.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL";
-            REPORT_TIME = "visits.inspection_report.REPORT_TIME";
+            REPORT_TIME = "visits.inspection_report.REPORT_DATE";
+            REPORT_TIME_KEY = "REPORT_DATE";
             inspection_reports = "inspection_report";
         }else {
             INSPECTION_NAME = "visits.inspection_reports.INSPECTION_NAME";
@@ -125,8 +119,18 @@ public class LabResultItem extends PatientDetailService {
             SUB_INSPECTION_UNIT ="visits.inspection_reports.sub_inspection.SUB_INSPECTION_UNIT";
             SUB_INSPECTION_REFERENCE_INTERVAL = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL";
             REPORT_TIME = "visits.inspection_reports.REPORT_TIME";
+            REPORT_TIME_KEY = "REPORT_TIME";
             inspection_reports = "inspection_reports";
         }
+
+        QueryParam qp = new QueryParam(param_json, patient_sn, new String[]{
+            inspection_reports,
+        });
+        qp.setQuery("[患者基本信息.患者编号] 包含 " + patient_sn);
+        qp.setIndexName(BeansContextUtil.getUrlBean().getVisitIndexName());
+        qp.setSize(1);
+        JsonArray visits = null;
+
         if (visit_sn == null) {
             qp.addsource(INSPECTION_NAME,
                 SUB_INSPECTION_CN,
@@ -169,8 +173,8 @@ public class LabResultItem extends PatientDetailService {
                     if(all_sub_reports ==null){
                         continue;
                     }
-                    if (one_report_jason.has("REPORT_TIME"))
-                        JsonAttrUtil.setAttr("REPORT_TIME", one_report_jason.get("REPORT_TIME").getAsString(), all_sub_reports);
+                    if (one_report_jason.has(REPORT_TIME_KEY))
+                        JsonAttrUtil.setAttr(REPORT_TIME_KEY, one_report_jason.get(REPORT_TIME_KEY).getAsString(), all_sub_reports);
                 }
 
                 if (all_sub_reports != null) {
@@ -313,6 +317,7 @@ public class LabResultItem extends PatientDetailService {
         String ACQUISITION_TIME = "inspection_reports.ACQUISITION_TIME";
         String RECEIVE_TIME ="inspection_reports.RECEIVE_TIME";
         String REPORT_TIME = "inspection_reports.REPORT_TIME";
+        String REPORT_TIME_KEY = "REPORT_TIME";
         String inspection_reports = "inspection_reports";
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
              INSPECTION_SN =  "inspection_report.INSPECTION_SN";
@@ -321,7 +326,8 @@ public class LabResultItem extends PatientDetailService {
              SUBMITTING_DEPARTMENT = "inspection_report.SUBMITTING_DEPARTMENT";
              ACQUISITION_TIME = "inspection_report.ACQUISITION_TIME";
              RECEIVE_TIME ="inspection_report.RECEIVE_TIME";
-             REPORT_TIME = "inspection_report.REPORT_TIME";
+             REPORT_TIME = "inspection_report.REPORT_DATE";
+            REPORT_TIME_KEY = "REPORT_DATE";
             inspection_reports = "inspection_report";
         }
         QueryParam qp = new QueryParam(param_json, patient_sn, new String[]{
@@ -346,7 +352,7 @@ public class LabResultItem extends PatientDetailService {
             return ResponseMsgFactory.buildFailStr("no inspection_reports");
         }
         //排序
-        JsonArray sortVisits = inspectionReportsSort(visits,item_name_cn);
+        JsonArray sortVisits = inspectionReportsSort(visits,item_name_cn,REPORT_TIME_KEY);
         //分页
         int start = (page - 1) * size;
         int end = start + size;
@@ -381,12 +387,12 @@ public class LabResultItem extends PatientDetailService {
         return ResponseMsgFactory.buildSuccessStr(result);
     }
 
-    private JsonArray inspectionReportsSort(JsonArray visit,String item_name_cn) {
+    private JsonArray inspectionReportsSort(JsonArray visit,String item_name_cn,String REPORT_TIME_KEY) {
         List<JsonObject> resultObj = new LinkedList<>();
         List<String> sortList = new LinkedList<>();
         for (JsonElement element : visit){
             JsonObject object = element.getAsJsonObject();
-            String time = JsonAttrUtil.getStringValue("REPORT_TIME",object);
+            String time = JsonAttrUtil.getStringValue(REPORT_TIME_KEY,object);
             String inspectionName = exchange(JsonAttrUtil.getStringValue("INSPECTION_NAME", object));
             if(StringUtil.isNotEmptyStr(item_name_cn) && !item_name_cn.equals(inspectionName) ){
                 continue;
@@ -448,13 +454,6 @@ public class LabResultItem extends PatientDetailService {
         }
         JsonObject result = new JsonObject();
 
-        QueryParam qp = new QueryParam(param_json, patient_sn, new String[]{
-            "inspection_reports",
-        });
-        qp.setQuery("[患者基本信息.患者编号] 包含 " + patient_sn);
-        qp.setIndexName(BeansContextUtil.getUrlBean().getVisitIndexName());
-        qp.setSize(1);
-        JsonArray visits = null;
         String INSPECTION_NAME = null;
         String SUB_INSPECTION_CN = null;
         String SUB_INSPECTION_EN = null;
@@ -463,6 +462,7 @@ public class LabResultItem extends PatientDetailService {
         String SUB_INSPECTION_UNIT = null;
         String SUB_INSPECTION_REFERENCE_INTERVAL = null;
         String REPORT_TIME = null;
+        String REPORT_TIME_KEY = null;
         String inspection_reports = null;
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             INSPECTION_NAME = "visits.inspection_report.INSPECTION_NAME";
@@ -472,7 +472,8 @@ public class LabResultItem extends PatientDetailService {
             SUB_INSPECTION_RESULT_NUMBER = "visits.inspection_report.sub_inspection.SUB_INSPECTION_RESULT_NUMBER";
             SUB_INSPECTION_UNIT ="visits.inspection_report.sub_inspection.SUB_INSPECTION_UNIT";
             SUB_INSPECTION_REFERENCE_INTERVAL = "visits.inspection_report.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL";
-            REPORT_TIME = "visits.inspection_report.REPORT_TIME";
+            REPORT_TIME = "visits.inspection_report.REPORT_DATE";
+            REPORT_TIME_KEY = "visits.inspection_report.REPORT_DATE";
             inspection_reports = "inspection_report";
         }else {
             INSPECTION_NAME = "visits.inspection_reports.INSPECTION_NAME";
@@ -483,8 +484,17 @@ public class LabResultItem extends PatientDetailService {
             SUB_INSPECTION_UNIT ="visits.inspection_reports.sub_inspection.SUB_INSPECTION_UNIT";
             SUB_INSPECTION_REFERENCE_INTERVAL = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL";
             REPORT_TIME = "visits.inspection_reports.REPORT_TIME";
+            REPORT_TIME_KEY = "REPORT_TIME";
             inspection_reports = "inspection_reports";
         }
+        QueryParam qp = new QueryParam(param_json, patient_sn, new String[]{
+            inspection_reports,
+        });
+        qp.setQuery("[患者基本信息.患者编号] 包含 " + patient_sn);
+        qp.setIndexName(BeansContextUtil.getUrlBean().getVisitIndexName());
+        qp.setSize(1);
+        JsonArray visits = null;
+
         if (visit_sn == null) {
             qp.addsource(INSPECTION_NAME,
                 SUB_INSPECTION_CN,
@@ -512,7 +522,7 @@ public class LabResultItem extends PatientDetailService {
             JsonObject one_visit_json = one_visit.getAsJsonObject();
             JsonArray all_reports = null;
             if (one_visit_json.has(inspection_reports)) {
-                all_reports = one_visit_json.get("inspection_reports").getAsJsonArray();
+                all_reports = one_visit_json.get(inspection_reports).getAsJsonArray();
             } else {
                 continue;
             }
@@ -532,8 +542,8 @@ public class LabResultItem extends PatientDetailService {
                     if(all_sub_reports ==null){
                         continue;
                     }
-                    if (one_report_jason.has("REPORT_TIME"))
-                        JsonAttrUtil.setAttr("REPORT_TIME", one_report_jason.get("REPORT_TIME").getAsString(), all_sub_reports);
+                    if (one_report_jason.has(REPORT_TIME_KEY))
+                        JsonAttrUtil.setAttr(REPORT_TIME_KEY, one_report_jason.get(REPORT_TIME_KEY).getAsString(), all_sub_reports);
                 }
 
                 if (all_sub_reports != null) {
@@ -647,17 +657,19 @@ public class LabResultItem extends PatientDetailService {
         String SUB_INSPECTION_UNIT = null;
         String SUB_INSPECTION_REFERENCE_INTERVAL = null;
         String REPORT_TIME = null;
+        String REPORT_TIME_KEY = null;
         String inspection_reports = null;
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             INSPECTION_NAME = "visits.inspection_report.INSPECTION_NAME";
-            SPECIMEN_NAME = "visits.inspection_reports.SPECIMEN_NAME";
+            SPECIMEN_NAME = "visits.inspection_report.SPECIMEN_NAME";
             SUB_INSPECTION_CN =  "visits.inspection_report.sub_inspection.SUB_INSPECTION_CN";
             SUB_INSPECTION_EN = "visits.inspection_report.sub_inspection.SUB_INSPECTION_EN";
             SUB_INSPECTION_RESULT = "visits.inspection_report.sub_inspection.SUB_INSPECTION_RESULT";
             SUB_INSPECTION_RESULT_NUMBER = "visits.inspection_report.sub_inspection.SUB_INSPECTION_RESULT_NUMBER";
             SUB_INSPECTION_UNIT ="visits.inspection_report.sub_inspection.SUB_INSPECTION_UNIT";
             SUB_INSPECTION_REFERENCE_INTERVAL = "visits.inspection_report.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL";
-            REPORT_TIME = "visits.inspection_report.REPORT_TIME";
+            REPORT_TIME = "visits.inspection_report.REPORT_DATE";
+            REPORT_TIME_KEY = "REPORT_DATE";
             inspection_reports = "inspection_report";
         }else {
             INSPECTION_NAME = "visits.inspection_reports.INSPECTION_NAME";
@@ -669,6 +681,7 @@ public class LabResultItem extends PatientDetailService {
             SUB_INSPECTION_UNIT ="visits.inspection_reports.sub_inspection.SUB_INSPECTION_UNIT";
             SUB_INSPECTION_REFERENCE_INTERVAL = "visits.inspection_reports.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL";
             REPORT_TIME = "visits.inspection_reports.REPORT_TIME";
+            REPORT_TIME_KEY = "REPORT_TIME";
             inspection_reports = "inspection_reports";
         }
         QueryParam qp = new QueryParam(param_json, patient_sn, new String[]{
@@ -715,7 +728,7 @@ public class LabResultItem extends PatientDetailService {
                 if(!one_report_json.has("SPECIMEN_NAME") || !one_report_json.get("SPECIMEN_NAME").getAsString().equals(specimen_name) ){
                     continue SUB;
                 }
-                String reportTime = JsonAttrUtil.getStringValue("REPORT_TIME", one_report_json);
+                String reportTime = JsonAttrUtil.getStringValue(REPORT_TIME_KEY, one_report_json);
                 if(StringUtil.isEmptyStr(reportTime)){
                     continue SUB;
                 }
