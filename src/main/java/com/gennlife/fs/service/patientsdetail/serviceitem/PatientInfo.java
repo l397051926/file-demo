@@ -6,19 +6,14 @@ import com.gennlife.fs.common.utils.HttpRequestUtils;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
 import com.gennlife.fs.service.patientsdetail.base.PatientDetailService;
 import com.gennlife.fs.system.bean.BeansContextUtil;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.crypto.Data;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 患者基本信息
@@ -26,11 +21,11 @@ import java.util.Map;
 public class PatientInfo extends PatientDetailService {
     private Logger logger = LoggerFactory.getLogger(PatientDetailService.class);
     private static String PATIENTINFOPARAM = "{\"UserId\":\"PatientDetailsInfo\", \"Uuids\":[\"PATIENTUUID\"],\"Source\":[\"CountryName\", \"CountryID\", \"Uuid\",\"IDCard\",\"PatiName\",\"Sex\",\"NativePlace\",\"Nationality\",\"BirthDate\",\"IDCardType\",\"OccupationName\",\"RegiLoc\",\"EducationLevel\",\"Married\",\"EntTeleNum\",\"ABO\",\"RH\",\"EntAddr\",\"PatiTelNum\",\"FLTeleNum\",\"BirthLoc\",\"EducationLevel\",\"CTRoleID\"]}";
-    private static String PATIENSAMPLEPARAM = "([患者基本信息.患者编号] 包含 PATIENTUUID) AND ([标本信息.标本号] EXIST TRUE)";
 
     public String getPatientInfo(String param) {
-
         String patient_sn = null;
+        String unumber = null;
+        boolean isAdmin = false;
         JsonObject param_json = JsonAttrUtil.toJsonObject(param);
         if (param_json == null)
             return ResponseMsgFactory.buildFailStr(" not json");
@@ -38,6 +33,17 @@ public class PatientInfo extends PatientDetailService {
             patient_sn = param_json.get("patient_sn").getAsString();
         } else
             return ResponseMsgFactory.buildFailStr("no patients_sn");
+
+        if (param_json.has("unumber")) {
+            unumber = param_json.get("unumber").getAsString();
+        } else
+            return ResponseMsgFactory.buildFailStr("no unumber");
+
+        if (param_json.has("isAdmin")) {
+            isAdmin = param_json.get("isAdmin").getAsBoolean();
+        } else
+            return ResponseMsgFactory.buildFailStr("no isAdmin");
+
         JsonAttrUtil.toJsonElement("");
 
         String quereyParam = PATIENTINFOPARAM.replace("PATIENTUUID", patient_sn);
@@ -102,12 +108,18 @@ public class PatientInfo extends PatientDetailService {
         }
         /**获取样本信息 start*/
         QueryParam queryParam = new QueryParam();
-        String patientuuid = PATIENSAMPLEPARAM.replace("PATIENTUUID", patient_sn);
+        String patientuuid = null;
+        if (!isAdmin){
+            patientuuid = "(([患者基本信息.患者编号] 包含 " + patient_sn + ") AND [标本信息.标本负责人] 包含 " + unumber + ")";
+        } else {
+            patientuuid = "(([患者基本信息.患者编号] 包含 " + patient_sn + ") AND [标本信息.标本负责人] BBSYR)";
+        }
         queryParam.setQuery(patientuuid);
         queryParam.setSize(1);
         queryParam.setIndexName(BeansContextUtil.getUrlBean().getSearchIndexName());
         queryParam.setHospitalID("public");
         queryParam.addsource("specimen_info");
+        logger.info("empi查询条件：" + JsonAttrUtil.toJsonObject(queryParam).toString());
         JsonElement element = HttpRequestUtils.httpJsonPost(BeansContextUtil.getUrlBean().getSearch_service_uri(), JsonAttrUtil.toJsonObject(queryParam).toString());
         JsonArray sampleInfo = new JsonArray();
         JsonObject result = new JsonObject();
@@ -140,6 +152,7 @@ public class PatientInfo extends PatientDetailService {
         return falg;
     }
 
+
     public void wrapperResult(JsonObject source, String key, JsonArray sampleInfo) {
 
         JsonArray specimen_info = source.getAsJsonArray(key);
@@ -153,24 +166,31 @@ public class PatientInfo extends PatientDetailService {
     }
 
     private void getSortSampleInfo(JsonArray sampleInfo, JsonArray specimen_info) {
-        Date[] dataArr = new Date[specimen_info.size()];
-        Map<Date, JsonObject> dataMap = new HashMap<>();
-        for (int i = 0; i < specimen_info.size(); i++) {
-            String sample_time = specimen_info.get(i).getAsJsonObject().get("SAMPLING_TIME").getAsString();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            try {
-                dataArr[i] = sdf.parse(sample_time);
-                dataMap.put(sdf.parse(sample_time), specimen_info.get(i).getAsJsonObject());
-            } catch (ParseException e) {
-                logger.info("样本数据日期格式不对, yyyy-MM-dd HH:mm:ss");
-                e.printStackTrace();
+        List<JsonObject> list = new ArrayList();
+        for (int i = 0; i < specimen_info.size(); i++){
+            list.add(specimen_info.get(i).getAsJsonObject());
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Collections.sort(list, new Comparator<JsonObject>(){
+            public int compare(JsonObject o1, JsonObject o2) {
+                Date o1_sample_time = null;
+                Date o2_sample_time = null;
+                try {
+                    o1_sample_time = sdf.parse(o1.get("SAMPLING_TIME").getAsString());
+                    o2_sample_time = sdf.parse(o2.get("SAMPLING_TIME").getAsString());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                if(o1_sample_time.getTime() < o2_sample_time.getTime()){
+                    return 0;
+                }
+                if(o1_sample_time.getTime() == o2_sample_time.getTime()){
+                    return 1;
+                }
+                return -1;
             }
-        }
-        //排序
-        Arrays.sort(dataArr);
-        for (Date d : dataArr){
-            sampleInfo.add(dataMap.get(d));
-        }
+        });
+        sampleInfo.add(new JsonParser().parse(list.toString()).getAsJsonArray());
     }
 
     public String getManyPatientInfo (String param){
@@ -221,3 +241,4 @@ public class PatientInfo extends PatientDetailService {
         return ResponseMsgFactory.buildSuccessStr(result);
     }
 }
+

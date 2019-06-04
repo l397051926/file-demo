@@ -19,6 +19,7 @@ import redis.clients.jedis.JedisPool;
 
 import java.text.ParseException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -178,6 +179,45 @@ public class JedisClusterDao implements FactoryBean<JedisClusterDao>, Initializi
             logger.error("redis error ", e);
             return null;
         }
+    }
+
+    public boolean putValue(String key, List<String> list, long sec){
+        String[] strArr = new String[list.size()];
+        list.toArray(strArr);
+        try {
+            if (jedisCluster == null) return false;
+            key = BuildKey(key);
+            jedisCluster.lpush(key, strArr);
+            jedisCluster.expire(key, (int) sec);
+            return true;
+        } catch (Exception e) {
+            logger.error("redis error ", e);
+            return false;
+        }
+    }
+
+    public List<String> getValue(String key, int start, int end){
+        if (jedisCluster == null) return null;
+        try {
+            key = BuildKey(key);
+            List<String> list = jedisCluster.lrange(key, start, end);
+            return list;
+        } catch (Exception e) {
+            logger.error("redis error ", e);
+            return null;
+        }
+    }
+
+    public int getListValueSize(String key){
+        if (jedisCluster == null) return 0;
+        long llen = 0;
+        try {
+            key = BuildKey(key);
+            llen = jedisCluster.llen(key);
+        } catch (Exception e) {
+            logger.error("redis error ", e);
+        }
+        return (int)llen;
     }
 
     @Override

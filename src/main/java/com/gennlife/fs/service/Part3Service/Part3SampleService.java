@@ -1,19 +1,17 @@
 package com.gennlife.fs.service.Part3Service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.JsonObject;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author liuzhen
- *         Created by liuzhen.
- *         Date: 2018/10/10
- *         Time: 11:13
+ * Created by wangyiyan on 2019/4/8
  */
 public interface Part3SampleService {
-    JsonObject ouath();
-    String applyOutGoing(String token, String param);
-    void getSampleNumber(String param, ConcurrentHashMap<String,JSONObject> result);
+    //提供可选择的样本数据信息
+    String applyOutGoing(JSONObject jsonObject, ConcurrentHashMap<String, JSONObject> infosMap);
+    //密码解密
     String encryptPWD(String param);
+    //确认需要导出的样本数据
+    String confirmSpecInfos(String param);
 }
