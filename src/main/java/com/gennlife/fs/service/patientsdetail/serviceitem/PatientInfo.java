@@ -15,6 +15,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.gennlife.fs.configurations.model.Model.emrModel;
+
 /**
  * 患者基本信息
  */
@@ -151,6 +153,24 @@ public class PatientInfo extends PatientDetailService {
         }
         return falg;
     }
+    private JsonObject getSampleInfo(JsonObject result, String key) {
+
+        JsonObject hits = result.getAsJsonObject("hits");
+        boolean falg = false;
+        if (hits != null && hits.has("hits")) {
+            JsonArray hits1 = hits.getAsJsonArray("hits");
+            int size = hits1.size();
+            if (hits1 != null && size > 0) {
+                falg = true;
+                for (int i = 0; i < size; i++) {
+                    JsonObject jsonObject = hits1.get(i).getAsJsonObject();
+                    JsonObject source = jsonObject.getAsJsonObject("_source");
+                    return source.getAsJsonArray(key).get(0).getAsJsonObject();
+                }
+            }
+        }
+        return new JsonObject();
+    }
 
 
     public void wrapperResult(JsonObject source, String key, JsonArray sampleInfo) {
@@ -238,6 +258,38 @@ public class PatientInfo extends PatientDetailService {
 
         JsonObject result = new JsonObject();
         result.add("patient_info", patInfos);
+        return ResponseMsgFactory.buildSuccessStr(result);
+    }
+
+    public String getPatientInfoDetail(String param) {
+        String patient_sn = null;
+        JsonObject param_json = JsonAttrUtil.toJsonObject(param);
+        if (param_json == null)
+            return ResponseMsgFactory.buildFailStr(" not json");
+        if (param_json.has("patient_sn")) {
+            patient_sn = param_json.get("patient_sn").getAsString();
+        } else
+            return ResponseMsgFactory.buildFailStr("no patients_sn");
+        QueryParam queryParam = new QueryParam();
+        String patientuuid = null;
+        patientuuid = "[患者基本信息.患者编号] 包含 " + patient_sn ;
+        queryParam.setQuery(patientuuid);
+        queryParam.setSize(1);
+        queryParam.setIndexName(BeansContextUtil.getUrlBean().getSearchIndexName());
+        queryParam.setHospitalID("public");
+        queryParam.addsource("patient_info");
+        JsonElement element = HttpRequestUtils.httpJsonPost(BeansContextUtil.getUrlBean().getSearch_service_uri(), JsonAttrUtil.toJsonObject(queryParam).toString());
+        JsonArray sampleInfo = new JsonArray();
+        JsonObject result = new JsonObject();
+        JsonObject object = null;
+        if (element instanceof JsonObject) {
+            JsonObject sample = (JsonObject) element;
+            object =  getSampleInfo(sample, "patient_info");
+        }else {
+            object = new JsonObject();
+        }
+        /**获取样本信息 end*/
+        result.add("patient_info", object);
         return ResponseMsgFactory.buildSuccessStr(result);
     }
 }

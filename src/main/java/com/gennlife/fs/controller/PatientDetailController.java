@@ -43,6 +43,15 @@ public class PatientDetailController {
     String getPatientInfo(@RequestBody String param) {
         return new PatientInfo().getPatientInfo(param);
     }
+    /*
+     * 标题栏、患者基本信息
+     */
+    @RequestMapping(value = "/patient_basic_info_detail", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    String getPatientInfoDetail(@RequestBody String param) {
+        return new PatientInfo().getPatientInfoDetail(param);
+    }
 
     //遗传疾病
     @RequestMapping(value = "/genetic_disease", method = RequestMethod.POST)
