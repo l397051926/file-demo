@@ -156,6 +156,7 @@ public class PharmarcyOrder {
         resultArray.addAll(JsonAttrUtil.toJsonTree(medicineNullList).getAsJsonArray());
         result.add(drug_order,resultArray);
         result.add("orderStatus",JsonAttrUtil.toJsonTree(orderStatusArray));
+        result.addProperty("configSchema",drug_order);
         return ResponseMsgFactory.buildResponseStr(result,vt.get_error());
     }
 
@@ -247,6 +248,7 @@ public class PharmarcyOrder {
             }
         }
         obj.add(non_drug_orders,result);
+        obj.addProperty("configSchema",non_drug_orders);
         obj.add("orderStatus",JsonAttrUtil.toJsonTree(orderStatusArray));
         obj.add("willType",JsonAttrUtil.toJsonTree(willTypeArray));
         return  ResponseMsgFactory.buildResponseStr(obj,vt.get_error());

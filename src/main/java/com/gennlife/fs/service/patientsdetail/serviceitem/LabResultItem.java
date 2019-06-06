@@ -376,7 +376,7 @@ public class LabResultItem extends PatientDetailService {
                 dataOut.add(iter.next());
                 end--;
             }
-            result.add("lab_result", JsonAttrUtil.toJsonTree(dataOut));
+            result.add(inspection_reports, JsonAttrUtil.toJsonTree(dataOut));
 
         }
         if(sortVisits.size() ==0){
@@ -384,6 +384,7 @@ public class LabResultItem extends PatientDetailService {
         }
         result.addProperty("limit", "" + page + "," + size);
         result.addProperty("total", sortVisits.size());
+        result.addProperty("configSchema",inspection_reports);
         return ResponseMsgFactory.buildSuccessStr(result);
     }
 
@@ -603,7 +604,7 @@ public class LabResultItem extends PatientDetailService {
                     }
                 }
             }
-            result.add("lab_result_item", JsonAttrUtil.toJsonTree(dataOut));
+            result.add("sub_inspection", JsonAttrUtil.toJsonTree(dataOut));
 
         }
         //如果数据为0  不展示

@@ -206,6 +206,17 @@ public class TimerShaftSort {
                 JsonObject eleObj = element.getAsJsonObject();
                 JsonObject nameObj = new JsonObject();
                 String examName = null;
+                if(eleObj.has("sub_item") && eleObj.get("sub_item") instanceof JsonArray ){
+                    JsonArray subArray = eleObj.get("sbu_item").getAsJsonArray();
+                    JsonArray subData = new JsonArray();
+                    for (JsonElement e1 : subArray){
+                        JsonObject o1 = e1.getAsJsonObject();
+                        o1.addProperty("configSchema",key+"_sub_item");
+                        subData.add(o1);
+                    }
+                    eleObj.remove("sub_item");
+                    eleObj.add("subData",subData);
+                }
                 if(examResultName.containsKey(key)){
                     if(key.equals("other_imaging_exam_diagnosis_reports")){
                         examName = JsonAttrUtil.getStringValue("EXAM_ITEM",eleObj);

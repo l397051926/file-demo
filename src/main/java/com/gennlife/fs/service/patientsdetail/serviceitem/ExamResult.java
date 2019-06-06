@@ -5,10 +5,8 @@ import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.utils.ImageResponseUtils;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
 import com.gennlife.fs.common.utils.TimerShaftSort;
-import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.google.gson.JsonObject;
 
-import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
 import static com.gennlife.fs.configurations.model.Model.emrModel;
 
 /**
