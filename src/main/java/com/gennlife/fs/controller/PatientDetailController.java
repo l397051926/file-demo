@@ -291,6 +291,14 @@ public class PatientDetailController {
         return new Remedy().getData(param);
     }
 
+    //治疗--放疗检查 放疗疗程
+    @RequestMapping(value = "/newRemedy", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    String getNewRemedy(@RequestBody String param) {
+        return new Remedy().getRemedy(param);
+    }
+
     //分类详情——病理检验
     @RequestMapping(value = "/pathological_examination", method = RequestMethod.POST)
     public

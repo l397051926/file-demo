@@ -103,6 +103,8 @@ public class TimerShaftSort {
         operation.put("operation_info","手术信息");
         operation.put("operation_records","手术记录");
         operation.put("operation_record","手术记录");
+        operation.put("forsz_study","放疗检查");
+        operation.put("forsz_visit","放疗疗程");
     }
 
     /**
@@ -113,7 +115,6 @@ public class TimerShaftSort {
         sortMap.put("discharge_records","HOSPITAL_DISCHARGE_DATE");
         sortMap.put("first_course_records","RECORD_DATE");
         sortMap.put("attending_physician_rounds_records","RECORD_DATE");
-        sortMap.put("course_record","RECORD_DATE");
         sortMap.put("post_course_record","RECORD_DATE");
         sortMap.put("admissions_record","RECORD_DATE");
         sortMap.put("discharge_record","RECORD_DATE");
@@ -133,14 +134,10 @@ public class TimerShaftSort {
         sortMap.put("transferred_out_records","TRANSFERRED_OUT_DATE");
         sortMap.put("consultation_opinion_records","CONSULTATION_TIME");
         sortMap.put("invasive_records","OPERATION_DATE");
-        sortMap.put("discharge_summary","RECORD_DATE");
         sortMap.put("death_discuss_record","RECORD_TIME");
         sortMap.put("death_record","RECORD_DATE");
-        sortMap.put("death_summary","RECORD_DATE");
         sortMap.put("difficulty_case_record","RECORD_TIME");
-        sortMap.put("handover_record","RECORD_TIME");
         sortMap.put("rescue_record","RECORD_DATE");
-        sortMap.put("stage_summary","PHYSICIAN_SIGN");
         sortMap.put("transferred_in_record","RECORD_TIME");
         sortMap.put("transferred_out_record","RECORD_TIME");
         sortMap.put("consultation_opinion_record","CONSULTATION_TIME");
@@ -166,10 +163,10 @@ public class TimerShaftSort {
         sortMap.put("operation_records","OPERATION_DATE");
         sortMap.put("admission_death_record","RECORD_DATE");
         sortMap.put("admission_discharge_record","RECORD_DATE");
-        sortMap.put("invasive_record","RECORD_DATE");
-        sortMap.put("consultation_opinion_record","RECORD_TIME");
         sortMap.put("transfusion_record","RECORD_TIME");
         sortMap.put("operation_record","OPERATION_DATE");
+        sortMap.put("forsz_study","APPLY_TIME");
+        sortMap.put("forsz_visit","RADIO_START_DATE");
     }
 
     static {

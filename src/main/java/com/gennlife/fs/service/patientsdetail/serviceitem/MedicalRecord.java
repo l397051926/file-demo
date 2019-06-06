@@ -51,6 +51,7 @@ public class MedicalRecord {
         JsonObject mdicalResult = vt.get_result();
         JsonObject result = transforMdicalResult(mdicalResult,"medical_record_home_page");
         result.addProperty("code",1);
+        result.addProperty("configSchema","medical_record_home_page");
         return ResponseMsgFactory.buildResponseStr(result, vt.get_error());
     }
 
