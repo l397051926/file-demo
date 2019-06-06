@@ -54,6 +54,9 @@ public class MedicalCourseText {
         String death_records = "death_records";
         String death_discuss_records = "death_discuss_records";
         String handover_record = "handover_record";
+        String invasive_record = "invasive_record";
+        String consultation_opinion_record = "consultation_opinion_record";
+        String transfusion_record = "transfusion_record";
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             difficulty_case_records = "difficulty_case_record";
             stage_summary = "stage_summary";
@@ -65,6 +68,9 @@ public class MedicalCourseText {
             death_records = "death_record";
             death_discuss_records = "death_discuss_record";
             handover_record = "handover_record";
+            invasive_record = "invasive_record";
+            consultation_opinion_record = "consultation_opinion_record";
+            transfusion_record = "transfusion_record";
         }
         VisitSNResponse template=new VisitSNResponse(
             difficulty_case_records,//疑难病例讨论记录
@@ -76,7 +82,10 @@ public class MedicalCourseText {
             death_summary,//死亡小结
             death_records,//死亡记录
             death_discuss_records,//死亡病例讨论记录
-            handover_record//交接班记录
+            handover_record,//交接班记录
+            invasive_record,
+            consultation_opinion_record,
+            transfusion_record
         );
         template.execute(JsonAttrUtil.toJsonObject( JsonAttrUtil.toJsonObject(param)));
         JsonObject obj = template.get_result();

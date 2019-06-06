@@ -61,6 +61,8 @@ public class CourseRecord {
         String discharge_record = "discharge_records";
         String attending_physician_rounds_record = "attending_physician_rounds_records";
         String operation_post_course_record = "operation_post_course_records";
+        String admission_discharge_record = "";
+        String admission_death_record = "";
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
              admissions_record = "admissions_record";
              course_record = "course_record";
@@ -68,6 +70,8 @@ public class CourseRecord {
              discharge_record = "discharge_record";
              attending_physician_rounds_record = "attending_physician_rounds_record";
              operation_post_course_record = "operation_post_course_record";
+            admission_discharge_record = "admission_discharge_record";
+            admission_death_record = "admission_death_record";
         }
         String[] s1 = new String[]{
             admissions_record,
@@ -76,18 +80,12 @@ public class CourseRecord {
             discharge_record,
             attending_physician_rounds_record,
             operation_post_course_record,
-        };
-        String[] s2 = new String[]{
-            admissions_record,//入院记录
-            course_record,//日常病程记录
-            first_course_record,//首次病程记录
-            discharge_record,//出院记录
-            attending_physician_rounds_record,//上级医师查房记录
-            operation_post_course_record,//术后病程记录
+            admission_discharge_record,
+            admission_death_record
         };
         JsonObject paramJson = JsonAttrUtil.toJsonObject(param);
-        VisitSNResponse vt = new VisitSNResponse(s1, s2);
-        HashMap<String, String> map = QueryResult.subMap(s1, s2);
+        VisitSNResponse vt = new VisitSNResponse(s1, s1);
+        HashMap<String, String> map = QueryResult.subMap(s1, s1);
         ResponseInterface template = new SortResponse(vt, map, true);
         template.execute(JsonAttrUtil.toJsonObject(paramJson));
         JsonObject obj = template.get_result();

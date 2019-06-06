@@ -278,6 +278,25 @@ public class SwimlaneService {
         String[] s1 = null;
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             s1 = new String[]{
+                "discharge_summary",
+                "death_discuss_record",
+                "death_record",
+                "death_summary",
+                "difficulty_case_record",
+                "handover_record",
+                "rescue_record",
+                "stage_summary",
+                "transferred_in_record",
+                "admission_discharge_record",
+                "admission_death_record",
+                "invasive_record",
+                "consultation_opinion_record",
+                "operation_pre_conference_record",
+                "transfusion_record",
+                "transferred_out_record"
+            };
+        }else {
+            s1 = new String[]{
                 "admissions_records",
                 "discharge_records",
                 "first_course_record",
@@ -294,19 +313,7 @@ public class SwimlaneService {
                 "rescue_records",
                 "stage_summary",
                 "transferred_in_records",
-                "transferred_out_records"};
-        }else {
-            s1 = new String[]{
-                "discharge_summary",
-                "death_discuss_record",
-                "death_record",
-                "death_summary",
-                "difficulty_case_record",
-                "handover_record",
-                "rescue_record",
-                "stage_summary",
-                "transferred_in_record",
-                "transferred_out_record"
+                "transferred_out_records"
             };
         }
         VisitSNResponse template=new VisitSNResponse(

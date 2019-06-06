@@ -274,6 +274,12 @@ public class QueryResult {
         sortMap.put("discharge_record","RECORD_DATE");
         sortMap.put("attending_physician_rounds_record","RECORD_DATE");
         sortMap.put("operation_post_course_record","RECORD_DATE");
+
+        sortMap.put("admission_death_record","RECORD_DATE");
+        sortMap.put("admission_discharge_record","RECORD_DATE");
+        sortMap.put("invasive_record","RECORD_DATE");
+        sortMap.put("consultation_opinion_record","RECORD_TIME");
+        sortMap.put("transfusion_record","RECORD_TIME");
     }
 
     public static HashMap<String, String> subMap(String... key) {

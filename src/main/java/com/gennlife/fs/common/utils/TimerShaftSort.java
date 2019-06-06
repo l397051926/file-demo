@@ -45,6 +45,8 @@ public class TimerShaftSort {
         courseRecords.put("attending_physician_rounds_record","上级医师查房记录");
         courseRecords.put("course_record","日常病程记录");
         courseRecords.put("operation_post_course_record","术后病程记录");
+        courseRecords.put("admission_discharge_record","24小时入出院记录");
+        courseRecords.put("admission_death_record","24小时入院死亡记录");
     }
 
     static {
@@ -69,6 +71,9 @@ public class TimerShaftSort {
         medicalCourse.put("stage_summary","阶段小结");
         medicalCourse.put("transferred_in_record","转入记录");
         medicalCourse.put("transferred_out_record","转出记录");
+        medicalCourse.put("invasive_record","有创诊疗操作记录");
+        medicalCourse.put("consultation_opinion_record","会诊意见记录");
+        medicalCourse.put("transfusion_record","输血记录");
 
     }
 
@@ -110,15 +115,12 @@ public class TimerShaftSort {
         sortMap.put("attending_physician_rounds_records","RECORD_DATE");
         sortMap.put("course_record","RECORD_DATE");
         sortMap.put("post_course_record","RECORD_DATE");
-
         sortMap.put("admissions_record","RECORD_DATE");
         sortMap.put("discharge_record","RECORD_DATE");
         sortMap.put("first_course_record","RECORD_DATE");
         sortMap.put("attending_physician_rounds_record","RECORD_DATE");
         sortMap.put("course_record","RECORD_DATE");
         sortMap.put("operation_post_course_record","RECORD_DATE");
-
-
         sortMap.put("discharge_summary","RECORD_DATE");
         sortMap.put("death_discuss_records","DISCUSS_DATE");
         sortMap.put("death_records","RECORD_DATE");
@@ -131,7 +133,6 @@ public class TimerShaftSort {
         sortMap.put("transferred_out_records","TRANSFERRED_OUT_DATE");
         sortMap.put("consultation_opinion_records","CONSULTATION_TIME");
         sortMap.put("invasive_records","OPERATION_DATE");
-
         sortMap.put("discharge_summary","RECORD_DATE");
         sortMap.put("death_discuss_record","RECORD_TIME");
         sortMap.put("death_record","RECORD_DATE");
@@ -142,10 +143,8 @@ public class TimerShaftSort {
         sortMap.put("stage_summary","PHYSICIAN_SIGN");
         sortMap.put("transferred_in_record","RECORD_TIME");
         sortMap.put("transferred_out_record","RECORD_TIME");
-
         sortMap.put("consultation_opinion_record","CONSULTATION_TIME");
         sortMap.put("invasive_record","OPERATION_DATE");
-
         sortMap.put("ultrasonic_diagnosis_reports","REPORT_DATE");
         sortMap.put("xray_image_reports","REPORT_DATE");
         sortMap.put("ct_reports","REPORT_DATE");
@@ -154,20 +153,22 @@ public class TimerShaftSort {
         sortMap.put("pet_ct_reports","REPORT_DATE");
         sortMap.put("pet_mr_reports","REPORT_DATE");
         sortMap.put("microscopic_exam_reports","REPORT_DATE");
-        sortMap.put("lung_functional_exam","REPORT_DATE");
+        sortMap.put("lung_functional_exa","REPORT_DATE");
         sortMap.put("imaging_exam_diagnosis_report","REPORT_DATE");
         sortMap.put("electrocardiogram_reports","REPORT_DATE");
-
         sortMap.put("ultrasonic_diagnosis_report","REPORT_DATE");
         sortMap.put("xray_image_report","REPORT_DATE");
         sortMap.put("lung_functional_exam","REPORT_DATE");
         sortMap.put("other_imaging_exam_diagnosis_reports","REPORT_DATE");
         sortMap.put("electrocardiogram_report","REPORT_DATE");
-
         sortMap.put("operation_pre_summary","RECORD_DATE");
         sortMap.put("operation_info","OPERATION_START_TIME");
         sortMap.put("operation_records","OPERATION_DATE");
-
+        sortMap.put("admission_death_record","RECORD_DATE");
+        sortMap.put("admission_discharge_record","RECORD_DATE");
+        sortMap.put("invasive_record","RECORD_DATE");
+        sortMap.put("consultation_opinion_record","RECORD_TIME");
+        sortMap.put("transfusion_record","RECORD_TIME");
         sortMap.put("operation_record","OPERATION_DATE");
     }
 

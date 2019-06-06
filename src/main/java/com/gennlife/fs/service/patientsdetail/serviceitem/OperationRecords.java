@@ -21,10 +21,12 @@ public class OperationRecords {
         String operation_pre_summary = "operation_pre_summary";
         String operation_record = "operation_records";
         String operation_info = "operation_info";
+        String operation_pre_conference_record = "operation_pre_conference_record";
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             operation_pre_summary = "operation_pre_summary";
             operation_record = "operation_record";
             operation_info = "operation_info";
+            operation_pre_conference_record = "operation_pre_conference_record";
         }
         VisitSNResponse vt=new VisitSNResponse(
             operation_pre_summary,
