@@ -22,6 +22,7 @@ import java.util.List;
 
 public class MedicalRecord {
     private static final String FEE = "fee";
+    private static final String OPERATION = "operation";
     private static List<String> CONFIG_LIST = new ArrayList<>();
     private static List<String> CONFIG_SORT_LIST = new ArrayList<>();
     static {
@@ -68,6 +69,12 @@ public class MedicalRecord {
                     result.add(config,JsonAttrUtil.toJsonTree(list));
                 }else{
                     result.add(config,obj.get(config));
+                }
+                if(OPERATION.equals(config)){
+                    JsonArray array = obj.get(config).getAsJsonArray();
+                    List<JsonElement> list = new Gson().fromJson(array,new TypeToken<List<JsonElement>>(){}.getType());
+                    list.sort(Comparator.comparing(o -> JsonAttrUtil.getStringValue("OPERATION_DATE",o.getAsJsonObject())));
+                    result.add(config,JsonAttrUtil.toJsonTree(list));
                 }
                 obj.remove(config);
             }

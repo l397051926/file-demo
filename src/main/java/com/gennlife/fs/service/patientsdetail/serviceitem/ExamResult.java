@@ -25,7 +25,7 @@ public class ExamResult {
                 "pet_ct_reports",//pet_ct检查
                 "pet_mr_reports",//pet_mr检查
                 "microscopic_exam_reports",//镜像检查
-                "lung_functional_exam",//肺功能检查
+//                "lung_functional_exam",//肺功能检查
         };
         ResponseInterface template = ImageResponseUtils.getImageResponseInterface(keys);
         template.execute(JsonAttrUtil.toJsonObject(param));
@@ -74,7 +74,7 @@ public class ExamResult {
             pet_ct_reports,//pet_ct检查
             pet_mr_reports,//pet_mr检查
             microscopic_exam_reports,//镜像检查
-            lung_functional_exam,//肺功能检查
+//            lung_functional_exam,//肺功能检查
             other_imaging_exam_diagnosis_reports,
             electrocardiogram_reports,
         };

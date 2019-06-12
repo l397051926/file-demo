@@ -205,7 +205,7 @@ public class TimerShaftSort {
                 JsonObject nameObj = new JsonObject();
                 String examName = null;
                 if(eleObj.has("sub_item") && eleObj.get("sub_item") instanceof JsonArray ){
-                    JsonArray subArray = eleObj.get("sbu_item").getAsJsonArray();
+                    JsonArray subArray = eleObj.get("sub_item").getAsJsonArray();
                     JsonArray subData = new JsonArray();
                     for (JsonElement e1 : subArray){
                         JsonObject o1 = e1.getAsJsonObject();

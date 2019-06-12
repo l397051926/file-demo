@@ -157,7 +157,7 @@ public class SwimlaneService {
             beforTime = DateUtil.getSpecifiedDayAfter(time);
             resultMap.put(time,val);
         }
-        while ( resultMap.size() % 7 !=0){
+        while ( resultMap.size() % 7 !=0 || beforTime.compareTo(endTime) < 0 ){
             JsonObject obj = new JsonObject();
             addDays(obj,beforTime,admissionDate,operatorData);
             resultMap.put(beforTime,obj);
@@ -510,14 +510,14 @@ public class SwimlaneService {
             "pet_ct_reports",//pet_ct检查
             "pet_mr_reports",//pet_mr检查
             "microscopic_exam_reports",//镜像检查
-            "lung_functional_exam",//肺功能检查
+//            "lung_functional_exam",//肺功能检查
             "other_imaging_exam_diagnosis_reports",
             "electrocardiogram_reports"
         };
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             keys = new String[]{
                 "ultrasonic_diagnosis_report",//超声检查
-                "lung_functional_exam",
+//                "lung_functional_exam",
                 "imaging_exam_diagnosis_report"
         };
         }
