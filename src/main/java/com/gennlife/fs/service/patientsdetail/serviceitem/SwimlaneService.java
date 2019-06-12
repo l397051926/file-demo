@@ -159,7 +159,9 @@ public class SwimlaneService {
         }
         while ( resultMap.size() % 7 !=0 || beforTime.compareTo(endTime) < 0 ){
             JsonObject obj = new JsonObject();
-            addDays(obj,beforTime,admissionDate,operatorData);
+            if(beforTime.compareTo(endTime) <= 0){
+                addDays(obj,beforTime,admissionDate,operatorData);
+            }
             resultMap.put(beforTime,obj);
             beforTime = DateUtil.getSpecifiedDayAfter(beforTime);
         }
@@ -486,7 +488,7 @@ public class SwimlaneService {
             object.addProperty("unfold",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(INSPECTION_REPORTS).get("unfold").getAsBoolean());
             object.addProperty("port",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(INSPECTION_REPORTS).get("port").getAsString());
             object.addProperty("titleName",titleName);
-            object.addProperty("configSchema",inspection_reports);
+            object.addProperty("configSchema",INSPECTION_REPORTS);
             String time = DateUtil.getDateStr_ymd(JsonAttrUtil.getStringValue(REPORT_TIME_KEY,object));
             if(StringUtil.isEmptyStr(time)){
                 continue;
