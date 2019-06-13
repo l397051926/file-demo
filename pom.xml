@@ -317,6 +317,12 @@
             </properties>
         </profile>
         <profile>
+            <id>test</id>
+            <properties>
+                <package.id>test</package.id>
+            </properties>
+        </profile>
+        <profile>
             <id>郑州中心医院</id>
             <properties>
                 <package.id>郑州中心医院</package.id>
