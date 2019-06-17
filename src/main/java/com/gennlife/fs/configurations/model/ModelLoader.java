@@ -3,6 +3,7 @@ package com.gennlife.fs.configurations.model;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.gennlife.darren.collection.keypath.KeyPath;
+import com.gennlife.darren.collection.string.Matching;
 import com.gennlife.fs.common.utils.KeyPathUtil;
 import com.gennlife.fs.configurations.ModelVersion;
 import com.gennlife.fs.configurations.model.conversion.ModelConverter;
@@ -37,6 +38,7 @@ public class ModelLoader {
         val enabled = BV(props.get("enabled"));
         if (enabled) {
             model._version = new ModelVersion(S(props.get("version")));
+            model._sourceType = SourceType.fromString(S(props.get("source")));
             model._allFieldInfo = new HashMap<>();
             val jsonStr = readFile("/configurations/model/" + modelName + "/definition/" + model._version + ".json");
             _loadModelBody(model, JSON.parseObject(jsonStr), new KeyPath(), new KeyPath());
@@ -45,14 +47,16 @@ public class ModelLoader {
             model._displayName = S(props.get("display-name"));
             model._patientSnField = toKeyPath(S(props.get("patient-sn-field")));
             model._partitionGroup = toKeyPath(S(props.get("partition-group")));
-            model._partitionField = toKeyPath(S(props.get("partition-field")));
-            model._projectExportSortFields = Stream.of(S(props.get("sort-fields")).split(","))
-                .map(String::trim)
-                .filter(String::isEmpty)
-                .map(KeyPathUtil::toKeyPath)
-                .collect(toMap(identity(), model::fieldInfo, (a, b) -> a, LinkedHashMap::new));
+            if (model._partitionGroup != null) {
+                model._partitionField = toKeyPath(S(props.get("partition-field")));
+                model._projectExportSortFields = Stream.of(S(props.get("sort-fields")).split(","))
+                    .map(String::trim)
+                    .filter(String::isEmpty)
+                    .map(KeyPathUtil::toKeyPath)
+                    .collect(toMap(identity(), model::fieldInfo, (a, b) -> a, LinkedHashMap::new));
+            }
             val cvtProfile = S(props.get("conversion-profile"));
-            if (!cvtProfile.isEmpty()) {
+            if (!Matching.isEmpty(cvtProfile)) {
                 val cvtJsonStr = readFile("/configurations/model/" + modelName + "/conversion/" + cvtProfile + ".json");
                 val cvtJson = JSON.parseArray(cvtJsonStr);
                 model._converter = new ModelConverter(cvtJson);
@@ -64,7 +68,6 @@ public class ModelLoader {
     }
 
     private static void _loadModelBody(Model model, JSONObject json, KeyPath path, KeyPath displayPath) {
-        // 顺序！！！！！！！！！
         val children = json.getJSONObject("children");
         if (children != null) {
             for (val key : children.keySet()) {

@@ -3,7 +3,7 @@ package com.gennlife.fs.controller;
 import com.gennlife.fs.common.cache.MergeRequestInLocal;
 import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
-import com.gennlife.fs.service.empi.EMPIService;
+import com.gennlife.fs.service.EmpiService;
 import com.gennlife.fs.service.patientsdetail.model.EachVisitResponse;
 import com.gennlife.fs.service.patientsdetail.serviceitem.*;
 import org.slf4j.Logger;
@@ -24,7 +24,7 @@ public class PatientDetailController {
     private ChoiceList choiceList = new ChoiceList();
 
     @Autowired
-    private EMPIService empiService;
+    private EmpiService empiService;
 
     //门诊病历
     @RequestMapping(value = "/clinic_medical_records", method = RequestMethod.POST)

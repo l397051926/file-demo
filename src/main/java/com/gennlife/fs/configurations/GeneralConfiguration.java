@@ -115,24 +115,30 @@ public class GeneralConfiguration implements InitializingBean {
     public Charset projectExportMessageProducerCharset = UTF_8;
 
     @Value("${gennlife.rwss.endpoint}")
-    public ImmutableEndpoint rwsServerEndpoint;
+    public ImmutableEndpoint rwsServiceEndpoint;
 
     @Value("${gennlife.rwss.api.project-basic-info}")
-    public String rwsServerProjectBasicInfoApi;
+    public String rwsServiceProjectBasicInfoApi;
     @Value("${gennlife.rwss.api.project-patients}")
-    public String rwsServerProjectPatientsApi;
+    public String rwsServiceProjectPatientsApi;
     @Value("${gennlife.rwss.api.project-compute-custom-variable}")
-    public String rwsServerProjectComputeCustomVariableApi;
+    public String rwsServiceProjectComputeCustomVariableApi;
 
     @Value("${gennlife.ss.endpoint}")
-    public ImmutableEndpoint searchServerEndpoint;
+    public ImmutableEndpoint searchServiceEndpoint;
 
     @Value("${gennlife.ss.api.search}")
-    public String searchServerSearchApi;
+    public String searchServiceSearchApi;
     @Value("${gennlife.ss.api.highlight}")
-    public String searchServerHighlightApi;
+    public String searchServiceHighlightApi;
     @Value("${gennlife.ss.api.patient-document-id}")
-    public String searchServerPatientDocumentIdApi;
+    public String searchServicePatientDocumentIdApi;
+
+    @Value("${gennlife.empi.endpoint}")
+    public ImmutableEndpoint empiServiceEndpoint;
+
+    @Value("${gennlife.empi.api.patient-info}")
+    public String empiServicePatientInfoApi;
 
     @Autowired
     public void setEnvironment(Environment environment) throws IOException {

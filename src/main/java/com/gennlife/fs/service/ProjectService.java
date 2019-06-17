@@ -83,8 +83,8 @@ public class ProjectService {
     public ProjectInfo info(BasicInfoParameters params) throws ResponseException {
         val response = try_(() ->
             postData(
-                cfg.rwsServerEndpoint,
-                cfg.rwsServerProjectBasicInfoApi,
+                cfg.rwsServiceEndpoint,
+                cfg.rwsServiceProjectBasicInfoApi,
                 new JSONObject()
                     .fluentPut("projectId", new JSONArray()
                         .fluentAdd(params.projectId))))
@@ -142,8 +142,8 @@ public class ProjectService {
     public Map<String, List<String>> patients(PatientsParameters params) {
         val response = try_(() ->
             postData(
-                cfg.rwsServerEndpoint,
-                cfg.rwsServerProjectPatientsApi,
+                cfg.rwsServiceEndpoint,
+                cfg.rwsServiceProjectPatientsApi,
                 new JSONObject()
                     .fluentPut("uid", params.userId)
                     .fluentPut("projectId", params.projectId)))
@@ -187,8 +187,8 @@ public class ProjectService {
         val response = try_(
             () ->
                 postData(
-                    cfg.rwsServerEndpoint,
-                    cfg.rwsServerProjectComputeCustomVariableApi,
+                    cfg.rwsServiceEndpoint,
+                    cfg.rwsServiceProjectComputeCustomVariableApi,
                     new JSONObject()
                         .fluentPut("uid", params.userId)
                         .fluentPut("taskId", params.taskId)

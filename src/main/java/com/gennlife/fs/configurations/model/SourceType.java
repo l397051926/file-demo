@@ -4,15 +4,13 @@ import javax.annotation.Nonnull;
 
 import static java.util.Objects.requireNonNull;
 
-public enum DataType {
+public enum SourceType {
 
-    STRING,
-    DATE,
-    LONG,
-    DOUBLE,
-    BOOLEAN;
+    SEARCH_SERVICE,
+    RWS_SERVICE,
+    EMPI_SERVICE;
 
-    public static DataType fromString(@Nonnull String s) {
+    public static SourceType fromString(@Nonnull String s) {
         requireNonNull(s);
         return valueOf(s.toUpperCase());
     }

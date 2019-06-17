@@ -5,7 +5,7 @@ import com.gennlife.fs.common.model.QueryParam;
 import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
 import com.gennlife.fs.common.utils.StringUtil;
-import com.gennlife.fs.service.cache.OnePatAccessCache;
+import com.gennlife.fs.common.utils.OnePatAccessCache;
 import com.gennlife.fs.service.patientsdetail.base.PatientDetailService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

@@ -1,12 +1,10 @@
-package com.gennlife.fs.service.cache;
+package com.gennlife.fs.common.utils;
 
 import com.gennlife.fs.common.cache.CacheDAOInterface;
 import com.gennlife.fs.common.cache.HttpRequestCacheABS;
 import com.gennlife.fs.common.cache.MemLocalcacheService;
 import com.gennlife.fs.common.model.QueryParam;
 import com.gennlife.fs.common.model.QueryResult;
-import com.gennlife.fs.common.utils.HttpRequestUtils;
-import com.gennlife.fs.common.utils.StringUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;

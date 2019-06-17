@@ -109,9 +109,12 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
             throw new UnexpectedException("未知的crfId：" + info.crfId);
         }
         val models = new ArrayList<Model>();
+        if (userService.isAllowedToAccessPatientPrivacyData(params.userId)) {
+            models.add(privacyModel());
+        }
         models.add(mainModel);  // SD-6100
         if (mainModel.isCRF()) {
-            models.add(Model.emrModel());
+            models.add(emrModel());
         }
         models.add(new Model(info.customVariables));
         val keyHolder = new GeneratedKeyHolder();
@@ -885,6 +888,9 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
 
     @Autowired
     private ProjectExportTaskDefinitions def;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private ProjectService projectService;

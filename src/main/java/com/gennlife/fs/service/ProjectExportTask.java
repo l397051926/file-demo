@@ -42,6 +42,7 @@ import static com.gennlife.fs.common.utils.KeyPathUtil.toPathString;
 import static com.gennlife.fs.common.utils.TypeUtil.*;
 import static com.gennlife.fs.configurations.model.Model.CUSTOM_MODEL_NAME;
 import static com.gennlife.fs.configurations.model.Model.modelByName;
+import static com.gennlife.fs.configurations.model.SourceType.RWS_SERVICE;
 import static com.gennlife.fs.configurations.project.export.TaskState.*;
 import static com.gennlife.fs.service.ProjectExportTaskDefinitions.*;
 import static java.lang.System.currentTimeMillis;
@@ -297,25 +298,43 @@ public class ProjectExportTask implements Runnable {
                                     .map(model.partitionGroup()::keyPathByAppending)
                                     .forEach(fields::add);
                             }
-                            val sub = model.isCustom() ?
-                                projectService.computeCustomVariablesValue(
-                                    ProjectService.ComputeCustomVariablesValueParameters.builder()
-                                        .userId(userId)
-                                        .taskId(taskId)
-                                        .crfId(crfId)
-                                        .projectId(projectId)
-                                        .patientSn(patient)
-                                        .varIds(fields
-                                            .stream()
-                                            .map(KeyPath::firstAsString)
-                                            .collect(toList()))
-                                        .build()) :
-                                searchService.fetchPatientData(
-                                    SearchService.FetchPatientDataParameters.builder()
-                                        .model(model)
-                                        .fields(fields)
-                                        .patientSn(patient)
-                                        .build());
+                            final JSONObject sub;
+                            switch (model.sourceType()) {
+                                case RWS_SERVICE:
+                                    if (!model.isCustom()) {
+                                        throw new Exception("Model with " + RWS_SERVICE + " source should be custom.");
+                                    }
+                                    sub = projectService.computeCustomVariablesValue(
+                                        ProjectService.ComputeCustomVariablesValueParameters.builder()
+                                            .userId(userId)
+                                            .taskId(taskId)
+                                            .crfId(crfId)
+                                            .projectId(projectId)
+                                            .patientSn(patient)
+                                            .varIds(fields
+                                                .stream()
+                                                .map(KeyPath::firstAsString)
+                                                .collect(toList()))
+                                            .build());
+                                    break;
+                                case SEARCH_SERVICE:
+                                    sub = searchService.fetchPatientData(
+                                        SearchService.FetchPatientDataParameters.builder()
+                                            .model(model)
+                                            .fields(fields)
+                                            .patientSn(patient)
+                                            .build());
+                                    break;
+                                case EMPI_SERVICE:
+                                    sub = empiService.fetchPatientInfo(
+                                        EmpiService.FetchPatientDataParameters.builder()
+                                            .fields(fields)
+                                            .patientSn(patient)
+                                            .build());
+                                    break;
+                                default:
+                                    throw new Exception("Unexpected model source type: " + model.sourceType());
+                            }
                             data.put(model.name(), sub);
                             if (partitioned && model.isPartitioned()) {
                                 model
@@ -534,9 +553,11 @@ public class ProjectExportTask implements Runnable {
     }
 
     private final GeneralConfiguration cfg = getBean(GeneralConfiguration.class);
+    private final JdbcTemplate db = getBean(DatabaseService.class).jdbcTemplate();
     private final ProjectExportTaskDefinitions def = getBean(ProjectExportTaskDefinitions.class);
+
     private final ProjectService projectService = getBean(ProjectService.class);
     private final SearchService searchService = getBean(SearchService.class);
-    private final JdbcTemplate db = getBean(DatabaseService.class).jdbcTemplate();
+    private final EmpiService empiService = getBean(EmpiService.class);
 
 }

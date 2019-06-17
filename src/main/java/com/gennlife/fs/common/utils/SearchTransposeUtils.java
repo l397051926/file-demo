@@ -1,4 +1,4 @@
-package com.gennlife.fs.service.adapter;
+package com.gennlife.fs.common.utils;
 
 import com.gennlife.fs.common.model.QueryResult;
 import com.gennlife.fs.common.model.VisitTypeEntity;

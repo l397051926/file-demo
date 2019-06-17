@@ -2,7 +2,6 @@ package com.gennlife.fs.common.utils;
 
 import com.gennlife.fs.common.model.QueryParam;
 import com.gennlife.fs.common.model.QueryResult;
-import com.gennlife.fs.service.adapter.SearchTransposeUtils;
 import com.gennlife.fs.system.bean.BeansContextUtil;
 import com.gennlife.fs.system.config.StatisticsSearch;
 import com.gennlife.fs.system.config.TimeConfig;

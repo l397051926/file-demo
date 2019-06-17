@@ -55,7 +55,7 @@ public class SearchService {
                 .stream()
                 .map(KeyPathUtil::toPathString)
                 .collect(toCollection(JSONArray::new)));
-        val response = try_(() -> postData(cfg.searchServerEndpoint, cfg.searchServerSearchApi, body)).orElse(null);
+        val response = try_(() -> postData(cfg.searchServiceEndpoint, cfg.searchServiceSearchApi, body)).orElse(null);
         if (response == null) {
             throw new TransferFailedException();
         }

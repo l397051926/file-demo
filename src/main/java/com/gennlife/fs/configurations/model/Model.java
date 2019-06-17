@@ -31,11 +31,17 @@ public class Model {
     private static final Logger LOGGER = LoggerFactory.getLogger(Model.class);
 
     public static final String EMR_MODEL_NAME = "emr";
+    public static final String PRIVACY_MODEL_NAME = "privacy";
     public static final String CUSTOM_MODEL_NAME = "custom";
+
     public static String CUSTOM_MODEL_DISPLAY_NAME = null;
 
     public static Model emrModel() {
         return modelByName(EMR_MODEL_NAME);
+    }
+
+    public static Model privacyModel() {
+        return modelByName(PRIVACY_MODEL_NAME);
     }
 
     public static Model modelByName(String modelName) {
@@ -90,6 +96,10 @@ public class Model {
 
     public ModelConverter converter() {
         return _converter;
+    }
+
+    public SourceType sourceType() {
+        return _sourceType;
     }
 
     public KeyPath patientSnField() {
@@ -252,6 +262,7 @@ public class Model {
     String _displayName;
     ModelVersion _version;
     ModelConverter _converter;
+    SourceType _sourceType;
     KeyPathSet _allPaths;
     Map<KeyPath, FieldInfo> _allFieldInfo;
     Map<KeyPath, FieldInfo> _projectExportFields;

@@ -3,7 +3,7 @@ package com.gennlife.fs.common.model;
 import com.gennlife.fs.common.utils.HttpRequestUtils;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
 import com.gennlife.fs.common.utils.StringUtil;
-import com.gennlife.fs.service.cache.OnePatAccessCache;
+import com.gennlife.fs.common.utils.OnePatAccessCache;
 import com.gennlife.fs.system.bean.BeansContextUtil;
 import com.gennlife.fs.system.bean.UrlBean;
 import com.gennlife.fs.system.config.DiseasesKeysConfig;
