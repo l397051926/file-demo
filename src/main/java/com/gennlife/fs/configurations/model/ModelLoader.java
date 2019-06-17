@@ -42,6 +42,7 @@ public class ModelLoader {
                 CUSTOM_MODEL_DISPLAY_NAME = model._displayName;
                 CUSTOM_MODEL_SOURCE_TYPE = model._sourceType;
             } else {
+                model._predefined = true;
                 model._version = new ModelVersion(S(props.get("version")));
                 model._allFieldInfo = new HashMap<>();
                 val jsonStr = readFile("/configurations/model/" + modelName + "/definition/" + model._version + ".json");

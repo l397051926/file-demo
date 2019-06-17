@@ -142,7 +142,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                         .toJSONString(),
                     models
                         .stream()
-                        .filter(model -> !mainModel.isCRF() || !model.isEMR())  // SD-6100
+                        .filter(model -> !(mainModel.isCRF() && model.isEMR()) || model.isPrivacy())  // SD-6100
                         .flatMap(model -> model
                             .projectExportSelectByDefaultFields()
                             .keySet()

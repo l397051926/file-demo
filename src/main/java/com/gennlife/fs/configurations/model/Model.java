@@ -121,7 +121,11 @@ public class Model {
     }
 
     public boolean isCRF() {
-        return isPredefined() && !isEMR();
+        return isPredefined() && !isEMR() && !isPrivacy();
+    }
+
+    public boolean isPrivacy() {
+        return PRIVACY_MODEL_NAME.equalsIgnoreCase(_name);
     }
 
     public boolean isPredefined() {
