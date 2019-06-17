@@ -323,15 +323,33 @@
             </properties>
         </profile>
         <profile>
-            <id>郑州中心医院</id>
+            <id>江苏肿瘤医院</id>
             <properties>
-                <package.id>郑州中心医院</package.id>
+                <package.id>江苏肿瘤医院</package.id>
+            </properties>
+        </profile>
+        <profile>
+            <id>江苏肿瘤医院_test</id>
+            <properties>
+                <package.id>江苏肿瘤医院_test</package.id>
             </properties>
         </profile>
         <profile>
             <id>西安交通大学第一附属医院</id>
             <properties>
                 <package.id>西安交通大学第一附属医院</package.id>
+            </properties>
+        </profile>
+        <profile>
+            <id>郑州中心医院</id>
+            <properties>
+                <package.id>郑州中心医院</package.id>
+            </properties>
+        </profile>
+        <profile>
+            <id>锦州医科大学第一附属医院</id>
+            <properties>
+                <package.id>锦州医科大学第一附属医院</package.id>
             </properties>
         </profile>
     </profiles>
