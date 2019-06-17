@@ -35,6 +35,7 @@ public class Model {
     public static final String CUSTOM_MODEL_NAME = "custom";
 
     public static String CUSTOM_MODEL_DISPLAY_NAME = null;
+    public static SourceType CUSTOM_MODEL_SOURCE_TYPE = null;
 
     public static Model emrModel() {
         return modelByName(EMR_MODEL_NAME);
@@ -56,6 +57,7 @@ public class Model {
         _predefined = false;
         _name = CUSTOM_MODEL_NAME;
         _displayName = CUSTOM_MODEL_DISPLAY_NAME;
+        _sourceType = CUSTOM_MODEL_SOURCE_TYPE;
         _allFieldInfo = IntStream.range(0, vars.size())
             .mapToObj(i -> {
                 val v = vars.get(i);

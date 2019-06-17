@@ -23,8 +23,7 @@ import static com.gennlife.fs.common.utils.KeyPathUtil.toKeyPath;
 import static com.gennlife.fs.common.utils.TypeUtil.BV;
 import static com.gennlife.fs.common.utils.TypeUtil.S;
 import static com.gennlife.fs.configurations.model.DataType.DATE;
-import static com.gennlife.fs.configurations.model.Model.MODELS;
-import static com.gennlife.fs.configurations.model.Model.MODELS_RWS;
+import static com.gennlife.fs.configurations.model.Model.*;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
@@ -37,32 +36,39 @@ public class ModelLoader {
         model._name = modelName;
         val enabled = BV(props.get("enabled"));
         if (enabled) {
-            model._version = new ModelVersion(S(props.get("version")));
-            model._sourceType = SourceType.fromString(S(props.get("source")));
-            model._allFieldInfo = new HashMap<>();
-            val jsonStr = readFile("/configurations/model/" + modelName + "/definition/" + model._version + ".json");
-            _loadModelBody(model, JSON.parseObject(jsonStr), new KeyPath(), new KeyPath());
-            model._indexName = S(props.get("index-name"));
-            model._rwsName = S(props.get("rws-name"));
             model._displayName = S(props.get("display-name"));
-            model._patientSnField = toKeyPath(S(props.get("patient-sn-field")));
-            model._partitionGroup = toKeyPath(S(props.get("partition-group")));
-            if (model._partitionGroup != null) {
-                model._partitionField = toKeyPath(S(props.get("partition-field")));
-                model._projectExportSortFields = Stream.of(S(props.get("sort-fields")).split(","))
-                    .map(String::trim)
-                    .filter(String::isEmpty)
-                    .map(KeyPathUtil::toKeyPath)
-                    .collect(toMap(identity(), model::fieldInfo, (a, b) -> a, LinkedHashMap::new));
+            model._sourceType = SourceType.fromString(S(props.get("source")));
+            if ("custom".equals(modelName)) {
+                CUSTOM_MODEL_DISPLAY_NAME = model._displayName;
+                CUSTOM_MODEL_SOURCE_TYPE = model._sourceType;
+            } else {
+                model._version = new ModelVersion(S(props.get("version")));
+                model._allFieldInfo = new HashMap<>();
+                val jsonStr = readFile("/configurations/model/" + modelName + "/definition/" + model._version + ".json");
+                _loadModelBody(model, JSON.parseObject(jsonStr), new KeyPath(), new KeyPath());
+                model._indexName = S(props.get("index-name"));
+                model._rwsName = S(props.get("rws-name"));
+                model._patientSnField = toKeyPath(S(props.get("patient-sn-field")));
+                model._partitionGroup = toKeyPath(S(props.get("partition-group")));
+                if (model._partitionGroup != null) {
+                    model._partitionField = toKeyPath(S(props.get("partition-field")));
+                    model._projectExportSortFields = Stream.of(S(props.get("sort-fields")).split(","))
+                        .map(String::trim)
+                        .filter(String::isEmpty)
+                        .map(KeyPathUtil::toKeyPath)
+                        .collect(toMap(identity(), model::fieldInfo, (a, b) -> a, LinkedHashMap::new));
+                }
+                val cvtProfile = S(props.get("conversion-profile"));
+                if (!Matching.isEmpty(cvtProfile)) {
+                    val cvtJsonStr = readFile("/configurations/model/" + modelName + "/conversion/" + cvtProfile + ".json");
+                    val cvtJson = JSON.parseArray(cvtJsonStr);
+                    model._converter = new ModelConverter(cvtJson);
+                }
+                MODELS.put(modelName, model);
+                if (model._rwsName != null) {
+                    MODELS_RWS.put(model._rwsName, model);
+                }
             }
-            val cvtProfile = S(props.get("conversion-profile"));
-            if (!Matching.isEmpty(cvtProfile)) {
-                val cvtJsonStr = readFile("/configurations/model/" + modelName + "/conversion/" + cvtProfile + ".json");
-                val cvtJson = JSON.parseArray(cvtJsonStr);
-                model._converter = new ModelConverter(cvtJson);
-            }
-            MODELS.put(modelName, model);
-            MODELS_RWS.put(model._rwsName, model);
             LOGGER.info("已加载模型：" + model);
         }
     }
