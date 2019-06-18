@@ -1,6 +1,6 @@
 package com.gennlife.fs.configurations;
 
-@SuppressWarnings("NonAsciiCharacters")
+@SuppressWarnings("SpellCheckingInspection")
 public class HospitalNames {
 
     public static final String HOSPITAL_DEV = "巴甫洛夫·薛定谔宠物医院";
