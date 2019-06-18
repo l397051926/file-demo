@@ -152,6 +152,10 @@ public class Model {
         return _allPaths;
     }
 
+    public KeyPathSet projectExportPaths() {
+        return _projectExportPaths;
+    }
+
     public Map<KeyPath, FieldInfo> allFieldInfo() {
         return _allFieldInfo;
     }
@@ -200,6 +204,7 @@ public class Model {
             .filter(e -> e.getValue().supportsProjectExport())
             .sorted(comparingInt(e -> e.getValue().projectExport.index))
             .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+        _projectExportPaths = new KeyPathSet(_allFieldInfo.keySet(), LinkedHashMap::new);
         _projectExportSelectByDefaultFields = _projectExportFields
             .entrySet()
             .stream()
@@ -225,7 +230,7 @@ public class Model {
                 return s.build();
             })
             .collect(toMap(Pair::key, Pair::value, (a, b) -> a));
-        _frontEndObject = toFrontEndObject(new KeyPath(), _allPaths);
+        _frontEndObject = toFrontEndObject(new KeyPath(), _projectExportPaths);
     }
 
     private JSONObject toFrontEndObject(KeyPath path, KeyPathSet set) {
@@ -270,6 +275,7 @@ public class Model {
     ModelConverter _converter;
     SourceType _sourceType;
     KeyPathSet _allPaths;
+    KeyPathSet _projectExportPaths;
     Map<KeyPath, FieldInfo> _allFieldInfo;
     Map<KeyPath, FieldInfo> _projectExportFields;
     Map<KeyPath, FieldInfo> _projectExportSelectByDefaultFields;
