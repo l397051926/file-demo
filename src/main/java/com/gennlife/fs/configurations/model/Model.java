@@ -180,7 +180,7 @@ public class Model {
         return _pathDictionary;
     }
 
-    public JSONObject toFrontEndObject() {
+    public JSONObject toProjectExportFrontEndObject() {
         return _frontEndObject;
     }
 
@@ -204,7 +204,7 @@ public class Model {
             .filter(e -> e.getValue().supportsProjectExport())
             .sorted(comparingInt(e -> e.getValue().projectExport.index))
             .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-        _projectExportPaths = new KeyPathSet(_allFieldInfo.keySet(), LinkedHashMap::new);
+        _projectExportPaths = new KeyPathSet(_projectExportFields.keySet(), LinkedHashMap::new);
         _projectExportSelectByDefaultFields = _projectExportFields
             .entrySet()
             .stream()
@@ -230,10 +230,10 @@ public class Model {
                 return s.build();
             })
             .collect(toMap(Pair::key, Pair::value, (a, b) -> a));
-        _frontEndObject = toFrontEndObject(new KeyPath(), _projectExportPaths);
+        _frontEndObject = toProjectExportFrontEndObject(new KeyPath(), _projectExportPaths);
     }
 
-    private JSONObject toFrontEndObject(KeyPath path, KeyPathSet set) {
+    private JSONObject toProjectExportFrontEndObject(KeyPath path, KeyPathSet set) {
         val ret = new JSONObject();
         if (_allPaths.contains(path)) {
             if (_allFieldInfo.get(path).supportsProjectExport()) {
@@ -245,7 +245,7 @@ public class Model {
             if (!set.isEmpty()) {
                 val arr = new JSONArray();
                 for (val key: set.subKeys()) {
-                    val child = toFrontEndObject(path.keyPathByAppending(key), set.subSet((String)key));
+                    val child = toProjectExportFrontEndObject(path.keyPathByAppending(key), set.subSet((String)key));
                     if (child != null) {
                         arr.add(child);
                     }
