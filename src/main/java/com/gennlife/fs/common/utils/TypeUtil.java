@@ -1,5 +1,6 @@
 package com.gennlife.fs.common.utils;
 
+import com.alibaba.fastjson.JSONArray;
 import com.gennlife.darren.util.GenericTypeConverters;
 import lombok.val;
 
@@ -8,8 +9,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 
+import static com.gennlife.darren.controlflow.for_.ForeachJSON.foreachValue;
 import static java.util.Arrays.asList;
 
 public class TypeUtil {
@@ -40,6 +43,11 @@ public class TypeUtil {
     public static String S1(Object o) {
         if (o == null) {
             return "-";
+        }
+        if (o instanceof JSONArray) {
+            val ret = new ArrayList<String>();
+            foreachValue(o, e -> ret.add(String.valueOf(e)));
+            return String.join(";", ret);
         }
         return S(o);
     }

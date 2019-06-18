@@ -142,7 +142,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                         .toJSONString(),
                     models
                         .stream()
-                        .filter(model -> !(mainModel.isCRF() && model.isEMR()) || model.isPrivacy())  // SD-6100
+                        .filter(model -> !(mainModel.isCRF() && model.isEMR()))  // SD-6100
                         .flatMap(model -> model
                             .projectExportSelectByDefaultFields()
                             .keySet()
@@ -177,7 +177,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
             CREATE_TIME, FINISH_TIME, DOWNLOADED, FILE_NAME, FILE_SIZE, HEADER_TYPE,
             LAST_MODIFY_TIME, MODELS, PATIENT_COUNT, PROGRESS, PROJECT_ID, PROJECT_NAME,
             START_TIME, STATE, VISIT_TYPES, SELECTED_FIELDS, CUSTOM_VARS) +
-            " FROM " + Q(cfg.projectExportTaskDatabaseTable) + " WHERE " + Q(TASK_ID) + " = ?",
+                " FROM " + Q(cfg.projectExportTaskDatabaseTable) + " WHERE " + Q(TASK_ID) + " = ?",
             params.taskId);
         val ret = new JSONObject()
             .fluentPut(K(CREATE_TIME), L(o.get(CREATE_TIME)))
@@ -245,7 +245,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
         if (params.selectedFields != null) {
             val paths = new JSONArray();
             Set<String> customVarIds = null;
-            for (val path: params.selectedFields) {
+            for (val path : params.selectedFields) {
                 if (path.isEmpty() || path.stream().anyMatch(e -> !(e instanceof String))) {
                     throw new UnexpectedException("Field path format error: " + toPathString(path));
                 }
@@ -752,7 +752,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                         queuingTasks = new ArrayList<>(QUEUING_TASKS.values());
                     }
                     // {<patients, time>} sorted by patients
-                    val barrels = TreeMultiset.<Pair<Long, Long>>create(comparing(Pair::_1));
+                    val barrels = TreeMultiset.<Pair<Long, Long>> create(comparing(Pair::_1));
                     val currentTime = currentTimeMillis();
                     long timeElapsed = 0L;
                     long patientExported = 0L;
@@ -824,7 +824,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
             db.update("UPDATE " + Q(cfg.projectExportTaskDatabaseTable) +
                     " SET " + Q(STATE) + " = :" + toState + ", " +
                     Q(ESTIMATED_FINISH_TIME) + " = NULL" +
-                    " WHERE " + Q(STATE) + " IN (:" + fromStates +  ")" +
+                    " WHERE " + Q(STATE) + " IN (:" + fromStates + ")" +
                     " AND " + Q(EXECUTOR) + " IN (:" + executors + ")",
                 params);
         }
