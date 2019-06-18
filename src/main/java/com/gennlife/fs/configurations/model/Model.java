@@ -73,7 +73,7 @@ public class Model {
                     .build();
             })
             .collect(toMap(info -> info.path, identity(), (a, b) -> a));
-        generateCaches();
+        _generateCaches();
     }
 
     public String name() {
@@ -180,8 +180,8 @@ public class Model {
         return _pathDictionary;
     }
 
-    public JSONObject toProjectExportFrontEndObject() {
-        return _frontEndObject;
+    public JSONObject projectExportFrontEndObject() {
+        return _projectExportFrontEndObject;
     }
 
     Model() {
@@ -190,13 +190,13 @@ public class Model {
 
     public static void generateCachesForAllModels() {
         MODELS.values().forEach(model -> {
-            model.generateCaches();
+            model._generateCaches();
             LOGGER.info("已成功为模型 " + model + " 生成了缓存成员");
         });
     }
 
     // requires (name, displayName, allFieldInfo)
-    private void generateCaches() {
+    private void _generateCaches() {
         _allPaths = new KeyPathSet(_allFieldInfo.keySet());
         _projectExportFields = _allFieldInfo
             .entrySet()
@@ -230,10 +230,10 @@ public class Model {
                 return s.build();
             })
             .collect(toMap(Pair::key, Pair::value, (a, b) -> a));
-        _frontEndObject = toProjectExportFrontEndObject(new KeyPath(), _projectExportPaths);
+        _projectExportFrontEndObject = _toFrontEndObject(new KeyPath(), _projectExportPaths);
     }
 
-    private JSONObject toProjectExportFrontEndObject(KeyPath path, KeyPathSet set) {
+    private JSONObject _toFrontEndObject(KeyPath path, KeyPathSet set) {
         val ret = new JSONObject();
         if (_allPaths.contains(path)) {
             if (_allFieldInfo.get(path).supportsProjectExport()) {
@@ -245,7 +245,7 @@ public class Model {
             if (!set.isEmpty()) {
                 val arr = new JSONArray();
                 for (val key: set.subKeys()) {
-                    val child = toProjectExportFrontEndObject(path.keyPathByAppending(key), set.subSet((String)key));
+                    val child = _toFrontEndObject(path.keyPathByAppending(key), set.subSet((String)key));
                     if (child != null) {
                         arr.add(child);
                     }
@@ -285,7 +285,7 @@ public class Model {
     KeyPath _patientSnField;
     KeyPath _partitionGroup;
     KeyPath _partitionField;
-    JSONObject _frontEndObject;
+    JSONObject _projectExportFrontEndObject;
 
     static final Map<String, Model> MODELS = new HashMap<>();
     static final Map<String, Model> MODELS_RWS = new HashMap<>();

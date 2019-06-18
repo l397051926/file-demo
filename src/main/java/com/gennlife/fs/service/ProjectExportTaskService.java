@@ -205,7 +205,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
             ret
                 .fluentPut("model", models
                     .stream()
-                    .map(Model::toProjectExportFrontEndObject)
+                    .map(Model::projectExportFrontEndObject)
                     .filter(Objects::nonNull)
                     .collect(toCollection(JSONArray::new)))
                 .fluentPut("selectedFields", JSON.parseArray(S(o.get(SELECTED_FIELDS))))
