@@ -79,7 +79,7 @@ public class PatientBasicTimeAxis extends PatientDetailService {
                 String isTrue = JsonAttrUtil.getStringValue("MAIN_DIAGNOSIS_FLAG",obj);
                 String name = JsonAttrUtil.getStringValue("DIAGNOSIS",obj);
                 String visitSn = JsonAttrUtil.getStringValue("VISIT_SN",obj);
-                if("true".equals(isTrue)){
+                if("是".equals(isTrue)){
                     if(!diagnoseMap.containsKey(visitSn)){
                         diagnoseMap.put(visitSn,new JsonObject());
                     }
