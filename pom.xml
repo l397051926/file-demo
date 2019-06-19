@@ -323,6 +323,18 @@
             </properties>
         </profile>
         <profile>
+            <id>天津肿瘤医院</id>
+            <properties>
+                <package.id>天津肿瘤医院</package.id>
+            </properties>
+        </profile>
+        <profile>
+            <id>天津肿瘤医院_test</id>
+            <properties>
+                <package.id>天津肿瘤医院_test</package.id>
+            </properties>
+        </profile>
+        <profile>
             <id>江苏肿瘤医院</id>
             <properties>
                 <package.id>江苏肿瘤医院</package.id>
