@@ -97,7 +97,7 @@ public class PatientBasicTimeAxis extends PatientDetailService {
                 String admissionDate = JsonAttrUtil.getStringValue("ADMISSION_DATE",obj);
                 String dischargeDate = JsonAttrUtil.getStringValue("DISCHARGE_DATE",obj);
                 String registred = JsonAttrUtil.getStringValue("REGISTERED_DATE",obj);
-                String docterName = JsonAttrUtil.getStringValue("ADMISSION_DOCTOR",obj);
+                String docterName = JsonAttrUtil.getStringValue("ADMISSION_PHYSICIAN",obj);
                 String visitType = JsonAttrUtil.getStringValue("VISIT_TYPE",obj);
                 if(!diagnoseMap.containsKey(visitSn)){
                     diagnoseMap.put(visitSn,new JsonObject());
