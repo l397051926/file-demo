@@ -149,7 +149,7 @@ public class GeneralConfiguration implements InitializingBean {
             .map(rem -> rem.split("\\.")[0])
             .collect(toSet());
         for (val modelName : modelNames) {
-            ModelLoader.load(modelName, resolver.getSubProperties(modelName + "."));
+            ModelLoader.load(modelName, new RelaxedPropertyResolver(environment, "gennlife.fs.model.type." + modelName + "."));
         }
         ProjectExportConfigurationLoader.load(projectExportFieldConfigVersion);
         generateCachesForAllModels();
