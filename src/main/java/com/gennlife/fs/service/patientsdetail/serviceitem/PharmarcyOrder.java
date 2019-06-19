@@ -120,8 +120,8 @@ public class PharmarcyOrder {
             if(isOrderType && isOrderStatus && isMedicinaName){
                 String parent_order_sn = JsonAttrUtil.getStringValue(PARENT_ORDER_SN,object);
                 String order_start_time = JsonAttrUtil.getStringValue(ORDER_START_TIME,object);
+                MedicineSortClass m = new MedicineSortClass(parent_order_sn,order_start_time);
                 if (StringUtil.isNotEmptyStr(parent_order_sn)){
-                    MedicineSortClass m = new MedicineSortClass(parent_order_sn,order_start_time);
                     if(sortList.contains(m)){
                         MedicineSortClass mtmp = sortList.get(sortList.indexOf(m));
                         if(StringUtil.isEmptyStr(mtmp.getTime())){
@@ -138,7 +138,10 @@ public class PharmarcyOrder {
                         sortList.add(m);
                     }
                 }else {
-                    medicineNullList.add(object);
+                    List<JsonElement> le = new LinkedList<>();
+                    le.add(object);
+                    m.setDates(le);
+                    sortList.add(m);
                 }
             }
         }
@@ -152,8 +155,8 @@ public class PharmarcyOrder {
             }
         }
 
-        medicineNullList =  JsonAttrUtil.sort(medicineNullList, new JsonComparatorDESCByKey(ORDER_START_TIME));
-        resultArray.addAll(JsonAttrUtil.toJsonTree(medicineNullList).getAsJsonArray());
+//        medicineNullList =  JsonAttrUtil.sort(medicineNullList, new JsonComparatorDESCByKey(ORDER_START_TIME));
+//        resultArray.addAll(JsonAttrUtil.toJsonTree(medicineNullList).getAsJsonArray());
         result.add(drug_order,resultArray);
         result.add("orderStatus",JsonAttrUtil.toJsonTree(orderStatusArray));
         result.addProperty("configSchema",drug_order);
