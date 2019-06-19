@@ -243,15 +243,15 @@ public class SwimlaneService {
                 shortMedicin.add(object);
             }
         }
-        transForArrayTimeMap(longMedicin,timeLines,LONG_MEDICINE,LONG_MEDICINE);
+        transForArrayTimeMap(longMedicin,timeLines,LONG_MEDICINE,LONG_MEDICINE,"长期用药","DRUG_GENERIC_NAME");
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
-            transForArrayTimeMap(shortMedicin, timeLines, ONCE_MEDICINE,ONCE_MEDICINE_CONFIG_4);
+            transForArrayTimeMap(shortMedicin, timeLines, ONCE_MEDICINE,ONCE_MEDICINE_CONFIG_4,"临时用药","DRUG_GENERIC_NAME");
         }else {
-            transForArrayTimeMap(shortMedicin, timeLines, ONCE_MEDICINE,ONCE_MEDICINE_CONFIG);
+            transForArrayTimeMap(shortMedicin, timeLines, ONCE_MEDICINE,ONCE_MEDICINE_CONFIG,"临时用药","DRUG_GENERIC_NAME");
         }
     }
 
-    private void transForArrayTimeMap(JsonArray longMedicin, Map<String, JsonObject> timeLines, String key,String configSchema) {
+    private void transForArrayTimeMap(JsonArray longMedicin, Map<String, JsonObject> timeLines, String key,String configSchema,String OrderName,String orderKey) {
         Map<String,List<JsonObject>> longTimeMap = new HashMap<>();
         for (JsonElement element : longMedicin){
             JsonObject object = element.getAsJsonObject();
@@ -259,9 +259,9 @@ public class SwimlaneService {
             if(StringUtil.isEmptyStr(time)){
                 continue;
             }
-            String titleName = JsonAttrUtil.getStringValue("ORDER_NAME",object);
+            String titleName = JsonAttrUtil.getStringValue(orderKey,object);
             if(StringUtil.isEmptyStr(titleName)){
-                titleName = "非药品医嘱";
+                titleName = OrderName;
             }
             object.addProperty("type",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(key).get("type").getAsString());
             object.addProperty("unfold",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(key).get("unfold").getAsBoolean());
@@ -375,7 +375,7 @@ public class SwimlaneService {
             return ;
         }
         JsonArray res = obj.get(orders).getAsJsonArray();
-        transForArrayTimeMap(res, timeLines, NON_ORDER,orders);
+        transForArrayTimeMap(res, timeLines, NON_ORDER,orders,"非药品医嘱","ORDER_NAME");
     }
 
     private void getOperationRecods(Map<String, JsonObject> timeLines, String param) {
