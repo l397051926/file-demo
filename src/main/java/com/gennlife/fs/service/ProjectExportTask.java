@@ -362,7 +362,8 @@ public class ProjectExportTask implements Runnable {
                         val sns = groupSns
                             .entrySet()
                             .stream()
-                            .sorted(nullsLast(comparing(Map.Entry<String, Long>::getValue).reversed()))
+                            // https://stackoverflow.com/questions/53314193/comparator-nullslast-does-not-avoid-nullpointerexception
+                            .sorted(comparing(Map.Entry::getValue, nullsLast(reverseOrder())))
                             .map(Map.Entry::getKey)
                             .toArray(String[]::new);
                         val row0 = sheet.createRow(line++);
