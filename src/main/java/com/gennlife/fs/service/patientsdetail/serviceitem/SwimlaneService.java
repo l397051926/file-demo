@@ -259,9 +259,9 @@ public class SwimlaneService {
             if(StringUtil.isEmptyStr(time)){
                 continue;
             }
-            String titleName = JsonAttrUtil.getStringValue("ORDER_NAME",object);
+            String titleName = JsonAttrUtil.getStringValue(SWIMLANCE_SHOW_NAME.get(configSchema).getAsString(),object);
             if(StringUtil.isEmptyStr(titleName)){
-                titleName = "非药品医嘱";
+                titleName = SWIMLANCE_SHOW_STR_NAME.get(configSchema).getAsString();
             }
             object.addProperty("type",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(key).get("type").getAsString());
             object.addProperty("unfold",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(key).get("unfold").getAsBoolean());
@@ -596,9 +596,9 @@ public class SwimlaneService {
                 //出院时间
                 String dischargeDate = JsonAttrUtil.getStringValue("DISCHARGE_DATE",obj);
                 //入院（就诊）科室名称
-                String ADMISSION_DEPT = JsonAttrUtil.getStringValue("ADMISSION_DEPT",obj);
+                String ADMISSION_DEPT = JsonAttrUtil.getStringValue("ADMISS_DEPT",obj);
                 //就诊医生姓名
-                String docterName = JsonAttrUtil.getStringValue("ADMISSION_DOCTOR",obj);
+                String docterName = JsonAttrUtil.getStringValue("ADMISSION_PHYSICIAN",obj);
                 //天数
                 String days = "-";
                 if(StringUtil.isNotEmptyStr(admissionDate) && StringUtil.isNotEmptyStr(dischargeDate)){
@@ -607,7 +607,10 @@ public class SwimlaneService {
                 }
                 addResultObj(resultObj,obj,new String[]{"ADMISSION_DATE","DISCHARGE_DATE","ADMISSION_DEPT","ADMISSION_DOCTOR"});
                 resultObj.addProperty("DURATION_TIME",days);
-                System.out.println();
+                if(emrModel().version().mainVersion().isHigherThanOrEqualTo(4)){
+                    resultObj.addProperty("ADMISSION_DEPT",ADMISSION_DEPT);
+                    resultObj.addProperty("ADMISSION_DOCTOR",docterName);
+                }
             }
         }
     }
