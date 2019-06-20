@@ -53,11 +53,22 @@ public class ModelLoader {
                 model._partitionGroup = toKeyPath(S(props.getProperty("partition-group")));
                 if (model._partitionGroup != null) {
                     model._partitionField = toKeyPath(S(props.getProperty("partition-field")));
-                    model._projectExportSortFields = Stream.of(S(props.getProperty("sort-fields")).split(","))
+                    model._sortFields = Stream.of(S(props.getProperty("sort-fields")).split(","))
                         .map(String::trim)
                         .filter(s -> !s.isEmpty())
                         .map(KeyPathUtil::toKeyPath)
-                        .collect(toMap(identity(), model::fieldInfo, (a, b) -> a, LinkedHashMap::new));
+                        .collect(toMap(
+                            identity(),
+                            path -> {
+                                val field = model._partitionGroup.keyPathByAppending(path);
+                                val info = model.fieldInfo(field);
+                                if (info == null) {
+                                    throw new RuntimeException("在模型 " + model + " 中未找到设定的排序字段：" + field);
+                                }
+                                return info;
+                            },
+                            (a, b) -> a,
+                            LinkedHashMap::new));
                 }
                 val cvtProfile = S(props.getProperty("conversion-profile"));
                 if (!Matching.isEmpty(cvtProfile)) {
