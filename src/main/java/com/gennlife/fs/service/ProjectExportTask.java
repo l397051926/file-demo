@@ -292,7 +292,7 @@ public class ProjectExportTask implements Runnable {
                             if (partitioned && model.isPartitioned()) {
                                 fields.add(model.partitionGroup()
                                     .keyPathByAppending(model.partitionField()));
-                                model.projectExportSortFields()
+                                model.sortFields()
                                     .keySet()
                                     .stream()
                                     .map(model.partitionGroup()::keyPathByAppending)
@@ -347,7 +347,7 @@ public class ProjectExportTask implements Runnable {
                                         val obj = groups.computeIfAbsent(sn, k -> new JSONObject());
                                         new KeyPath(model.name(), model.partitionGroup()).assign(obj, part);
                                         long time = Long.MAX_VALUE;
-                                        for (val sortField : model.projectExportSortFields().keySet()) {
+                                        for (val sortField : model.sortFields().keySet()) {
                                             val date = DT(sortField.fuzzyResolveFirst(part));
                                             if (date != null) {
                                                 time = date.getTime();

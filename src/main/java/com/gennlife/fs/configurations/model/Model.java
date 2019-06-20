@@ -116,6 +116,10 @@ public class Model {
         return _partitionField;
     }
 
+    public Map<KeyPath, FieldInfo> sortFields() {
+        return _sortFields;
+    }
+
     public boolean isEMR() {
         return EMR_MODEL_NAME.equals(_name);
     }
@@ -166,10 +170,6 @@ public class Model {
 
     public Map<KeyPath, FieldInfo> projectExportSelectByDefaultFields() {
         return _projectExportSelectByDefaultFields;
-    }
-
-    public Map<KeyPath, FieldInfo> projectExportSortFields() {
-        return _projectExportSortFields;
     }
 
     public Map<KeyPath, FieldInfo> projectExportMergedFields() {
@@ -279,7 +279,7 @@ public class Model {
     Map<KeyPath, FieldInfo> _allFieldInfo;
     Map<KeyPath, FieldInfo> _projectExportFields;
     Map<KeyPath, FieldInfo> _projectExportSelectByDefaultFields;
-    Map<KeyPath, FieldInfo> _projectExportSortFields;
+    Map<KeyPath, FieldInfo> _sortFields;
     Map<KeyPath, FieldInfo> _projectExportMergedFields;
     Map<KeyPath, KeyPath> _pathDictionary;
     KeyPath _patientSnField;
