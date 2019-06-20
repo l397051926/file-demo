@@ -240,7 +240,7 @@ public class Part3SampleServiceImpl implements Part3SampleService {
 
 
                     jedisClusterDao.putValue(task_uuid + "-BBHSIZE", BBHSIZE+"", 60*60*1000);
-                    SampleResult sampleResult = new SampleResult(1, task_uuid, patSnList.size(), BBHSIZE, sampleBeanList);
+                    SampleResult sampleResult = new SampleResult(1, task_uuid, BBHSIZE, BBHSIZE, sampleBeanList);
 
                     for (;;) {
                         if(patListTask.isDone()) {
@@ -265,7 +265,7 @@ public class Part3SampleServiceImpl implements Part3SampleService {
                     //获取分页查询的数据
                     JsonObject queryObj = JsonAttrUtil.toJsonObject(queryParam);
                     List<SampleBean> tempList = getRedisDataByLimit(queryObj, queryCondition);
-                    SampleResult sampleResult = new SampleResult(1, taskId, listSize, totalBBHSize, tempList);
+                    SampleResult sampleResult = new SampleResult(1, taskId, totalBBHSize, totalBBHSize, tempList);
                     result =  new Gson().toJson(sampleResult);
                 }
             }
