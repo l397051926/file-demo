@@ -354,7 +354,7 @@ public class Part3SampleServiceImpl implements Part3SampleService {
         }
 
         int queueSize = queue.size();
-        List<String> patSns = new ArrayList<>();
+        patSnList = new ArrayList<>();
         int index = 0;
         int BBHSIZE = 0;
         for (int i = 0; i < queueSize; i++) {
@@ -367,7 +367,7 @@ public class Part3SampleServiceImpl implements Part3SampleService {
                         sampleBeanList.add(sampleBean);
                         index++;
                     }
-                    patSns.add(object.getString("_id"));
+                    patSnList.add(object.getString("_id"));
 
                     //获取标本号总数
                     int specimen_info_size = sourceObj.getJSONArray("specimen_info").size();
