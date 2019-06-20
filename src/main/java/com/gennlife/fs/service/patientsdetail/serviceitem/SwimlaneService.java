@@ -165,7 +165,7 @@ public class SwimlaneService {
         }
         while ( resultMap.size() ==0 || resultMap.size() % 7 !=0 || beforTime.compareTo(endTime) < 0 ){
             JsonObject obj = new JsonObject();
-            if(beforTime.compareTo(endTime) <= 0){
+            if(beforTime.compareTo(endTime) <= 0 || StringUtil.isEmptyStr(endTime) ){
                 addDays(obj,beforTime,admissionDate,operatorData);
             }
             resultMap.put(beforTime,obj);
