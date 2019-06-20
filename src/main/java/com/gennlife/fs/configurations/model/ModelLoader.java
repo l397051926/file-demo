@@ -55,7 +55,7 @@ public class ModelLoader {
                     model._partitionField = toKeyPath(S(props.getProperty("partition-field")));
                     model._projectExportSortFields = Stream.of(S(props.getProperty("sort-fields")).split(","))
                         .map(String::trim)
-                        .filter(String::isEmpty)
+                        .filter(s -> !s.isEmpty())
                         .map(KeyPathUtil::toKeyPath)
                         .collect(toMap(identity(), model::fieldInfo, (a, b) -> a, LinkedHashMap::new));
                 }
