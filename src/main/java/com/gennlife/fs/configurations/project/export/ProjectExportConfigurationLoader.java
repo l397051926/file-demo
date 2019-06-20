@@ -29,11 +29,11 @@ public class ProjectExportConfigurationLoader {
         for (val modelName : top.keySet()) {
             val model = modelByName(modelName);
             if (model == null) {
-                LOGGER.error("无法找到名为 " + modelName + " 的模型");
+                LOGGER.error("无法找到名为「" + modelName + "」的模型");
                 continue;
             }
             _loadModel(model, top.getJSONObject(modelName), new KeyPath());
-            LOGGER.info("已成功读取模型 " + model + " 的数据导出配置");
+            LOGGER.info("已成功读取模型「" + model + "」的数据导出配置");
         }
     }
 
@@ -55,7 +55,7 @@ public class ProjectExportConfigurationLoader {
                     .sorted(json.getBooleanValue("sorted"))
                     .build();
             } catch (NullPointerException e) {
-                LOGGER.warn("在模型 " + model + " 中未找到字段：" + path);
+                LOGGER.warn("在模型「" + model + "」中未找到字段：" + path);
             }
         }
     }

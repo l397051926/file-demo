@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.gennlife.darren.collection.keypath.KeyPath;
 import com.gennlife.darren.collection.string.Matching;
+import com.gennlife.fs.common.utils.DateTimeUtil;
 import com.gennlife.fs.common.utils.KeyPathUtil;
 import com.gennlife.fs.configurations.ModelVersion;
 import com.gennlife.fs.configurations.model.conversion.ModelConverter;
@@ -13,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.stream.Stream;
@@ -53,11 +53,22 @@ public class ModelLoader {
                 model._partitionGroup = toKeyPath(S(props.getProperty("partition-group")));
                 if (model._partitionGroup != null) {
                     model._partitionField = toKeyPath(S(props.getProperty("partition-field")));
-                    model._projectExportSortFields = Stream.of(S(props.getProperty("sort-fields")).split(","))
+                    model._sortFields = Stream.of(S(props.getProperty("sort-fields")).split(","))
                         .map(String::trim)
-                        .filter(String::isEmpty)
+                        .filter(s -> !s.isEmpty())
                         .map(KeyPathUtil::toKeyPath)
-                        .collect(toMap(identity(), model::fieldInfo, (a, b) -> a, LinkedHashMap::new));
+                        .collect(toMap(
+                            identity(),
+                            path -> {
+                                val field = model._partitionGroup.keyPathByAppending(path);
+                                val info = model.fieldInfo(field);
+                                if (info == null) {
+                                    throw new RuntimeException("在模型「" + model + "」中未找到设定的排序字段：" + field);
+                                }
+                                return info;
+                            },
+                            (a, b) -> a,
+                            LinkedHashMap::new));
                 }
                 val cvtProfile = S(props.getProperty("conversion-profile"));
                 if (!Matching.isEmpty(cvtProfile)) {
@@ -94,7 +105,7 @@ public class ModelLoader {
                 .build();
             if (DATE.equals(info.type)) {
                 info.dateFormat = json.getString("format");
-                info.dateFormatter = DateTimeFormatter.ofPattern(info.dateFormat);
+                info.dateFormatter = DateTimeUtil.compileTimePattern(info.dateFormat);
             }
             model._allFieldInfo.put(field, info);
         }
