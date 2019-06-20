@@ -157,7 +157,13 @@ public class SwimlaneService {
             beforTime = DateUtil.getSpecifiedDayAfter(time);
             resultMap.put(time,val);
         }
-        while ( resultMap.size() % 7 !=0 || beforTime.compareTo(endTime) < 0 ){
+        if(StringUtil.isEmptyStr(beforTime)){
+            beforTime = startTime;
+        }
+        if(StringUtil.isEmptyStr(endTime)){
+            endTime = "";
+        }
+        while ( resultMap.size() ==0 || resultMap.size() % 7 !=0 || beforTime.compareTo(endTime) < 0 ){
             JsonObject obj = new JsonObject();
             if(beforTime.compareTo(endTime) <= 0){
                 addDays(obj,beforTime,admissionDate,operatorData);
@@ -214,6 +220,9 @@ public class SwimlaneService {
         if(paramJson==null)return  ;
         vt.execute(JsonAttrUtil.toJsonObject(paramJson));
         JsonObject result = vt.get_result();
+        if(result == null ){
+            return;
+        }
         JsonArray medicin = result.get(medicine_order).getAsJsonArray();
         JsonArray longMedicin = new JsonArray();
         JsonArray shortMedicin = new JsonArray();
