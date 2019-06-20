@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -55,16 +56,16 @@ public class TypeUtil {
         return GenericTypeConverters.toFloat(o);
     }
 
-    public static java.util.Date DT(Object o) {
+    public static Date DT(Object o) {
         return DT(o, null);
     }
 
-    public static java.util.Date DT(Object o, DateTimeFormatter defaultFormatter) {
+    public static Date DT(Object o, DateTimeFormatter defaultFormatter) {
         if (o == null) {
             return null;
         }
-        if (o instanceof java.util.Date) {
-            return (java.util.Date)o;
+        if (o instanceof Date) {
+            return (Date)o;
         }
         val s = o.toString();
         if (defaultFormatter != null) {
