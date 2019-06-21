@@ -36,7 +36,7 @@ public class LabResultItemList extends PatientDetailService {
     private static final Logger logger = LoggerFactory.getLogger(LabResultItemList.class);
 
     public String getLabResultItemList(String param) {
-        logger.info("param " + param);
+//        logger.debug("param " + param);
         String patient_sn = null;
         String visit_sn = null;
         TreeSet<String> data_array = new TreeSet<>();

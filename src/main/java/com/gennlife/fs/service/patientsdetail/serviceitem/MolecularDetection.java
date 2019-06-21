@@ -28,7 +28,7 @@ public class MolecularDetection extends PatientDetailService implements MergeReq
 
     public JsonObject getMolecularDetection(JsonObject param_json) {
         JsonArray genomic_data = null;
-        logger.info("getMolecularDetection(): REQUEST molecular_detection \t " + param);
+//        logger.debug("getMolecularDetection(): REQUEST molecular_detection \t " + param);
         String patient_sn = null;
         String visit_sn = null;
         if (param_json == null) return ResponseMsgFactory.buildFailJson(" not json");

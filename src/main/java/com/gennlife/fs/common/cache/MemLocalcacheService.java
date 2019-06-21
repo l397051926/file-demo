@@ -66,7 +66,7 @@ public class MemLocalcacheService extends Thread implements CacheDAOInterface<Ob
         if (oldEntry != null) {
             return false;
         }
-        logger.info("save cache " + key + " in local memmory " + expireTime * 1000 + " ms");
+//        logger.debug("save cache " + key + " in local memmory " + expireTime * 1000 + " ms");
         return true;
     }
 
