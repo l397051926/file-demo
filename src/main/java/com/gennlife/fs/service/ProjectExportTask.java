@@ -48,8 +48,7 @@ import static com.gennlife.fs.service.ProjectExportTaskDefinitions.*;
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.sleep;
 import static java.nio.file.Files.createDirectories;
-import static java.util.Comparator.comparing;
-import static java.util.Comparator.comparingInt;
+import static java.util.Comparator.*;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 import static org.apache.commons.io.FileUtils.deleteDirectory;
@@ -346,9 +345,11 @@ public class ProjectExportTask implements Runnable {
                                         val sn = S(model.partitionField().fuzzyResolveFirst(part));
                                         val obj = groups.computeIfAbsent(sn, k -> new JSONObject());
                                         new KeyPath(model.name(), model.partitionGroup()).assign(obj, part);
-                                        long time = Long.MAX_VALUE;
-                                        for (val sortField : model.sortFields().keySet()) {
-                                            val date = DT(sortField.fuzzyResolveFirst(part));
+                                        Long time = null;
+                                        for (val sortField : model.sortFields().entrySet()) {
+                                            val value = sortField.getKey().fuzzyResolveFirst(part);
+                                            val fmt = sortField.getValue().dateFormatter;
+                                            val date = DT(value, fmt);
                                             if (date != null) {
                                                 time = date.getTime();
                                                 break;
@@ -361,7 +362,8 @@ public class ProjectExportTask implements Runnable {
                         val sns = groupSns
                             .entrySet()
                             .stream()
-                            .sorted(comparing(Map.Entry::getValue))
+                            // https://stackoverflow.com/questions/53314193/comparator-nullslast-does-not-avoid-nullpointerexception
+                            .sorted(comparing(Map.Entry::getValue, nullsLast(reverseOrder())))
                             .map(Map.Entry::getKey)
                             .toArray(String[]::new);
                         val row0 = sheet.createRow(line++);

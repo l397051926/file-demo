@@ -5,15 +5,15 @@ import com.gennlife.darren.util.GenericTypeConverters;
 import lombok.val;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.gennlife.darren.controlflow.for_.ForeachJSON.foreachValue;
-import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 
 public class TypeUtil {
 
@@ -56,27 +56,38 @@ public class TypeUtil {
         return GenericTypeConverters.toFloat(o);
     }
 
-    public static java.util.Date DT(Object o) {
+    public static Date DT(Object o) {
+        return DT(o, null);
+    }
+
+    public static Date DT(Object o, DateTimeFormatter defaultFormatter) {
         if (o == null) {
             return null;
         }
-        if (o instanceof java.util.Date) {
-            return (java.util.Date)o;
+        if (o instanceof Date) {
+            return (Date)o;
         }
         val s = o.toString();
+        if (defaultFormatter != null) {
+            try {
+                return DateTimeUtil.toDate(s, defaultFormatter);
+            } catch (DateTimeParseException ignored) {}
+        }
         for (val fmt: DATE_FORMATTERS) {
             try {
-                return java.util.Date.from(LocalDateTime.parse(s, fmt).toInstant(ZoneOffset.UTC));
+                return DateTimeUtil.toDate(s, fmt);
             } catch (DateTimeParseException ignored) {}
         }
         return null;
     }
 
     @SuppressWarnings("SpellCheckingInspection")
-    private static final List<DateTimeFormatter> DATE_FORMATTERS = asList(
-        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
-        DateTimeFormatter.ofPattern("yyyy-MM-dd"),
-        DateTimeFormatter.ofPattern("yyyy-MM"),
-        DateTimeFormatter.ofPattern("yyyy"));
+    private static final List<DateTimeFormatter> DATE_FORMATTERS = Stream
+        .of("yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd",
+            "yyyy-MM",
+            "yyyy")
+        .map(DateTimeUtil::compileTimePattern)
+        .collect(toList());
 
 }

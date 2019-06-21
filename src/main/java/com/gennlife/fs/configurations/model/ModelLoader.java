@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.gennlife.darren.collection.keypath.KeyPath;
 import com.gennlife.darren.collection.string.Matching;
+import com.gennlife.fs.common.utils.DateTimeUtil;
 import com.gennlife.fs.common.utils.KeyPathUtil;
 import com.gennlife.fs.configurations.ModelVersion;
 import com.gennlife.fs.configurations.model.conversion.ModelConverter;
@@ -13,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.stream.Stream;
@@ -63,7 +63,7 @@ public class ModelLoader {
                                 val field = model._partitionGroup.keyPathByAppending(path);
                                 val info = model.fieldInfo(field);
                                 if (info == null) {
-                                    throw new RuntimeException("在模型 " + model + " 中未找到设定的排序字段：" + field);
+                                    throw new RuntimeException("在模型「" + model + "」中未找到设定的排序字段：" + field);
                                 }
                                 return info;
                             },
@@ -105,7 +105,7 @@ public class ModelLoader {
                 .build();
             if (DATE.equals(info.type)) {
                 info.dateFormat = json.getString("format");
-                info.dateFormatter = DateTimeFormatter.ofPattern(info.dateFormat);
+                info.dateFormatter = DateTimeUtil.compileTimePattern(info.dateFormat);
             }
             model._allFieldInfo.put(field, info);
         }

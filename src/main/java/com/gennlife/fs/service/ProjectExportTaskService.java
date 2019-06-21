@@ -326,7 +326,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
             params.taskId);
         val userId = S(o.get(USER_ID));
         if (!Objects.equals(userId, params.userId)) {
-            throw new RestrictedException("用户 " + params.userId + " 无权操作此任务");
+            throw new RestrictedException("用户「" + params.userId + "」无权操作此任务");
         }
         val projectId = S(o.get(PROJECT_ID));
         val projectName = S(o.get(PROJECT_NAME));
@@ -336,7 +336,7 @@ public class ProjectExportTaskService implements InitializingBean, ServletContex
                 .build());
             requireNonNull(projectInfo);
         } catch (Exception e) {
-            throw new IncorrectStateException("项目 " + projectName + " 可能已被删除", e);
+            throw new IncorrectStateException("项目「" + projectName + "」可能已被删除", e);
         }
         synchronized (TASKS_MUTEX) {
             if (QUEUING_TASKS.containsKey(params.taskId) || RUNNING_TASKS.containsKey(params.taskId)) {
