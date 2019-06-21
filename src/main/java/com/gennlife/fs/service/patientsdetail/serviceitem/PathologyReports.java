@@ -27,6 +27,7 @@ public class PathologyReports {
         if(paramJson==null)return ResponseMsgFactory.buildFailStr("参数不是json");
         template.execute(JsonAttrUtil.toJsonObject(paramJson));
         JsonObject data = template.get_result();
+        if(data==null)return ResponseMsgFactory.buildFailStr("no data");
         data.addProperty("configSchema",pathology_report);
         return ResponseMsgFactory.buildResponseStr(data,template.get_error());
     }
