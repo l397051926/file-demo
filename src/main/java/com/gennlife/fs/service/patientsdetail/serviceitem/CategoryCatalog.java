@@ -26,8 +26,8 @@ public class CategoryCatalog extends PatientDetailService {
     private static final Logger logger = LoggerFactory.getLogger(CategoryCatalog.class);
     public String getCategoryCatalog(String param){
 
-        logger.debug("getCategoryCatalog(): REQUEST category_catalog...");
-        logger.debug("getCategoryCatalog(): param\t" + param);
+//        logger.debug("getCategoryCatalog(): REQUEST category_catalog...");
+//        logger.debug("getCategoryCatalog(): param\t" + param);
         String patient_sn = null;
 
         JsonObject param_json = JsonAttrUtil.toJsonObject(param);

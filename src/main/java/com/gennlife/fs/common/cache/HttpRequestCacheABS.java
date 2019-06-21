@@ -76,7 +76,7 @@ public abstract class HttpRequestCacheABS {
         try {
             Object tmp = memLocalcacheService.getValue(cacheKey);
             if (tmp != null) {
-                logger.info("read from local mem " + cacheKey);
+//                logger.debug("read from local mem " + cacheKey);
                 return (JsonObject) tmp;
             }
         } catch (Exception e) {

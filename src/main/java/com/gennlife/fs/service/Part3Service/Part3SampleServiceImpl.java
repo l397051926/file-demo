@@ -354,7 +354,7 @@ public class Part3SampleServiceImpl implements Part3SampleService {
         }
 
         int queueSize = queue.size();
-        patSnList = new ArrayList<>();
+        patSnList.clear();
         int index = 0;
         int BBHSIZE = 0;
         for (int i = 0; i < queueSize; i++) {
