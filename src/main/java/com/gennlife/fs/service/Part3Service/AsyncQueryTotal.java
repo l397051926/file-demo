@@ -87,7 +87,9 @@ public class AsyncQueryTotal {
     @Async("taskExecutor")
     public Future<Boolean> getPatSnList(List<String> dataList, String task_uuid) {
         long start1 = System.currentTimeMillis();
-        jedisClusterDao.putValue(task_uuid, dataList, 60*60*1000);
+        if (dataList.size() > 0) {
+            jedisClusterDao.putValue(task_uuid, dataList, 60*60*1000);
+        }
         long end1 = System.currentTimeMillis();
         logger.info("redis写入" + (end1-start1));
         return new AsyncResult<>(true);
