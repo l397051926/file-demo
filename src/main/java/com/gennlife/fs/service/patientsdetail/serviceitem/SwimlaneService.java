@@ -8,7 +8,6 @@ import com.gennlife.fs.common.response.ResponseInterface;
 import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.response.SortResponse;
 import com.gennlife.fs.common.utils.*;
-import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.service.patientsdetail.model.VisitSNResponse;
 import com.gennlife.fs.system.bean.BeansContextUtil;
 import com.gennlife.fs.system.config.GroupVisitSearch;
@@ -252,15 +251,15 @@ public class SwimlaneService {
                 shortMedicin.add(object);
             }
         }
-        transForArrayTimeMap(longMedicin,timeLines,LONG_MEDICINE,LONG_MEDICINE);
+        transForArrayTimeMap(longMedicin,timeLines,LONG_MEDICINE,LONG_MEDICINE,medicine_order);
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
-            transForArrayTimeMap(shortMedicin, timeLines, ONCE_MEDICINE,ONCE_MEDICINE_CONFIG_4);
+            transForArrayTimeMap(shortMedicin, timeLines, ONCE_MEDICINE,ONCE_MEDICINE_CONFIG_4, medicine_order);
         }else {
-            transForArrayTimeMap(shortMedicin, timeLines, ONCE_MEDICINE,ONCE_MEDICINE_CONFIG);
+            transForArrayTimeMap(shortMedicin, timeLines, ONCE_MEDICINE,ONCE_MEDICINE_CONFIG, medicine_order);
         }
     }
 
-    private void transForArrayTimeMap(JsonArray longMedicin, Map<String, JsonObject> timeLines, String key,String configSchema) {
+    private void transForArrayTimeMap(JsonArray longMedicin, Map<String, JsonObject> timeLines, String key, String configSchema, String engKey) {
         Map<String,List<JsonObject>> longTimeMap = new HashMap<>();
         for (JsonElement element : longMedicin){
             JsonObject object = element.getAsJsonObject();
@@ -268,9 +267,9 @@ public class SwimlaneService {
             if(StringUtil.isEmptyStr(time)){
                 continue;
             }
-            String titleName = JsonAttrUtil.getStringValue(SWIMLANCE_SHOW_NAME.get(configSchema).getAsString(),object);
+            String titleName = JsonAttrUtil.getStringValue(SWIMLANCE_SHOW_NAME.get(engKey).getAsString(),object);
             if(StringUtil.isEmptyStr(titleName)){
-                titleName = SWIMLANCE_SHOW_STR_NAME.get(configSchema).getAsString();
+                titleName = SWIMLANCE_SHOW_STR_NAME.get(engKey).getAsString();
             }
             object.addProperty("type",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(key).get("type").getAsString());
             object.addProperty("unfold",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(key).get("unfold").getAsBoolean());
@@ -384,7 +383,7 @@ public class SwimlaneService {
             return ;
         }
         JsonArray res = obj.get(orders).getAsJsonArray();
-        transForArrayTimeMap(res, timeLines, NON_ORDER,orders);
+        transForArrayTimeMap(res, timeLines, NON_ORDER,orders, orders);
     }
 
     private void getOperationRecods(Map<String, JsonObject> timeLines, String param) {

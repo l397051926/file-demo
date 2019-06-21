@@ -359,6 +359,12 @@
             </properties>
         </profile>
         <profile>
+            <id>郑州中心医院_test</id>
+            <properties>
+                <package.id>郑州中心医院_test</package.id>
+            </properties>
+        </profile>
+        <profile>
             <id>锦州医科大学第一附属医院</id>
             <properties>
                 <package.id>锦州医科大学第一附属医院</package.id>
