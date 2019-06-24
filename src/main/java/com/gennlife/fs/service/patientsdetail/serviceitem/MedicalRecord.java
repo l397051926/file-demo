@@ -63,6 +63,9 @@ public class MedicalRecord {
         for (JsonElement element : mdicalArray){
             JsonObject obj = element.getAsJsonObject();
             for (String config :CONFIG_LIST){
+                if(!obj.has(config)){
+                    continue;
+                }
                 if(FEE.equals(config)){
                     JsonArray array = obj.get(config).getAsJsonArray();
                     List<JsonElement> list = new Gson().fromJson(array,new TypeToken<List<JsonElement>>(){}.getType());
@@ -71,7 +74,7 @@ public class MedicalRecord {
                 }else{
                     result.add(config,obj.get(config));
                 }
-                if(OPERATION.equals(config)){
+                if(OPERATION.equals(config) ){
                     JsonArray array = obj.get(config).getAsJsonArray();
                     List<JsonElement> list = new Gson().fromJson(array,new TypeToken<List<JsonElement>>(){}.getType());
                     list = JsonAttrUtil.sort(list, new JsonComparatorASCByKey("OPERATION_DATE"));
