@@ -1,5 +1,6 @@
 package com.gennlife.fs.service.patientsdetail.serviceitem;
 
+import com.gennlife.fs.common.comparator.JsonComparatorASCByKey;
 import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
 import com.gennlife.fs.common.utils.StringUtil;
@@ -73,7 +74,7 @@ public class MedicalRecord {
                 if(OPERATION.equals(config)){
                     JsonArray array = obj.get(config).getAsJsonArray();
                     List<JsonElement> list = new Gson().fromJson(array,new TypeToken<List<JsonElement>>(){}.getType());
-                    list.sort(Comparator.comparing(o -> JsonAttrUtil.getStringValue("OPERATION_DATE",o.getAsJsonObject())));
+                    list = JsonAttrUtil.sort(list, new JsonComparatorASCByKey("OPERATION_DATE"));
                     result.add(config,JsonAttrUtil.toJsonTree(list));
                 }
                 obj.remove(config);
