@@ -375,7 +375,6 @@ public class TimerShaftSort {
         }
     }
 
-
     public void transforTimeByJsonObject(List<JsonObject> resultList, List<String> sortList, JsonObject eleObj, String time) {
         if(StringUtil.isEmptyStr(time)){
             resultList.add(eleObj);

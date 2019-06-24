@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.gennlife.fs.configurations.model.Model.emrModel;
+
 /**
  * Created by mohaowen on 2016/7/19.
  */
@@ -73,7 +75,11 @@ public class PatientBasicTimeAxis extends PatientDetailService {
         if(object.has(diagnose)){
             JsonArray diagnoseArray = object.get(diagnose).getAsJsonArray();
             List<JsonElement> list = JsonAttrUtil.jsonArrayToList(diagnoseArray);
-            list = JsonAttrUtil.sort(list, new JsonComparatorASCByKey("DIAGNOSTIC_DATE"));
+            String DIAGNOSTIC_DATE = "DIAGNOSTIC_DATE";
+            if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
+                DIAGNOSTIC_DATE = "DIAGNOSIS_DATE";
+            }
+            list = JsonAttrUtil.sort(list, new JsonComparatorASCByKey(DIAGNOSTIC_DATE));
             for (JsonElement element : list){
                 JsonObject obj = element.getAsJsonObject();
                 String isTrue = JsonAttrUtil.getStringValue("MAIN_DIAGNOSIS_FLAG",obj);
@@ -84,6 +90,7 @@ public class PatientBasicTimeAxis extends PatientDetailService {
                         diagnoseMap.put(visitSn,new JsonObject());
                     }
                     diagnoseMap.get(visitSn).addProperty("major_diagnostic_names",name);
+                    return;
                 }
             }
         }

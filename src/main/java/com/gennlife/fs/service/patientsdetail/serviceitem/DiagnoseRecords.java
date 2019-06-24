@@ -13,9 +13,9 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+
+import static com.gennlife.fs.configurations.model.Model.emrModel;
 
 /**
  * Created by xuhui on 2016/7/18.
@@ -105,6 +105,9 @@ public class DiagnoseRecords extends PatientDetailService {
         for (JsonElement element : array){
             JsonObject obj = element.getAsJsonObject();
             String date = JsonAttrUtil.getStringValue("DIAGNOSTIC_DATE",obj);
+            if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
+                date = JsonAttrUtil.getStringValue("DIAGNOSIS_DATE",obj);
+            }
             if(StringUtil.isEmptyStr(date)){
                 addMainDiagNosisList(nullList,obj);
                 continue;
