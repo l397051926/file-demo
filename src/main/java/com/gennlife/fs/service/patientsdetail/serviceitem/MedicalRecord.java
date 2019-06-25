@@ -27,9 +27,11 @@ public class MedicalRecord {
     private static final String DRUG_ALLERGY = "drug_allergy";
     private static final String MEDICAL_RECORD_HOME_PAGE = "medical_record_home_page";
     private static final String FEE = "fee";
+    private static final String DIAG = "diag";
     private static final String OPERATION = "operation";
     private static List<String> CONFIG_LIST = new ArrayList<>();
     private static List<String> CONFIG_SORT_LIST = new ArrayList<>();
+    private static List<String> DIAG_SORT_LIST = new ArrayList<>();
     static {
         CONFIG_LIST.add("diag");
         CONFIG_LIST.add("operation");
@@ -45,6 +47,8 @@ public class MedicalRecord {
         CONFIG_SORT_LIST.add("血液和血液制品类");
         CONFIG_SORT_LIST.add("耗材类");
         CONFIG_SORT_LIST.add("其他类");
+
+        DIAG_SORT_LIST.add("出院主要诊断");
     }
     public String getMedicalRecord (String param){
         VisitSNResponse vt=new VisitSNResponse("medical_record_home_page","medical_record");
@@ -82,10 +86,16 @@ public class MedicalRecord {
                 if(FEE.equals(config)){
                     JsonArray array = obj.get(config).getAsJsonArray();
                     List<JsonElement> list = new Gson().fromJson(array,new TypeToken<List<JsonElement>>(){}.getType());
-                    list.sort(Comparator.comparingInt(o -> getSortIndex(JsonAttrUtil.getStringValue("ITEM_CLASS",o.getAsJsonObject()))));
+                    list.sort(Comparator.comparingInt(o -> getSortIndex(CONFIG_SORT_LIST,JsonAttrUtil.getStringValue("ITEM_CLASS",o.getAsJsonObject()))));
                     result.add(config,JsonAttrUtil.toJsonTree(list));
                 }else{
                     result.add(config,obj.get(config));
+                }
+                if (DIAG.equals(config)){
+                    JsonArray array = obj.get(config).getAsJsonArray();
+                    List<JsonElement> list = new Gson().fromJson(array,new TypeToken<List<JsonElement>>(){}.getType());
+                    list.sort(Comparator.comparingInt(o -> getSortIndex(DIAG_SORT_LIST,JsonAttrUtil.getStringValue("DIAG_TYPE",o.getAsJsonObject()))));
+                    result.add(config,JsonAttrUtil.toJsonTree(list));
                 }
                 if(OPERATION.equals(config) ){
                     JsonArray array = obj.get(config).getAsJsonArray();
@@ -99,13 +109,13 @@ public class MedicalRecord {
         result.add(key,mdicalArray);
         return result;
     }
-    public int getSortIndex(String str){
+    public int getSortIndex(List<String> configSortList, String str){
         if(StringUtil.isEmptyStr(str)){
-            CONFIG_SORT_LIST.add(str);
+            configSortList.add(str);
         }
-        if(CONFIG_SORT_LIST.indexOf(str) == -1){
-            CONFIG_SORT_LIST.add(str);
+        if(configSortList.indexOf(str) == -1){
+            configSortList.add(str);
         }
-        return CONFIG_SORT_LIST.indexOf(str);
+        return configSortList.indexOf(str);
     }
 }
