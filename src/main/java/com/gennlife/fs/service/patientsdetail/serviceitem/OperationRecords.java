@@ -43,7 +43,7 @@ public class OperationRecords {
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
              operation_pre_summary = "operation_pre_summary";
              operation_record = "operation_record";
-             operation_info = "operation_info";
+             operation_info = "operation_pre_conference_record";
         }
         VisitSNResponse vt=new VisitSNResponse(
             operation_pre_summary,

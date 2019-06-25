@@ -102,14 +102,12 @@ public class TimerShaftSort {
         operation.put("operation_pre_summary","术前小结");
         operation.put("operation_info","手术信息");
         operation.put("operation_records","手术记录");
-        operation.put("operation_record","手术记录");
+        operation.put("operation_record","术前讨论记录");
+        operation.put("operation_pre_conference_record","手术记录");
         operation.put("forsz_study","放疗检查");
         operation.put("forsz_visit","放疗疗程");
     }
 
-    /**
-     * 入院 记录 - 出院记录 - 首次病程记录
-     */
     static {
         sortMap.put("admissions_records","RECORD_DATE");
         sortMap.put("discharge_records","HOSPITAL_DISCHARGE_DATE");
@@ -167,6 +165,7 @@ public class TimerShaftSort {
         sortMap.put("operation_record","OPERATION_DATE");
         sortMap.put("forsz_study","APPLY_TIME");
         sortMap.put("forsz_visit","RADIO_START_DATE");
+        sortMap.put("operation_pre_conference_record","RECORD_TIME");
     }
 
     static {
