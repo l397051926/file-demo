@@ -1,5 +1,6 @@
 package com.gennlife.fs.service.patientsdetail.serviceitem;
 
+import com.alibaba.fastjson.JSONArray;
 import com.gennlife.fs.common.comparator.JsonComparatorASCByKey;
 import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
@@ -14,6 +15,7 @@ import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 
 /*********************************************
@@ -22,6 +24,8 @@ import java.util.List;
  *******************************************/
 
 public class MedicalRecord {
+    private static final String DRUG_ALLERGY = "drug_allergy";
+    private static final String MEDICAL_RECORD_HOME_PAGE = "medical_record_home_page";
     private static final String FEE = "fee";
     private static final String OPERATION = "operation";
     private static List<String> CONFIG_LIST = new ArrayList<>();
@@ -62,6 +66,15 @@ public class MedicalRecord {
         JsonArray mdicalArray  = mdicalResult.getAsJsonArray(key);
         for (JsonElement element : mdicalArray){
             JsonObject obj = element.getAsJsonObject();
+            if(obj.has(DRUG_ALLERGY)){
+                JsonArray array = obj.get(DRUG_ALLERGY).getAsJsonArray();
+                for (JsonElement element1 : array){
+                    JsonObject object = element1.getAsJsonObject();
+                    for (Map.Entry<String,JsonElement> entry : object.entrySet()){
+                        obj.add(entry.getKey(),entry.getValue());
+                    }
+                }
+            }
             for (String config :CONFIG_LIST){
                 if(!obj.has(config)){
                     continue;
