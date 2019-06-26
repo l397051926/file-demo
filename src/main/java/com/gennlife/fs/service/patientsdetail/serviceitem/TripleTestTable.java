@@ -64,7 +64,7 @@ public class TripleTestTable {
         vt.execute(JsonAttrUtil.toJsonObject(paramJson));
         JsonObject result = vt.get_result();
         if (result == null) return ResponseMsgFactory.buildFailStr(vt.get_error());
-        ModelConverter cvt = emrModel().converter();
+        final ModelConverter cvt = emrModel().converter();
         if (cvt != null) {
             KeyPath path = KeyPath.compile("visits[0]");
             JSONObject original = new JSONObject();
