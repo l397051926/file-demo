@@ -1,5 +1,6 @@
 package com.gennlife.fs.service.patientsdetail.serviceitem;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.gennlife.darren.collection.keypath.KeyPath;
 import com.gennlife.fs.common.enums.TripleTestPartitionEnum;
@@ -8,7 +9,6 @@ import com.gennlife.fs.common.utils.DateUtil;
 import com.gennlife.fs.common.utils.HttpRequestUtils;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
 import com.gennlife.fs.common.utils.StringUtil;
-import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.configurations.model.conversion.ModelConverter;
 import com.gennlife.fs.service.patientsdetail.dataoperator.TripleTestTableOperator;
 import com.gennlife.fs.service.patientsdetail.dataoperator.impl.TripleTestTableSort;
@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
 import static com.gennlife.fs.configurations.model.Model.emrModel;
 
 public class TripleTestTable {
@@ -67,16 +66,16 @@ public class TripleTestTable {
         }
         vt.execute(JsonAttrUtil.toJsonObject(paramJson));
         JsonObject result = vt.get_result();
-        ModelConverter cvt = emrModel().converter();
+        if (result == null) return ResponseMsgFactory.buildFailStr(vt.get_error());
+        final ModelConverter cvt = emrModel().converter();
         if (cvt != null) {
             KeyPath path = KeyPath.compile("visits[0]");
             JSONObject original = new JSONObject();
-            path.assign(original, result);
+            path.assign(original, JSON.parseObject(JsonAttrUtil.toJsonStr(result)));
             JSONObject converted = cvt.convert(original);
             JSONObject convertedResult = path.resolveAsJSONObject(converted);
             result = JsonAttrUtil.toJsonObject(convertedResult);
         }
-        if (result == null) return ResponseMsgFactory.buildFailStr(vt.get_error());
         JsonArray triple_test_tables = result.get("triple_test_table").getAsJsonArray();
         Map<String,JsonObject> map = new HashMap<>();
         Set<String> visSn = new HashSet<>();
