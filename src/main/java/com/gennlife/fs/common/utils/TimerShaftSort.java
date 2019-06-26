@@ -208,9 +208,9 @@ public class TimerShaftSort {
                     JsonArray subData = new JsonArray();
                     for (JsonElement e1 : subArray){
                         JsonObject o1 = e1.getAsJsonObject();
-                        o1.addProperty("configSchema",key+"_sub_item");
                         subData.add(o1);
                     }
+                    eleObj.addProperty("subConfigSchema",key+"_sub_item");
                     eleObj.remove("sub_item");
                     eleObj.add("subData",subData);
                 }

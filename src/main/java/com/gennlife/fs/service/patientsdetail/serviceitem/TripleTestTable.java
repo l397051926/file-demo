@@ -22,10 +22,7 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.gennlife.fs.configurations.model.Model.emrModel;
 
@@ -85,7 +82,23 @@ public class TripleTestTable {
         JsonArray operationDate = null;
         String patientSn = paramJson.get("patient_sn").getAsString();
         LOGGER.debug("开始处理数据 --- data");
-        for (JsonElement element : triple_test_tables){
+        if(triple_test_tables == null || triple_test_tables.size()<1 ){
+            return ResponseMsgFactory.buildFailStr("no data");
+        }
+        List<JsonElement> tripleList = JsonAttrUtil.jsonArrayToList(triple_test_tables);
+        tripleList.sort(Comparator.comparing(o -> JsonAttrUtil.getStringValue("EXAM_TIME", o.getAsJsonObject())));
+        String secondTime = null;
+        if(tripleList.size()>1){
+            for (int i = 1; i < tripleList.size(); i++) {
+                secondTime = JsonAttrUtil.getStringValue("EXAM_TIME",triple_test_tables.get(i).getAsJsonObject());
+                if(StringUtil.isNotEmptyStr(secondTime)){
+                    break;
+                }
+            }
+        }else {
+            secondTime = JsonAttrUtil.getStringValue("EXAM_TIME",triple_test_tables.get(0).getAsJsonObject());
+        }
+        for (JsonElement element : tripleList){
             try {
                 JsonObject obj = element.getAsJsonObject();
 
@@ -159,6 +172,7 @@ public class TripleTestTable {
                 if(StringUtil.isEmptyStr(examTime)) continue;
                 String time = DateUtil.formatDayTime(examTime);
                 Integer houer = DateUtil.getHouer(examTime);
+                Integer targetHouer = DateUtil.getHouer(secondTime);
                 if(map.containsKey(time)){
                     JsonObject tmpObj = map.get(time);
                     JsonAttrUtil.addProperyJsonObject(tmpObj,obj);
@@ -170,16 +184,9 @@ public class TripleTestTable {
                     setTripleTestList(tmpObj.getAsJsonArray("HEART_RATE"),num,houer,heartRate);
                     setTripleTestList(tmpObj.getAsJsonArray("BLOOD_PRESSURE"),num,houer,bloodPressure);
                     tmpObj.getAsJsonArray("EXAM_TIME_HOUR").add(houer);
-//                if(StringUtil.isNotEmptyStr(bloodPressure)){
-//                    if(tmpObj.has("BLOOD_PRESSURE")){
-//                        setTripleTestList(tmpObj.getAsJsonArray("BLOOD_PRESSURE"),num,houer,bloodPressure);
-//                    }else {
-//                        tmpObj.add("BLOOD_PRESSURE",setTripleTestList(getTripleTestList(),num,houer,bloodPressure));
-//                    }
-//                }
                     continue;
                 }else {
-                    num = houer % 4 ;
+                    num = targetHouer % 4 ;
                     obj.addProperty("EXAM_TIME",time);
                     //体温
                     obj.add("TEMPRATURE",setTripleTestList(getTripleTestList(),num,houer,temprature));
@@ -200,6 +207,7 @@ public class TripleTestTable {
                     obj.add("HOSPITAL_ADMISSION_DATE",hospitalAdmissionDate);
                     obj.add("OPERATION_DATE",operationDate);
                     obj.add("EXAM_TIME_HOUR", JsonAttrUtil.getSingleValJsonArrray(houer));
+                    obj.addProperty("targetTime",targetHouer);
 //                if(StringUtil.isNotEmptyStr(bloodPressure)){
 //                    obj.add("BLOOD_PRESSURE",setTripleTestList(getTripleTestList(),num,houer,bloodPressure));
 //                }
