@@ -527,7 +527,8 @@ public class SwimlaneService {
             keys = new String[]{
                 "ultrasonic_diagnosis_report",//超声检查
 //                "lung_functional_exam",
-                "imaging_exam_diagnosis_report"
+                "imaging_exam_diagnosis_report",
+                "electrocardiogram_report"
         };
         }
         ResponseInterface template = ImageResponseUtils.getImageResponseInterface(keys);
@@ -548,6 +549,17 @@ public class SwimlaneService {
                     String titleName = StringUtil.isEmptyStr(tmpKey) ? "" : JsonAttrUtil.getStringValue(tmpKey,tmpObj);
                     if(StringUtil.isEmptyStr(titleName)){
                         titleName = JsonAttrUtil.getStringValue(key,SWIMLANCE_SHOW_STR_NAME);
+                    }
+                    if(tmpObj.has("sub_item") && tmpObj.get("sub_item") instanceof JsonArray ){
+                        JsonArray subArray = tmpObj.get("sub_item").getAsJsonArray();
+                        JsonArray subData = new JsonArray();
+                        for (JsonElement e1 : subArray){
+                            JsonObject o1 = e1.getAsJsonObject();
+                            subData.add(o1);
+                        }
+                        tmpObj.addProperty("subConfigSchema",key+"_sub_item");
+                        tmpObj.remove("sub_item");
+                        tmpObj.add("subData",subData);
                     }
                     tmpObj.addProperty("type",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(IMAGING_REPORTS).get("type").getAsString());
                     tmpObj.addProperty("unfold",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(IMAGING_REPORTS).get("unfold").getAsBoolean());
