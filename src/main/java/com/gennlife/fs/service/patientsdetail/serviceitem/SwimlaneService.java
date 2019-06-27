@@ -98,7 +98,6 @@ public class SwimlaneService {
             return ResponseMsgFactory.buildFailStr("no admission_date");
         }
         String endTime = DateUtil.getDateStr_ymd(JsonAttrUtil.getStringValue("DISCHARGE_DATE",diagnose));
-//        Map<String,JsonObject> timeLines = getTimeLines(startTime,endTime);
         Map<String,JsonObject> timeLines = new TreeMap<String,JsonObject>(String::compareTo);
 
         getExamResult(timeLines,param);
@@ -610,7 +609,7 @@ public class SwimlaneService {
                 //天数
                 String days = "-";
                 if(StringUtil.isNotEmptyStr(admissionDate) && StringUtil.isNotEmptyStr(dischargeDate)){
-                    long day = DateUtil.getDurationWithDays(DateUtil.getDate(admissionDate), DateUtil.getDate(dischargeDate)) + 1 ;
+                    long day = DateUtil.getDurationWithDays(DateUtil.getDate(DateUtil.getDateStr_ymd(admissionDate)), DateUtil.getDate(DateUtil.getDateStr_ymd(dischargeDate))) + 1 ;
                     days = String.valueOf(day);
                 }
                 addResultObj(resultObj,obj,new String[]{"ADMISSION_DATE","DISCHARGE_DATE","ADMISSION_DEPT","ADMISSION_DOCTOR"});
