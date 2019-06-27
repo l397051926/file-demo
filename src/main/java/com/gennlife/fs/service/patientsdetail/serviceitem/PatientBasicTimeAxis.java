@@ -66,8 +66,8 @@ public class PatientBasicTimeAxis extends PatientDetailService {
     }
 
     private void transForDiagnoseMap(Map<String, JsonObject> diagnoseMap, JsonObject object, String diagnose, String visit_info) {
-         transForDiagnoseName(diagnoseMap,object,diagnose);
-         transforVisitInfo(diagnoseMap,object,visit_info);
+        transforVisitInfo(diagnoseMap,object,visit_info);
+        transForDiagnoseName(diagnoseMap,object,diagnose);
     }
 
 
@@ -85,7 +85,9 @@ public class PatientBasicTimeAxis extends PatientDetailService {
                 String isTrue = JsonAttrUtil.getStringValue("MAIN_DIAGNOSIS_FLAG",obj);
                 String name = JsonAttrUtil.getStringValue("DIAGNOSIS",obj);
                 String visitSn = JsonAttrUtil.getStringValue("VISIT_SN",obj);
-                if("是".equals(isTrue)){
+                String DIAGNOSIS_TYPE = JsonAttrUtil.getStringValue("DIAGNOSIS_TYPE",obj);
+                String visitType = JsonAttrUtil.getStringValue("visitType",diagnoseMap.get(visitSn));
+                if("是".equals(isTrue) && StringUtil.isNotEmptyStr(visitType) && (("1".equals(visitType) && "出院主要诊断".equals(DIAGNOSIS_TYPE) )||("0".equals(visitType) && "门诊诊断".equals(DIAGNOSIS_TYPE))) ){
                     if(!diagnoseMap.containsKey(visitSn)){
                         diagnoseMap.put(visitSn,new JsonObject());
                     }
@@ -110,6 +112,7 @@ public class PatientBasicTimeAxis extends PatientDetailService {
                     diagnoseMap.put(visitSn,new JsonObject());
                 }
                 JsonObject tmpObj = diagnoseMap.get(visitSn);
+                tmpObj.addProperty("visitType",visitType);
                 if("1".equals(visitType) && StringUtil.isNotEmptyStr(dischargeDate)){
                     tmpObj.addProperty("discharge_time",dischargeDate);
                 }else {
