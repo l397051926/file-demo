@@ -232,7 +232,7 @@ public class TimerShaftSort {
                 eleObj.addProperty("configSchema",key);
                 eleObj.addProperty("titleName",examName);
                 eleObj.addProperty("titleKey",titleKey);
-                String time = eleObj.get(sortMap.get(key)).getAsString();
+                String time = JsonAttrUtil.getStringValue(sortMap.get(key),eleObj);
                 transforTime(resultList, nameList, sortList, eleObj, nameObj, time,false);
             }
         }
