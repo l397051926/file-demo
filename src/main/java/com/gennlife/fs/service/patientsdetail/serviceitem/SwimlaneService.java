@@ -541,7 +541,7 @@ public class SwimlaneService {
                 JsonArray array = entry.getValue().getAsJsonArray();
                 TWO: for (JsonElement element : array){
                     JsonObject tmpObj = element.getAsJsonObject();
-                    String time = DateUtil.getDateStr_ymd(tmpObj.get("REPORT_DATE").getAsString());
+                    String time = DateUtil.getDateStr_ymd(JsonAttrUtil.getStringValue("REPORT_DATE",tmpObj));
                     if(StringUtil.isEmptyStr(time)){
                         continue TWO;
                     }
