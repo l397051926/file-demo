@@ -93,6 +93,9 @@ public class DiagnoseRecords extends PatientDetailService {
             JsonArray array=visit.get("diagnose").getAsJsonArray();
             JsonArray data = diagnoseSort(array);
             result=new JsonObject();
+            for (int i = 0; i < data.size(); i++) {
+                data.get(i).getAsJsonObject().addProperty("number",i+1);
+            }
             result.add("diagnose",data);
         }
         return ResponseMsgFactory.buildResponseStr(result,"no data");

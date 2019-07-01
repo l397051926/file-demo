@@ -126,6 +126,7 @@ public class SwimlaneService {
         result.addProperty("msg","success");
         result.add("data",data);
         result.addProperty("total",resultList.size());
+        result.addProperty("page",page);
         return JsonAttrUtil.toJsonStr(result);
     }
 
@@ -133,23 +134,36 @@ public class SwimlaneService {
         Map<String,JsonObject> resultMap = new LinkedHashMap<>();
         String beforTime = "";
         String[] operatorData = new String [2];
+        JsonArray longMedicne = null;
         for (Map.Entry<String,JsonObject> entry : timeLines.entrySet()){
             String time = entry.getKey();
             JsonObject val = entry.getValue();
             if(endTime.compareTo(time) < 0){
                 break;
             }
+            if (val.has(LONG_MEDICINE) && val.get(LONG_MEDICINE).getAsJsonArray().size()>0 && longMedicne == null ){
+                longMedicne = val.get(LONG_MEDICINE).getAsJsonArray();
+            }
             while (resultMap.size()<=0 && startTime.compareTo(time) < 0){
                 JsonObject obj = new JsonObject();
                 addDays(obj,startTime,admissionDate,operatorData);
+                if(longMedicne != null){
+                    obj.add(LONG_MEDICINE,longMedicne);
+                }
                 resultMap.put(startTime,obj);
                 startTime = DateUtil.getSpecifiedDayAfter(startTime);
             }
             while (StringUtil.isNotEmptyStr(beforTime) && beforTime.compareTo(time) < 0){
                 JsonObject obj = new JsonObject();
                 addDays(obj,beforTime,admissionDate,operatorData);
+                if(longMedicne != null){
+                    obj.add(LONG_MEDICINE,longMedicne);
+                }
                 resultMap.put(beforTime,obj);
                 beforTime = DateUtil.getSpecifiedDayAfter(beforTime);
+            }
+            if(longMedicne != null && !val.has(LONG_MEDICINE) ){
+                val.add(LONG_MEDICINE,longMedicne);
             }
             addDays(val,time,admissionDate,operatorData);
             beforTime = DateUtil.getSpecifiedDayAfter(time);
@@ -166,6 +180,9 @@ public class SwimlaneService {
             if(beforTime.compareTo(endTime) <= 0 || StringUtil.isEmptyStr(endTime) ){
                 addDays(obj,beforTime,admissionDate,operatorData);
             }
+            if(longMedicne != null){
+                obj.add(LONG_MEDICINE,longMedicne);
+            }
             resultMap.put(beforTime,obj);
             beforTime = DateUtil.getSpecifiedDayAfter(beforTime);
         }
@@ -175,7 +192,11 @@ public class SwimlaneService {
 
     private void addDays(JsonObject val,String time,String admissionDate,String[] operatorData) {
         Long admissionDays = DateUtil.getDurationWithDays(time,admissionDate) + 1;
-        val.addProperty(ADMISSION_DATE_COUNT,admissionDays);
+        if(admissionDays < 0){
+            val.addProperty(ADMISSION_DATE_COUNT,"");
+        }else {
+            val.addProperty(ADMISSION_DATE_COUNT,admissionDays);
+        }
         //手术逻辑
 
         if(StringUtil.isNotEmptyStr(operatorData[0]) ){
@@ -260,6 +281,7 @@ public class SwimlaneService {
 
     private void transForArrayTimeMap(JsonArray longMedicin, Map<String, JsonObject> timeLines, String key, String configSchema, String engKey) {
         Map<String,List<JsonObject>> longTimeMap = new HashMap<>();
+        List<JsonObject> longTimeList = new LinkedList<>();
         for (JsonElement element : longMedicin){
             JsonObject object = element.getAsJsonObject();
             String time = DateUtil.getDateStr_ymd(JsonAttrUtil.getStringValue("ORDER_START_TIME",object));
@@ -279,8 +301,30 @@ public class SwimlaneService {
                 longTimeMap.put(time,new LinkedList<>());
             }
             longTimeMap.get(time).add(object);
+            if(LONG_MEDICINE.equals(key)){
+                longTimeList.add(object);
+            }
         }
-        putTimeLinesValues(longTimeMap,timeLines,key);
+        if(LONG_MEDICINE.equals(key)){
+            putLongTimeMedical(longTimeMap,longTimeList,timeLines,key);
+        }else {
+            putTimeLinesValues(longTimeMap,timeLines,key);
+        }
+    }
+
+    private void putLongTimeMedical(Map<String,List<JsonObject>> timeMap, List<JsonObject> longTimeList, Map<String, JsonObject> timeLines, String key) {
+        for (Map.Entry<String,List<JsonObject>> entry : timeMap.entrySet()){
+            String time = entry.getKey();
+            longTimeList.sort((o1, o2) -> {
+                String key1 = JsonAttrUtil.getStringValue("configSchema",o1);
+                String key2 = JsonAttrUtil.getStringValue("configSchema",o2);
+                return JsonAttrUtil.getStringValue(JsonAttrUtil.getStringValue(key1,SWIMLANCE_SORT),o1).compareTo(JsonAttrUtil.getStringValue(JsonAttrUtil.getStringValue(key2,SWIMLANCE_SORT),o2));
+            });
+            if(!timeLines.containsKey(time)){
+                timeLines.put(time,new JsonObject());
+            }
+            timeLines.get(time).add(key, JsonAttrUtil.toJsonTree(longTimeList));
+        }
     }
 
     private void getElectronic(Map<String, JsonObject> timeLines, String param) {
