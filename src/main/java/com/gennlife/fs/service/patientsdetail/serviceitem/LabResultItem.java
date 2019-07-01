@@ -14,10 +14,7 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 
 import static com.gennlife.fs.configurations.model.Model.emrModel;
 import static com.gennlife.fs.service.patientsdetail.serviceitem.LabResultItemList.exchange;
@@ -215,8 +212,8 @@ public class LabResultItem extends PatientDetailService {
                     String result1 = JsonAttrUtil.getStringValue("SUB_INSPECTION_RESULT", json);
 
                     if(StringUtil.isNotEmptyStr(result1) && StringUtil.isNotEmptyStr(number)){
-                        if(subZeroAndDot(result1).equals(subZeroAndDot(number))){
-                            continue;
+                        if(equalsStringForNumber(number,result1)){
+                            json.addProperty("SUB_INSPECTION_RESULT",number);
                         }else {
                             String tmp = result1+"；"+number;
                             json.addProperty("SUB_INSPECTION_RESULT",tmp);
@@ -585,8 +582,8 @@ public class LabResultItem extends PatientDetailService {
                     String result1 = JsonAttrUtil.getStringValue("SUB_INSPECTION_RESULT", json);
 
                     if(StringUtil.isNotEmptyStr(result1) && StringUtil.isNotEmptyStr(number)){
-                        if(subZeroAndDot(result1).equals(subZeroAndDot(number))){
-                            continue;
+                        if(equalsStringForNumber(number,result1)){
+                            json.addProperty("SUB_INSPECTION_RESULT",number);
                         }else {
                             String tmp = result1+"；"+number;
                             json.addProperty("SUB_INSPECTION_RESULT",tmp);
@@ -615,6 +612,13 @@ public class LabResultItem extends PatientDetailService {
         return ResponseMsgFactory.buildSuccessStr(result);
     }
 
+    public Boolean equalsStringForNumber(String a, String b){
+        try {
+            return Objects.equals(Double.valueOf(a),Double.valueOf(b));
+        }catch (NumberFormatException e){
+            return Objects.equals(a,b);
+        }
+    }
     public String getNewQuotaReports(String param){
 //        logger.debug("param " + param);
         String patient_sn = null;
