@@ -163,16 +163,11 @@ public class PharmarcyOrder {
     public String getNewOrdersPharmacy(String param) {
         JsonObject paramJson = JsonAttrUtil.toJsonObject(param);
         if(paramJson==null)return ResponseMsgFactory.buildFailStr("参数不是json");
-        if(!paramJson.has("pageNum") || !paramJson.has("pageSize") ){
-            return ResponseMsgFactory.buildFailStr("参数 缺少 pageNum  或者 pageSize  导致无法查询 分页！");
-        }
         Integer visitType = paramJson.get("visitType").getAsInt();
         JsonArray orderType = paramJson.get("orderType").getAsJsonArray();
         String medicineName = paramJson.get("medicineName").getAsString();
         String orderStatus = paramJson.get("orderStatus").getAsString();
         String willType = paramJson.get("willType").getAsString();
-        Integer pageNum = paramJson.get("pageNum").getAsInt();
-        Integer pageSize = paramJson.get("pageSize").getAsInt();
 
         String non_drug_orders = "";
         String ORDER_STATUS_NAME = "";
@@ -251,10 +246,8 @@ public class PharmarcyOrder {
                 result.add(object);
             }
         }
-        List<JsonElement> resultList = JsonAttrUtil.jsonArrayToList(result);
-        List<JsonElement> data = PagingUtils.getPageContentForElementByApi(resultList,pageNum,pageSize);
-        obj.add(non_drug_orders,JsonAttrUtil.toJsonTree(data));
-        obj.addProperty("total",resultList.size());
+        obj.add(non_drug_orders,result);
+        obj.addProperty("total",result.size());
         obj.addProperty("configSchema",non_drug_orders);
         obj.add("orderStatus",JsonAttrUtil.toJsonTree(orderStatusArray));
         obj.add("willType",JsonAttrUtil.toJsonTree(willTypeArray));
