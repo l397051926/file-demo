@@ -86,6 +86,7 @@ public class PatientDetailController {
 
     @RequestMapping(value = "/PatientBasicFigure", method = RequestMethod.POST)
     public
+
     @ResponseBody
     String getVisitCountByDimension(@RequestBody String param) {
         return new VisitCountByDimension().getVisitCountByDimension(param);

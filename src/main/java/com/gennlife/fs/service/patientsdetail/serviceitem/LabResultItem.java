@@ -313,6 +313,7 @@ public class LabResultItem extends PatientDetailService {
         String RECEIVE_TIME ="inspection_reports.RECEIVE_TIME";
         String REPORT_TIME = "inspection_reports.REPORT_TIME";
         String REPORT_TIME_KEY = "REPORT_TIME";
+        String APPLY_DEPT = "inspection_reports.APPLY_DEPT";
         String inspection_reports = "inspection_reports";
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
              INSPECTION_SN =  "inspection_report.INSPECTION_SN";
@@ -324,6 +325,7 @@ public class LabResultItem extends PatientDetailService {
              REPORT_TIME = "inspection_report.REPORT_DATE";
             REPORT_TIME_KEY = "REPORT_DATE";
             inspection_reports = "inspection_report";
+            APPLY_DEPT = "inspection_report.APPLY_DEPT";
         }
         QueryParam qp = new QueryParam(param_json, patient_sn, new String[]{
             INSPECTION_SN,
@@ -332,7 +334,8 @@ public class LabResultItem extends PatientDetailService {
             SUBMITTING_DEPARTMENT,
             ACQUISITION_TIME,
             RECEIVE_TIME,
-            REPORT_TIME
+            REPORT_TIME,
+            APPLY_DEPT
         });
         qp.setQuery("[患者基本信息.患者编号] 包含 " + patient_sn);
         qp.setIndexName(BeansContextUtil.getUrlBean().getVisitIndexName());

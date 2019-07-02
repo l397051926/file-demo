@@ -22,6 +22,7 @@ public class TimerShaftSort {
     private static Map<String,String> operation = new LinkedHashMap<>();//手术
     private static Map<String,String> sortMap = new HashMap<>();
     private static Map<String,String> examResultName = new HashMap<>();
+    private static Map<String,Integer> courseRecordsSortModel = new HashMap<>();
 
     private static class SingleTimerShaftSortInstance{
         private static final TimerShaftSort instance = new TimerShaftSort();
@@ -31,19 +32,29 @@ public class TimerShaftSort {
         return SingleTimerShaftSortInstance.instance;
     }
 
+    static {    //病程记录 --- 模块排序
+        courseRecordsSortModel.put("admissions_record",0);
+        courseRecordsSortModel.put("discharge_record",1);
+        courseRecordsSortModel.put("admission_discharge_record",1);
+        courseRecordsSortModel.put("admission_death_record",1);
+        courseRecordsSortModel.put("first_course_record",2);
+        courseRecordsSortModel.put("attending_physician_rounds_record",3);
+        courseRecordsSortModel.put("course_record",3);
+        courseRecordsSortModel.put("operation_post_course_record",3);
+
+    }
     static{
         courseRecords.put("admissions_records","入院记录");
-        courseRecords.put("discharge_records","出院记录");
-        courseRecords.put("first_course_records","首次病程记录");
-        courseRecords.put("attending_physician_rounds_records","上级医师查房记录");
-        courseRecords.put("course_record","日常病程记录");
-        courseRecords.put("post_course_record","术后病程记录");
-
         courseRecords.put("admissions_record","入院记录");
+        courseRecords.put("discharge_records","出院记录");
         courseRecords.put("discharge_record","出院记录");
+        courseRecords.put("first_course_records","首次病程记录");
         courseRecords.put("first_course_record","首次病程记录");
+        courseRecords.put("attending_physician_rounds_records","上级医师查房记录");
         courseRecords.put("attending_physician_rounds_record","上级医师查房记录");
         courseRecords.put("course_record","日常病程记录");
+        courseRecords.put("course_record","日常病程记录");
+        courseRecords.put("post_course_record","术后病程记录");
         courseRecords.put("operation_post_course_record","术后病程记录");
         courseRecords.put("admission_discharge_record","24小时入出院记录");
         courseRecords.put("admission_death_record","24小时入院死亡记录");
@@ -271,27 +282,33 @@ public class TimerShaftSort {
         List<JsonObject> resultList = new LinkedList<>();
         List<JsonObject> nameList = new ArrayList<>();
         List<String> sortList = new ArrayList<>();
-        String admissions_records = "admissions_records";
-        String discharge_records = "discharge_records";
-        String first_course_record = "first_course_records";
-        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
-             admissions_records = "admissions_record";
-             discharge_records = "discharge_record";
-             first_course_record = "first_course_record";
-        }
+
+        Map<Integer,JsonObject> groupMap = new HashMap<>();
         //处理入院记录
         for (Map.Entry<String,JsonElement> entry : obj.entrySet()){
             String key = entry.getKey();
-            if(admissions_records.equals(key) || discharge_records.equals(key) || first_course_record.equals(key)){
-                continue;
+            Integer groupKey = courseRecordsSortModel.get(key) == null ? courseRecordsSortModel.size() : courseRecordsSortModel.get(key);
+            if(!groupMap.containsKey(groupKey)){
+                groupMap.put(groupKey,new JsonObject());
             }
-            JsonArray value = entry.getValue().getAsJsonArray();
-            int titleNum = 0;
-            transforValuesArray(resultList, nameList, sortList, key, value, titleNum, courseRecords);
+            groupMap.get(groupKey).add(key,entry.getValue());
         }
-       Integer num1 = addCourseRecordByKey(obj,resultList,nameList,admissions_records,0);
-       Integer num2 =  addCourseRecordByKey(obj,resultList,nameList,discharge_records,num1);
-        addCourseRecordByKey(obj,resultList,nameList,first_course_record,num2);
+        for (int i = 0; i < groupMap.size(); i++) {
+            JsonObject tmpObj = groupMap.get(i);
+            List<JsonObject> resultListTmp = new LinkedList<>();
+            List<JsonObject> nameListTmp = new ArrayList<>();
+            List<String> sortListTmp = new ArrayList<>();
+
+            for (Map.Entry<String,JsonElement> entry : tmpObj.entrySet()){
+                String key = entry.getKey();
+                JsonArray value = entry.getValue().getAsJsonArray();
+                int titleNum = 0;
+                transforValuesArray(resultListTmp, nameListTmp, sortListTmp, key, value, titleNum, courseRecords);
+            }
+            resultList.addAll(resultListTmp);
+            nameList.addAll(nameListTmp);
+            sortList.addAll(sortListTmp);
+        }
         result.add("data",JsonAttrUtil.toJsonTree(resultList));
         result.add("catalogue",JsonAttrUtil.toJsonTree(nameList));
 
@@ -319,31 +336,6 @@ public class TimerShaftSort {
             }
             transforTime(resultList, nameList, sortList, eleObj, nameObj, time, true);
         }
-    }
-
-    private  Integer addCourseRecordByKey(JsonObject obj, List<JsonObject> resultList, List<JsonObject> nameList, String key, int num) {
-        JsonArray admissionsObj = obj.getAsJsonArray(key);
-        int titleNums = 0;
-        for (JsonElement element : admissionsObj){
-            JsonObject nameObj = new JsonObject();
-            String titleKey = key+"_"+titleNums;
-            JsonObject eleObj = element.getAsJsonObject();
-            String time = JsonAttrUtil.getStringValue(sortMap.get(key),eleObj);
-            if(StringUtil.isEmptyStr(time)){
-                time = "未知";
-            }
-            eleObj.addProperty("configSchema",key);
-            eleObj.addProperty("titleName",courseRecords.get(key));
-            eleObj.addProperty("titleKey",titleKey);
-            nameObj.addProperty("titleName",courseRecords.get(key));
-            nameObj.addProperty("titleKey",titleKey);
-            nameObj.addProperty("time",time);
-            resultList.add(num,eleObj);
-            nameList.add(num,nameObj);
-            titleNums++;
-            num++;
-        }
-        return num;
     }
 
     private void transforTime(List<JsonObject> resultList, List<JsonObject> nameList, List<String> sortList, JsonObject eleObj, JsonObject nameObj, String time,boolean rank) {

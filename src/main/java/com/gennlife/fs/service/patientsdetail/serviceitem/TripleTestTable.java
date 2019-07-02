@@ -176,12 +176,13 @@ public class TripleTestTable {
                 if(map.containsKey(time)){
                     JsonObject tmpObj = map.get(time);
                     JsonAttrUtil.addProperyJsonObject(tmpObj,obj);
-                    setTripleTestList(tmpObj.getAsJsonArray("TEMPRATURE"),num,houer,temprature);
-                    setTripleTestList(tmpObj.getAsJsonArray("PULSE"),num,houer,pulse);
-                    setTripleTestList(tmpObj.getAsJsonArray("BREATH"),num,houer,breath);
+                    setTripleTestListByJson(tmpObj.getAsJsonArray("TEMPRATURE"),num,houer,temprature,examTime);
+                    setTripleTestListByJson(tmpObj.getAsJsonArray("PULSE"),num,houer,pulse,examTime);
+                    setTripleTestListByJson(tmpObj.getAsJsonArray("BREATH"),num,houer,breath,examTime);
+
                     setTripleTestList(tmpObj.getAsJsonArray("DIASTOLIC"),num,houer,diastolic);
                     setTripleTestList(tmpObj.getAsJsonArray("SYSTOLIC"),num,houer,systolic);
-                    setTripleTestList(tmpObj.getAsJsonArray("HEART_RATE"),num,houer,heartRate);
+                    setTripleTestListByJson(tmpObj.getAsJsonArray("HEART_RATE"),num,houer,heartRate,examTime);
                     setTripleTestList(tmpObj.getAsJsonArray("BLOOD_PRESSURE"),num,houer,bloodPressure);
                     tmpObj.getAsJsonArray("EXAM_TIME_HOUR").add(houer);
                     continue;
@@ -189,17 +190,17 @@ public class TripleTestTable {
                     num = targetHouer % 4 ;
                     obj.addProperty("EXAM_TIME",time);
                     //体温
-                    obj.add("TEMPRATURE",setTripleTestList(getTripleTestList(),num,houer,temprature));
+                    obj.add("TEMPRATURE",setTripleTestListByJson(getTripleTestList(),num,houer,temprature,examTime));
                     //脉搏
-                    obj.add("PULSE",setTripleTestList(getTripleTestList(),num,houer,pulse));
+                    obj.add("PULSE",setTripleTestListByJson(getTripleTestList(),num,houer,pulse,examTime));
                     //呼吸
-                    obj.add("BREATH",setTripleTestList(getTripleTestList(),num,houer,breath));
+                    obj.add("BREATH",setTripleTestListByJson(getTripleTestList(),num,houer,breath,examTime));
                     //舒张压
                     obj.add("DIASTOLIC",setTripleTestList(getTripleTestList(),num,houer,diastolic));
                     //收缩压
                     obj.add("SYSTOLIC",setTripleTestList(getTripleTestList(),num,houer,systolic));
                     //心率
-                    obj.add("HEART_RATE",setTripleTestList(getTripleTestList(),num,houer,heartRate));
+                    obj.add("HEART_RATE",setTripleTestListByJson(getTripleTestList(),num,houer,heartRate,examTime));
                     //血压
                     obj.add("BLOOD_PRESSURE",setTripleTestList(getTripleTestList(),num,houer,bloodPressure));
 
@@ -225,6 +226,25 @@ public class TripleTestTable {
         result.add("triple_test_table",tripleArray);
         ResponseInterface response = new PaginationMemoryResponse(new DirectResponse(result), "triple_test_table");
         return ResponseMsgFactory.getResponseStr(response, paramJson);
+    }
+
+    private JsonElement setTripleTestListByJson(JsonArray array, Integer num, Integer houer, String val, String examTime) {
+        TripleTestPartitionEnum partitionEnum = TripleTestPartitionEnum.getEnumKey(num,houer);
+        if(partitionEnum == null ){
+            return array;
+        }
+        int i = partitionEnum.getNum();
+        if(StringUtil.isNotEmptyStr(array.get(i).getAsString())){
+            return array;
+        }
+        if(StringUtil.isEmptyStr(val)){
+            return array;
+        }
+        JsonObject data = new JsonObject();
+        data.addProperty("time",examTime);
+        data.addProperty("value",val);
+        array.set(i,data);
+        return array;
     }
 
     private void addParamJsonData(JsonObject obj1, JsonArray array, String key) {
@@ -259,55 +279,6 @@ public class TripleTestTable {
         }
     }
 
-    private void addAdmissionDataParamJsonArray(JsonArray visits, JsonArray hospitalAdmissionDate, String key, String visitSn) {
-        if(visits == null ) return;
-        for (JsonElement element : visits){
-            JsonObject visObj = element.getAsJsonObject();
-            JsonArray tmpArray = visObj.getAsJsonArray(key);
-            if(tmpArray == null) return;
-            for (JsonElement element1 : tmpArray){
-                JsonObject object = element1.getAsJsonObject();
-                String visSn = JsonAttrUtil.getValByJsonObject(object,"VISIT_SN");
-                if(!visitSn.equals(visSn)) continue;
-                String admission = JsonAttrUtil.getValByJsonObject(object,"ADMISSION_DATE");
-                if(StringUtil.isNotEmptyStr(admission)){
-                    hospitalAdmissionDate.add(admission);
-                }else{
-                    String registered = JsonAttrUtil.getValByJsonObject(object,"REGISTERED_DATE");
-                    hospitalAdmissionDate.add(registered);
-                }
-            }
-        }
-
-    }
-
-    private void addParamJsonArray(JsonArray visits, JsonArray array,String key,String visitSn) {
-        if(visits == null) return;
-        for (JsonElement element1 :visits){
-            if(element1 == null) return;
-            JsonObject obj1 = element1.getAsJsonObject();
-            if(obj1 == null) return;
-            JsonArray tmpArray = obj1.getAsJsonArray(key);
-            if(tmpArray == null ){
-                return;
-            }
-            for (JsonElement element :tmpArray){
-                JsonObject obj = element.getAsJsonObject();
-                if (obj == null ){
-                    continue;
-                }
-                String visSn = obj.get("VISIT_SN").getAsString();
-                if(!visSn.equals(visitSn)){
-                    continue;
-                }
-                for (Map.Entry<String,JsonElement> entry : obj.entrySet()){
-                    if("VISIT_SN".equals(entry.getKey())) continue;
-                    array.add(entry.getValue());
-                }
-            }
-        }
-    }
-
     public static boolean isTriple(String key, Set<String> list) {
         return list.contains(key);
     }
@@ -320,7 +291,11 @@ public class TripleTestTable {
         return array;
     }
     public JsonArray setTripleTestList(JsonArray array ,int num,int hour,String val){
-        int i = TripleTestPartitionEnum.getEnumKey(num,hour).getNum();
+        TripleTestPartitionEnum partitionEnum = TripleTestPartitionEnum.getEnumKey(num,hour);
+        if(partitionEnum == null ){
+            return array;
+        }
+        int i = partitionEnum.getNum();
         if(StringUtil.isNotEmptyStr(array.get(i).getAsString())){
             return array;
         }

@@ -16,7 +16,7 @@ public enum  TripleTestPartitionEnum {
 
     public static TripleTestPartitionEnum getEnumKey(int num, int hour){
 
-        if( (hour > trans24hours(22,num) && hour > trans24hours(19,num))  || hour < trans24hours(3,num)  ){
+        if( hour < trans24hours(3,num)  ){
             return ONE;
         }else if(hour >= trans24hours(3,num) && hour < trans24hours(7,num)){
             return TWO;
@@ -26,8 +26,10 @@ public enum  TripleTestPartitionEnum {
             return FOUR;
         }else if(hour >= trans24hours(15,num) && hour < trans24hours(19,num) ){
             return FIVE;
-        }else {
+        }else if(hour >= trans24hours(19,num) && hour > trans24hours(22,num) ) {
             return SIX;
+        }else {
+            return null;
         }
     }
 
