@@ -234,7 +234,7 @@ public class TripleTestTable {
             return array;
         }
         int i = partitionEnum.getNum();
-        if(StringUtil.isNotEmptyStr(array.get(i).getAsString())){
+        if(array.get(i).isJsonObject() || StringUtil.isNotEmptyStr(array.get(i).getAsString())){
             return array;
         }
         if(StringUtil.isEmptyStr(val)){
