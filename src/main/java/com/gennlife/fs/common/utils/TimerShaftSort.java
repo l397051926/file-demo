@@ -43,6 +43,7 @@ public class TimerShaftSort {
         courseRecordsSortModel.put("operation_post_course_record",3);
 
     }
+
     static{
         courseRecords.put("admissions_records","入院记录");
         courseRecords.put("admissions_record","入院记录");
@@ -72,14 +73,11 @@ public class TimerShaftSort {
         medicalCourse.put("transferred_in_records","转入记录");
         medicalCourse.put("transferred_out_records","转出记录");
 
-        medicalCourse.put("discharge_summary","出院小结");
+
         medicalCourse.put("death_discuss_record","死亡病例讨论记录");
         medicalCourse.put("death_record","死亡记录");
-        medicalCourse.put("death_summary","死亡小结");
         medicalCourse.put("difficulty_case_record","疑难病例讨论记录");
-        medicalCourse.put("handover_record","交接班记录");
         medicalCourse.put("rescue_record","抢救记录");
-        medicalCourse.put("stage_summary","阶段小结");
         medicalCourse.put("transferred_in_record","转入记录");
         medicalCourse.put("transferred_out_record","转出记录");
         medicalCourse.put("invasive_record","有创诊疗操作记录");
@@ -113,8 +111,8 @@ public class TimerShaftSort {
         operation.put("operation_pre_summary","术前小结");
         operation.put("operation_info","手术信息");
         operation.put("operation_records","手术记录");
-        operation.put("operation_record","术前讨论记录");
-        operation.put("operation_pre_conference_record","手术记录");
+        operation.put("operation_record","手术记录");
+        operation.put("operation_pre_conference_record","术前讨论记录");
         operation.put("forsz_study","放疗检查");
         operation.put("forsz_visit","放疗疗程");
     }
