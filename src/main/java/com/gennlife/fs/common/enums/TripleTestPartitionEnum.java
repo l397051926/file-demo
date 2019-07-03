@@ -26,7 +26,7 @@ public enum  TripleTestPartitionEnum {
             return FOUR;
         }else if(hour >= trans24hours(15,num) && hour < trans24hours(19,num) ){
             return FIVE;
-        }else if(hour >= trans24hours(19,num) && hour > trans24hours(22,num) ) {
+        }else if(hour >= trans24hours(19,num) && hour > trans24hours(23,num) ) {
             return SIX;
         }else {
             return null;

@@ -90,13 +90,13 @@ public class TripleTestTable {
         String secondTime = null;
         if(tripleList.size()>1){
             for (int i = 1; i < tripleList.size(); i++) {
-                secondTime = JsonAttrUtil.getStringValue("EXAM_TIME",triple_test_tables.get(i).getAsJsonObject());
+                secondTime = JsonAttrUtil.getStringValue("EXAM_TIME",tripleList.get(i).getAsJsonObject());
                 if(StringUtil.isNotEmptyStr(secondTime)){
                     break;
                 }
             }
         }else {
-            secondTime = JsonAttrUtil.getStringValue("EXAM_TIME",triple_test_tables.get(0).getAsJsonObject());
+            secondTime = JsonAttrUtil.getStringValue("EXAM_TIME",tripleList.get(0).getAsJsonObject());
         }
         for (JsonElement element : tripleList){
             try {
