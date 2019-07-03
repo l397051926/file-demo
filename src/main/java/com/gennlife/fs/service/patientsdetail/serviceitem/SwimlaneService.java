@@ -97,7 +97,10 @@ public class SwimlaneService {
         if(StringUtil.isEmptyStr(startTime)){
             return ResponseMsgFactory.buildFailStr("no admission_date");
         }
-        String endTime = DateUtil.getDateStr_ymd(JsonAttrUtil.getStringValue("DISCHARGE_DATE",diagnose));
+        String endTime = DateUtil.getDateStr_ymd(JsonAttrUtil.getStringValue("DISCHARGE_DATE",diagnose)) == null ?
+                            ""
+                            :
+                            DateUtil.getDateStr_ymd(JsonAttrUtil.getStringValue("DISCHARGE_DATE",diagnose));
         Map<String,JsonObject> timeLines = new TreeMap<String,JsonObject>(String::compareTo);
 
         getExamResult(timeLines,param);
