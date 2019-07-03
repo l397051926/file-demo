@@ -368,7 +368,7 @@ public class TimerShaftSort {
         if(StringUtil.isEmptyStr(time)){
             resultList.add(eleObj);
         }else {
-            int num = getSortListNum(sortList,time);
+            int num = getSortListNumDesc(sortList,time);
             if(num == sortList.size() && sortList.size() >= resultList.size() ){
                 sortList.add(time);
                 resultList.add(eleObj);

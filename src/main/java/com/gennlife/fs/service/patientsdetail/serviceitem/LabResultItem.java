@@ -1,5 +1,6 @@
 package com.gennlife.fs.service.patientsdetail.serviceitem;
 
+import com.gennlife.fs.common.comparator.JsonComparatorDESCByKey;
 import com.gennlife.fs.common.model.QueryParam;
 import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
@@ -472,7 +473,7 @@ public class LabResultItem extends PatientDetailService {
             SUB_INSPECTION_UNIT ="visits.inspection_report.sub_inspection.SUB_INSPECTION_UNIT";
             SUB_INSPECTION_REFERENCE_INTERVAL = "visits.inspection_report.sub_inspection.SUB_INSPECTION_REFERENCE_INTERVAL";
             REPORT_TIME = "visits.inspection_report.REPORT_DATE";
-            REPORT_TIME_KEY = "visits.inspection_report.REPORT_DATE";
+            REPORT_TIME_KEY = "REPORT_DATE";
             inspection_reports = "inspection_report";
         }else {
             INSPECTION_NAME = "visits.inspection_reports.INSPECTION_NAME";
