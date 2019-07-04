@@ -266,7 +266,7 @@ public class LabResultItem extends PatientDetailService {
 //        logger.debug("param " + param);
         String patient_sn = null;
         String visit_sn = null;
-        String item_name_cn = null;
+        JsonArray item_name_cn = null;
         String limit;
         int page = 0;
         int size = 10;
@@ -279,7 +279,7 @@ public class LabResultItem extends PatientDetailService {
             patient_sn = param_json.get("patient_sn").getAsString();
         }
         if (param_json.has("item_name_cn")) {
-            item_name_cn = param_json.get("item_name_cn").getAsString();
+            item_name_cn = param_json.get("item_name_cn").getAsJsonArray();
         }
         if (param_json.has("visit_sn")) {
             visit_sn = param_json.get("visit_sn").getAsString();
@@ -387,14 +387,14 @@ public class LabResultItem extends PatientDetailService {
         return ResponseMsgFactory.buildSuccessStr(result);
     }
 
-    private JsonArray inspectionReportsSort(JsonArray visit,String item_name_cn,String REPORT_TIME_KEY) {
+    private JsonArray inspectionReportsSort(JsonArray visit,JsonArray item_name_cn,String REPORT_TIME_KEY) {
         List<JsonObject> resultObj = new LinkedList<>();
         List<String> sortList = new LinkedList<>();
         for (JsonElement element : visit){
             JsonObject object = element.getAsJsonObject();
             String time = JsonAttrUtil.getStringValue(REPORT_TIME_KEY,object);
             String inspectionName = exchange(JsonAttrUtil.getStringValue("INSPECTION_NAME", object));
-            if(StringUtil.isNotEmptyStr(item_name_cn) && !item_name_cn.equals(inspectionName) ){
+            if( item_name_cn != null && item_name_cn.size()>0 && !item_name_cn.contains(JsonAttrUtil.toJsonElement(inspectionName)) ){
                 continue;
             }
             TimerShaftSort.getInstance().transforTimeByJsonObject(resultObj,sortList,object,time);
