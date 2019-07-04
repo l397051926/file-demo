@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.TreeSet;
 
+import static com.gennlife.fs.configurations.model.Model.emrModel;
+
 
 /**
  * Created by Administrator on 2016/7/19.
@@ -54,14 +56,18 @@ public class LabResultItemList extends PatientDetailService {
         if (StringUtils.isEmpty(patient_sn)) {
             return ResponseMsgFactory.buildFailStr(" empty patient_sn");
         }
-        QueryParam qp = new QueryParam(param_json, patient_sn, "inspection_reports");
+        String inspection_reports = "inspection_reports";
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
+            inspection_reports = "inspection_report";
+        }
+        QueryParam qp = new QueryParam(param_json, patient_sn, inspection_reports);
 //        qp.addsource("visits.inspection_reports.sub_inspection.SUB_INSPECTION_CN");
         qp.setQuery("[患者基本信息.患者编号] 包含 " + patient_sn);
         qp.setIndexName(BeansContextUtil.getUrlBean().getVisitIndexName());
         qp.setSize(1);
         JsonArray visits = new JsonArray();
         if (visit_sn == null) {
-            qp = new QueryParam(param_json, patient_sn, "visits.inspection_reports");
+            qp = new QueryParam(param_json, patient_sn, "visits."+inspection_reports);
             visits = filterPatientVisitsJsonArray(qp, param_json);
             if (visits == null) {
                 return ResponseMsgFactory.buildFailStr(" no visit");
@@ -77,8 +83,8 @@ public class LabResultItemList extends PatientDetailService {
         for (JsonElement one_visit : visits) {
             JsonObject one_visit_json = one_visit.getAsJsonObject();
             JsonArray all_reports = null;
-            if (one_visit_json.has("inspection_reports")) {
-                all_reports = one_visit_json.get("inspection_reports").getAsJsonArray();
+            if (one_visit_json.has(inspection_reports)) {
+                all_reports = one_visit_json.get(inspection_reports).getAsJsonArray();
             }
 
             if (all_reports != null) {
