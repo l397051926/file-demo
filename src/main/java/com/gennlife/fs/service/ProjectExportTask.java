@@ -138,7 +138,7 @@ public class ProjectExportTask implements Runnable {
             val partitioned = models
                 .values()
                 .stream()
-                .anyMatch(model -> paths
+                .anyMatch(model -> model.isPartitioned() && paths
                     .subSet(model.name())
                     .contains(model.partitionGroup(), true));
             val groupedPatients = JSON.parseObject(S(o.get(PATIENTS)))
