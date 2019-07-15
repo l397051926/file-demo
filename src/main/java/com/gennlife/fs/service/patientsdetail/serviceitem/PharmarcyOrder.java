@@ -104,7 +104,7 @@ public class PharmarcyOrder {
                     String long_once_flag = JsonAttrUtil.getStringValue(LONG_ONCE_FLAG,object);
                     isOrderType = orderType.contains(JsonAttrUtil.toJsonElement(long_once_flag));
                 }else {
-                    isOrderStatus = false;
+                    isOrderType = false;
                 }
             }
             if(StringUtil.isNotEmptyStr(orderStatus)){
