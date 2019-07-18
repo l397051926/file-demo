@@ -189,48 +189,50 @@ public class Model {
     }
 
     public static void generateCachesForAllModels() {
-        MODELS.values().forEach(model -> {
-            model._generateCaches();
-            LOGGER.info("已成功为模型「" + model + "」生成了缓存成员");
-        });
+        MODELS.values().forEach(Model::_generateCaches);
     }
 
     // requires (name, displayName, allFieldInfo)
     private void _generateCaches() {
-        _allPaths = new KeyPathSet(_allFieldInfo.keySet());
-        _projectExportFields = _allFieldInfo
-            .entrySet()
-            .stream()
-            .filter(e -> e.getValue().supportsProjectExport())
-            .sorted(comparingInt(e -> e.getValue().projectExport.index))
-            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-        _projectExportPaths = new KeyPathSet(_projectExportFields.keySet(), LinkedHashMap::new);
-        _projectExportSelectByDefaultFields = _projectExportFields
-            .entrySet()
-            .stream()
-            .filter(e -> e.getValue().projectExport.selectedByDefault)
-            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-        _projectExportMergedFields = _projectExportFields
-            .entrySet()
-            .stream()
-            .filter(e -> e.getValue().projectExport.mergeCells)
-            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
-        _pathDictionary = _allFieldInfo
-            .values()
-            .stream()
-            .flatMap(info -> {
-                val s = Stream.<Pair<KeyPath, KeyPath>>builder();
-                var a = info.path;
-                var b = info.displayPath;
-                while (!a.isEmpty()) {
-                    s.add(makePair(a, b));
-                    a = a.keyPathByRemovingLast();
-                    b = b.keyPathByRemovingLast();
-                }
-                return s.build();
-            })
-            .collect(toMap(Pair::key, Pair::value, (a, b) -> a));
-        _projectExportFrontEndObject = _toFrontEndObject(new KeyPath(), _projectExportPaths);
+        try {
+            _allPaths = new KeyPathSet(_allFieldInfo.keySet());
+            _projectExportFields = _allFieldInfo
+                .entrySet()
+                .stream()
+                .filter(e -> e.getValue().supportsProjectExport())
+                .sorted(comparingInt(e -> e.getValue().projectExport.index))
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+            _projectExportPaths = new KeyPathSet(_projectExportFields.keySet(), LinkedHashMap::new);
+            _projectExportSelectByDefaultFields = _projectExportFields
+                .entrySet()
+                .stream()
+                .filter(e -> e.getValue().projectExport.selectedByDefault)
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+            _projectExportMergedFields = _projectExportFields
+                .entrySet()
+                .stream()
+                .filter(e -> e.getValue().projectExport.mergeCells)
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+            _pathDictionary = _allFieldInfo
+                .values()
+                .stream()
+                .flatMap(info -> {
+                    val s = Stream.<Pair<KeyPath, KeyPath>>builder();
+                    var a = info.path;
+                    var b = info.displayPath;
+                    while (!a.isEmpty()) {
+                        s.add(makePair(a, b));
+                        a = a.keyPathByRemovingLast();
+                        b = b.keyPathByRemovingLast();
+                    }
+                    return s.build();
+                })
+                .collect(toMap(Pair::key, Pair::value, (a, b) -> a));
+            _projectExportFrontEndObject = _toFrontEndObject(new KeyPath(), _projectExportPaths);
+            LOGGER.info("已成功为模型「" + this + "」生成了缓存成员");
+        } catch (Exception e) {
+            LOGGER.error("在生成模型「" + this + "」的缓存成员时遇到错误：" + e.getLocalizedMessage(), e);
+        }
     }
 
     private JSONObject _toFrontEndObject(KeyPath path, KeyPathSet set) {
