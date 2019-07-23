@@ -202,6 +202,10 @@ public class TimerShaftSort {
         List<JsonObject> nameList = new ArrayList<>();
         List<String> sortList = new ArrayList<>();
         JsonObject allObj =  examObj.getAsJsonObject("exam_result");
+        String imagingExamDiagnosis = "other_imaging_exam_diagnosis_reports";
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
+            imagingExamDiagnosis = "imaging_exam_diagnosis_report";
+        }
         for (Map.Entry<String,JsonElement> entry : allObj.entrySet()){
             String key = entry.getKey();
             JsonArray value = entry.getValue().getAsJsonArray();
@@ -222,6 +226,13 @@ public class TimerShaftSort {
                     eleObj.addProperty("subConfigSchema",key+"_sub_item");
                     eleObj.remove("sub_item");
                     eleObj.add("subData",subData);
+                }
+                if(Objects.equals(imagingExamDiagnosis,key)){
+                    String imageSn = JsonAttrUtil.getStringValue("IMAGE_SN",eleObj);
+                    if(StringUtil.isNotEmptyStr(imageSn)){
+                        GeneralConfiguration configuration = ApplicationContextHelper.getBean(GeneralConfiguration.class);
+                        eleObj.addProperty("IMAGE_EXAM_URL",configuration.imageUrl.concat(imageSn));
+                    }
                 }
                 if(examResultName.containsKey(key)){
                     if(key.equals("other_imaging_exam_diagnosis_reports")){

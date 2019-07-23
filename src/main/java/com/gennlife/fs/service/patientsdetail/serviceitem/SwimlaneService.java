@@ -8,6 +8,7 @@ import com.gennlife.fs.common.response.ResponseInterface;
 import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.response.SortResponse;
 import com.gennlife.fs.common.utils.*;
+import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.service.patientsdetail.model.VisitSNResponse;
 import com.gennlife.fs.system.bean.BeansContextUtil;
 import com.gennlife.fs.system.config.GroupVisitSearch;
@@ -570,6 +571,10 @@ public class SwimlaneService {
             "other_imaging_exam_diagnosis_reports",
             "electrocardiogram_reports"
         };
+        String imagingExamDiagnosis = "other_imaging_exam_diagnosis_reports";
+        if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
+            imagingExamDiagnosis = "imaging_exam_diagnosis_report";
+        }
         if (emrModel().version().mainVersion().isHigherThanOrEqualTo(4)) {
             keys = new String[]{
                 "ultrasonic_diagnosis_report",//超声检查
@@ -607,6 +612,13 @@ public class SwimlaneService {
                         tmpObj.addProperty("subConfigSchema",key+"_sub_item");
                         tmpObj.remove("sub_item");
                         tmpObj.add("subData",subData);
+                    }
+                    if(Objects.equals(imagingExamDiagnosis,key)){
+                        String imageSn = JsonAttrUtil.getStringValue("IMAGE_SN",tmpObj);
+                        if(StringUtil.isNotEmptyStr(imageSn)){
+                            GeneralConfiguration configuration = ApplicationContextHelper.getBean(GeneralConfiguration.class);
+                            tmpObj.addProperty("IMAGE_EXAM_URL",configuration.imageUrl.concat(imageSn));
+                        }
                     }
                     tmpObj.addProperty("type",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(IMAGING_REPORTS).get("type").getAsString());
                     tmpObj.addProperty("unfold",SWIMLANCE_SHOW_CONFIG.getAsJsonObject(IMAGING_REPORTS).get("unfold").getAsBoolean());

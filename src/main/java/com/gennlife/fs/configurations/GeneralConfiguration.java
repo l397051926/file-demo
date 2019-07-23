@@ -140,6 +140,9 @@ public class GeneralConfiguration implements InitializingBean {
     @Value("${gennlife.empi.api.patient-info}")
     public String empiServicePatientInfoApi;
 
+    @Value("${gennlife.fs.image.url}")
+    public String imageUrl;
+
     @Autowired
     public void setEnvironment(Environment environment) throws IOException {
         val resolver = new RelaxedPropertyResolver(environment, "gennlife.fs.model.type.");
