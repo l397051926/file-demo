@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.gennlife.fs.configurations.model.Model.emrModel;
 
@@ -54,9 +55,11 @@ public class PatientBasicTimeAxis extends PatientDetailService {
         });
         JsonArray diagnose = get_visits(qp);
         Map<String,JsonObject> diagnoseMap =  new HashMap<>();
-        for (JsonElement element : diagnose){
-            JsonObject object = element.getAsJsonObject();
-            transForDiagnoseMap(diagnoseMap,object,"diagnose","visit_info");
+        if(Objects.nonNull(diagnose) && diagnose.size() > 0 ){
+            for (JsonElement element : diagnose){
+                JsonObject object = element.getAsJsonObject();
+                transForDiagnoseMap(diagnoseMap,object,"diagnose","visit_info");
+            }
         }
         String res = HttpRequestUtils.getStatistics(patient_sn,isDesc);
         JsonElement result = JsonAttrUtil.toJsonElement(res);
