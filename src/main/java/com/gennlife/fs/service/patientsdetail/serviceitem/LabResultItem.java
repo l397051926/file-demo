@@ -213,7 +213,7 @@ public class LabResultItem extends PatientDetailService {
 
                     if(StringUtil.isNotEmptyStr(result1) && StringUtil.isNotEmptyStr(number)){
                         if(equalsStringForNumber(number,result1)){
-                            continue;
+                            json.addProperty("SUB_INSPECTION_RESULT",number);
                         }else {
                             String tmp = result1+"；"+number;
                             json.addProperty("SUB_INSPECTION_RESULT",tmp);
