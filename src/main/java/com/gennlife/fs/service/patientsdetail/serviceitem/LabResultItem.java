@@ -5,7 +5,6 @@ import com.gennlife.fs.common.response.ResponseMsgFactory;
 import com.gennlife.fs.common.utils.JsonAttrUtil;
 import com.gennlife.fs.common.utils.StringUtil;
 import com.gennlife.fs.common.utils.TimerShaftSort;
-import com.gennlife.fs.configurations.GeneralConfiguration;
 import com.gennlife.fs.service.patientsdetail.base.PatientDetailService;
 import com.gennlife.fs.service.patientsdetail.model.TimeValueEntity;
 import com.gennlife.fs.system.bean.BeansContextUtil;
@@ -17,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
 import static com.gennlife.fs.configurations.model.Model.emrModel;
 import static com.gennlife.fs.service.patientsdetail.serviceitem.LabResultItemList.exchange;
 
@@ -43,7 +41,7 @@ public class LabResultItem extends PatientDetailService {
     private static final Logger logger = LoggerFactory.getLogger(LabResultItem.class);
 
     public String getLabResultItem(String param) {
-        logger.info("param " + param);
+//        logger.debug("param " + param);
         String patient_sn = null;
         String visit_sn = null;
         String item_name_cn = null;
@@ -150,7 +148,7 @@ public class LabResultItem extends PatientDetailService {
             visits.add(visit);
         }
         for (JsonElement one_visit : visits) {
-            logger.debug("getLabResultItem(): one visit ...");
+//            logger.debug("getLabResultItem(): one visit ...");
             JsonObject one_visit_json = one_visit.getAsJsonObject();
             JsonArray all_reports = null;
             if (one_visit_json.has(inspection_reports)) {
@@ -272,7 +270,7 @@ public class LabResultItem extends PatientDetailService {
      * @return
      */
     public String getLabResul(String param) {
-        logger.info("param " + param);
+//        logger.debug("param " + param);
         String patient_sn = null;
         String visit_sn = null;
         String item_name_cn = null;
@@ -410,7 +408,7 @@ public class LabResultItem extends PatientDetailService {
     }
 
     public String getNewLabResultItem(String param) {
-        logger.info("param " + param);
+//        logger.debug("param " + param);
         String patient_sn = null;
         String visit_sn = null;
         String item_name_cn = null;
@@ -524,7 +522,7 @@ public class LabResultItem extends PatientDetailService {
         }
 
         for (JsonElement one_visit : visits) {
-            logger.debug("getLabResultItem(): one visit ...");
+//            logger.debug("getLabResultItem(): one visit ...");
             JsonObject one_visit_json = one_visit.getAsJsonObject();
             JsonArray all_reports = null;
             if (one_visit_json.has(inspection_reports)) {
@@ -623,7 +621,7 @@ public class LabResultItem extends PatientDetailService {
     }
 
     public String getNewQuotaReports(String param){
-        logger.info("param " + param);
+//        logger.debug("param " + param);
         String patient_sn = null;
         String sub_inspection_cn = null;
         String specimen_name = null;

@@ -347,9 +347,27 @@
             </properties>
         </profile>
         <profile>
+            <id>湖北省人民医院</id>
+            <properties>
+                <package.id>湖北省人民医院</package.id>
+            </properties>
+        </profile>
+        <profile>
+            <id>湖北省人民医院_test</id>
+            <properties>
+                <package.id>湖北省人民医院_test</package.id>
+            </properties>
+        </profile>
+        <profile>
             <id>西安交通大学第一附属医院</id>
             <properties>
                 <package.id>西安交通大学第一附属医院</package.id>
+            </properties>
+        </profile>
+        <profile>
+            <id>西安交通大学第一附属医院_test</id>
+            <properties>
+                <package.id>西安交通大学第一附属医院_test</package.id>
             </properties>
         </profile>
         <profile>

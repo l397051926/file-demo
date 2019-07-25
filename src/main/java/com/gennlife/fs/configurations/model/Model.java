@@ -191,7 +191,7 @@ public class Model {
     public static void generateCachesForAllModels() {
         MODELS.values().forEach(model -> {
             model._generateCaches();
-            LOGGER.info("已成功为模型 " + model + " 生成了缓存成员");
+            LOGGER.info("已成功为模型「" + model + "」生成了缓存成员");
         });
     }
 

@@ -10,12 +10,9 @@ import com.google.gson.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.crypto.Data;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static com.gennlife.fs.configurations.model.Model.emrModel;
 
 /**
  * 患者基本信息
@@ -121,7 +118,7 @@ public class PatientInfo extends PatientDetailService {
         queryParam.setIndexName(BeansContextUtil.getUrlBean().getSearchIndexName());
         queryParam.setHospitalID("public");
         queryParam.addsource("specimen_info");
-        logger.info("empi查询条件：" + JsonAttrUtil.toJsonObject(queryParam).toString());
+//        logger.debug("empi查询条件：" + JsonAttrUtil.toJsonObject(queryParam).toString());
         JsonElement element = HttpRequestUtils.httpJsonPost(BeansContextUtil.getUrlBean().getSearch_service_uri(), JsonAttrUtil.toJsonObject(queryParam).toString());
         JsonArray sampleInfo = new JsonArray();
         JsonObject result = new JsonObject();

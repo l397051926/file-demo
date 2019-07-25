@@ -89,7 +89,7 @@ public class VisitSNResponse extends PatientDetailService implements ResponseInt
             }
 
         }
-        logger.info("param => " + param_json);
+//        logger.debug("param => " + param_json);
         String patient_sn = null;
         String visit_sn = null;
         try {

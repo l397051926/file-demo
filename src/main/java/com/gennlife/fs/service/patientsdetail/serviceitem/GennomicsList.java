@@ -24,7 +24,7 @@ public class GennomicsList {
     private static final Logger logger = LoggerFactory.getLogger(GennomicsList.class);
 
     public String getGennomicsList(String param) {
-        logger.info("param " + param);
+//        logger.debug("param " + param);
         String patientSn = null;
         int size = 0;
         int page = 0;
