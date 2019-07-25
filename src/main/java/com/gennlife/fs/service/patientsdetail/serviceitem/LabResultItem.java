@@ -15,10 +15,7 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 
 import static com.gennlife.fs.common.utils.ApplicationContextHelper.getBean;
 import static com.gennlife.fs.configurations.model.Model.emrModel;
@@ -217,7 +214,7 @@ public class LabResultItem extends PatientDetailService {
                     String result1 = JsonAttrUtil.getStringValue("SUB_INSPECTION_RESULT", json);
 
                     if(StringUtil.isNotEmptyStr(result1) && StringUtil.isNotEmptyStr(number)){
-                        if(subZeroAndDot(result1).equals(subZeroAndDot(number))){
+                        if(equalsStringForNumber(number,result1)){
                             continue;
                         }else {
                             String tmp = result1+"；"+number;
@@ -244,6 +241,14 @@ public class LabResultItem extends PatientDetailService {
         result.addProperty("limit", "" + page + "," + size);
         result.addProperty("total", data_array.size());
         return ResponseMsgFactory.buildSuccessStr(result);
+    }
+
+    public Boolean equalsStringForNumber(String a, String b){
+        try {
+            return Objects.equals(Double.valueOf(a),Double.valueOf(b));
+        }catch (NumberFormatException e){
+            return Objects.equals(a,b);
+        }
     }
 
     public static String subZeroAndDot(String s){
